@@ -1,4 +1,4 @@
-import {SPEAKERS,conversationNode} from './conversation-model.mjs?v=garden21';
+import {SPEAKERS,conversationNode} from './conversation-model.mjs?v=dragon22';
 const $=id=>document.getElementById(id),dialog=$('conversation-dialog'),choices=$('conversation-choices'),KEY='elyndra-conversations-v1';let nearby=[],speaker=null,prior=null,met={};
 try{const saved=JSON.parse(localStorage.getItem(KEY)||'{}');for(let key of Object.keys(SPEAKERS))met[key]=saved?.[key]===true;}catch{}
 function remember(){met[speaker]=true;try{localStorage.setItem(KEY,JSON.stringify(met));}catch{}}

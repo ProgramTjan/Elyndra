@@ -43,6 +43,12 @@ Na het sterrengewelf en de komst van de draak kijkt het beekwezen naar je om. Ko
 
 Je kunt de tuin ook zelf ontdekken. Je apparaat onthoudt de ontdekking; daarna verschijnt **De slapende tuin** bij **Ontdek plekken**. Wanneer browseropslag niet beschikbaar is, blijft de ervaring tijdens het bezoek werken.
 
+## Het woud herkent je
+
+Na je ontdekking van de tuin komt de draak landen op de open plek. Zijn vleugels vouwen zich en zijn kop volgt je. Blijf rustig op enkele meters voor hem staan: hij buigt naar je toe. Rennen of te dichtbij komen laat hem weer ruimte nemen. Je kunt vrij blijven kijken en bewegen.
+
+De draak en de lichtdrager herkennen een volgend bezoek op hetzelfde apparaat. De lichtdrager begroet je en zwemt even mee voordat hij zijn eigen ritme hervat. Zonder browseropslag blijven de ontmoetingen gewoon werken tijdens je bezoek.
+
 ## Herkomst
 
 Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. Deze repository is een kopie van die bronbestanden; wijzigingen worden niet automatisch met de bestaande website gesynchroniseerd.

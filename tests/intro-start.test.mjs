@@ -41,3 +41,9 @@ assert.equal($('garden-view').hidden,false,'Arriving by foot reveals the secret 
 $('garden-view').onclick();frame(time+=50);
 assert(Math.hypot(eye[0]+9,eye[2]+46)<12,'Unlocked return travel arrives in the garden');
 console.log('Garden: normal walking, discovery, flower render and unlocked return travel passed.');
+
+// Continue the same visit until the dragon lands; camera remains under user control.
+for(let i=0;i<480;i++)frame(time+=50);
+assert.equal($('brook-title').textContent,'Hij blijft','The garden leads to a landed dragon');
+assert(Math.hypot(eye[0]+4,eye[2]+37)<.1,'The landing must not move the visitor');
+console.log('Dragon landing integration and visitor camera control passed.');

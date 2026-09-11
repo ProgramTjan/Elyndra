@@ -1,4 +1,4 @@
-import {BROOK,ease,guidePosition} from './brook-wonder.mjs?v=garden21';
+import {BROOK,ease,guidePosition} from './brook-wonder.mjs?v=dragon22';
 
 export const GARDEN=Object.freeze({x:-9,z:-46});
 const distance=(a,b)=>Math.hypot(a[0]-b[0],a[2]-b[2]);
@@ -13,7 +13,7 @@ export class ForestCompanion {
   constructor(ground,remembered=false){
     this.ground=ground;this.phase='resting';this.progress=0;this.timer=0;this.away=0;
     this.position=guidePosition(0,0,true);this.heading=0;this.bloom=remembered?1:0;
-    this.discovered=remembered;this.gardenAge=remembered?20:0;this.wake=false;
+    this.afterGreeting=false;this.greetReady=remembered;this.visitAway=0;this.discovered=remembered;this.gardenAge=remembered?20:0;this.wake=false;
   }
   height(x,z){return Math.max(BROOK.water+.12,this.ground(x,z)+.06);}
   restart(){this.phase='resting';this.progress=0;this.timer=0;this.away=0;}
@@ -23,10 +23,17 @@ export class ForestCompanion {
     const gardenDistance=Math.hypot(viewer[0]-GARDEN.x,viewer[2]-GARDEN.z);
     const inGarden=gardenDistance<12 && Math.abs(viewer[1]-this.ground(viewer[0],viewer[2]))<9;
     const near=distance(viewer,this.position)<18 && Math.abs(viewer[1]-this.position[1])<9;
-    this.away=near?0:this.away+dt;
+    this.away=near?0:this.away+dt;this.visitAway=near?0:this.visitAway+dt;if(this.discovered&&this.visitAway>20)this.greetReady=true;
     if(this.phase==='resting'){
       this.moveToward(guidePosition(wonder.time,wonder.bloom,reduced),dt,.9);
-      if(wonder.age>36&&near){this.phase='inviting';this.timer=0;}
+      if(this.greetReady&&near){this.phase='greeting';this.timer=0;this.greetReady=false;}
+      else if(wonder.age>36&&near){this.phase='inviting';this.timer=0;}
+    }else if(this.phase==='greeting'||this.phase==='accompanying'){
+      this.timer+=dt;
+      const d=distance(viewer,this.position);
+      if(d>3.5&&near){const ratio=(d-3.5)/d;this.moveToward([this.position[0]+(viewer[0]-this.position[0])*ratio,0,this.position[2]+(viewer[2]-this.position[2])*ratio],dt,1.25);}
+      if(this.phase==='greeting'&&this.timer>6)this.phase='accompanying';
+      if(this.timer>18||!near){this.phase='returning';this.afterGreeting=true;this.timer=0;}
     }else if(this.phase==='inviting'){
       // A clear invitation with no countdown: moving closer accepts it.
       this.timer+=dt;
@@ -46,12 +53,12 @@ export class ForestCompanion {
       this.moveToward(p,dt,.6);
     }
     // If the visitor leaves, swim home along the same path. Never teleport away.
-    if(this.away>28&&this.phase!=='resting'&&this.phase!=='returning')this.phase='returning';
+    if(this.away>28&&this.phase!=='resting'&&this.phase!=='returning'){this.phase='returning';this.afterGreeting=false;}
     if(this.phase==='returning'){
       this.progress=Math.max(0,this.progress-dt/30);
       const p=pointAt(this.progress);p[1]=this.height(p[0],p[2]);this.moveToward(p,dt,1.8);
-      if(this.progress===0&&distance(this.position,p)<.3){this.phase='resting';this.away=0;}
-      if(near&&distance(viewer,this.position)<7){this.phase='leading';this.away=0;}
+      if(this.progress===0&&distance(this.position,p)<.3){this.phase='resting';this.away=0;this.afterGreeting=false;}
+      if(this.phase==='returning'&&near&&distance(viewer,this.position)<7&&!this.afterGreeting){if(this.greetReady){this.phase='greeting';this.timer=0;this.greetReady=false;}else this.phase='leading';this.away=0;}
     }
     // The garden can also be found independently; altitude alone cannot unlock it.
     if(inGarden){
