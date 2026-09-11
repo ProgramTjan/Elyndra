@@ -1,0 +1,35 @@
+export const SPEAKERS={keeper:{name:'De moswachter',tag:'Onder de jonge boom'},deer:{name:'Het witte hert',tag:'Een rustig ogenblik'},squirrel:{name:'De eekhoorn',tag:'Vanaf de hand van de moswachter'}};
+export function conversationNode(who,node,context={}){
+ const solved=!!context.solved,all=!!context.all,met=!!context.met;
+ const trees={
+ keeper:{
+ start:{text:solved?(all?'Hoor je het? Vier hartslagen. Voor het eerst in lange tijd klinkt het woud weer als één geheel. Mijn boompje heeft vannacht een nieuw blad gemaakt.':'Daar ben je weer. Sinds jij het ritme herstelde, herken ik iets in het ruisen van de bladeren. Het klinkt… als een groet.'):met?'Je bent terug. Dat vind ik prettig. Het boompje ook, denk ik. Het heeft niets gezegd, maar kijk hoe recht het staat.':'Dag, reiziger. Voorzichtig met die kleine varen bij je voet. Hij heeft de hele ochtend aan dat nieuwe blad gewerkt.',choices:[['Wat bescherm je daar?','tree'],[solved?'Wat herinner je je nu?':'Wie heeft je gebouwd?','memory'],['Mag ik even bij je blijven?','sit']]},
+ tree:{text:'Een boom. Nog een heel kleine. Mijn handen zijn gemaakt om zware dingen vast te houden. Het duurde lang voordat ik begreep dat ik ze ook voorzichtig kon gebruiken.',choices:[['Waarom is juist dit boompje zo belangrijk?','promise'],['Hij lijkt zich hier thuis te voelen.','home']]},
+ promise:{text:'Iemand legde ooit een zaadje in mijn hand en zei: “Bewaar iets dat nog kan groeien.” De stem ben ik kwijt. De belofte niet.',choices:[['Misschien komt die herinnering terug.','memory'],['Dan houden we samen een oogje op hem.','together']]},
+ home:{text:'Ja. Hij heeft licht, water en een eekhoorn die ongevraagd tuinadvies geeft. Wat heeft een boom nog meer nodig?',choices:[['Ik blijf nog even.','sit'],['Tot later, moswachter.','end']]},
+ memory:{text:solved?'Een hand, veel kleiner dan de mijne. Een lach. En andere stemmen, ver weg tussen de bomen. Ik denk dat de vier hartslagen ons ooit hielpen elkaar te verstaan.':'Mijn eerste herinnering is lawaai. Daarna een lange stilte. Vier hartslagen verbonden vroeger de oude systemen van het woud. Het ritme in mijn borst is er één van, maar ik ben het kwijt.',choices:solved?[['Misschien vinden we de andere stemmen terug.','together'],['Vertel nog eens over het zaadje.','promise']]:[['Zal ik helpen het ritme terug te vinden?','help'],['Je hoeft het niet allemaal nu te weten.','sit']]},
+ help:{text:'Graag. Mijn lichten kennen nog een stukje van het ritme. Kijk rustig, luister met je ogen en geef het terug. Daarna kunnen we samen horen wat er veranderd is.',choices:[['Ik probeer je lichtritme te herstellen.','puzzle'],['Straks. Eerst even samen zitten.','sit']]},
+ sit:{text:'Natuurlijk. We hoeven niets op te lossen terwijl we hier zijn. Soms is blijven al een heel vriendelijke daad.\n\nDe moswachter wacht. Hoog boven je ritselt één jong blad.',choices:[['Dit is een fijne plek.','peace'],['Ik ga weer een stukje dwalen.','end']]},
+ peace:{text:'Dan bewaren we dit ogenblik. Niet in een machine. Gewoon… hier.',choices:[['Tot de volgende keer.','end']]},
+ together:{text:'Samen. Ja, dat woord herken ik nog. Ga maar op ontdekking. Ik zorg dat er hier iets groens op je wacht.',choices:[['Tot snel.','end']]}
+ },
+ deer:{
+ start:{text:met?'Daar ben je weer. Ik heb de schaduw een stukje gevolgd. Hij wist een heerlijk plekje.':'Goedemorgen. Of middag. Ik houd de tijd bij in zonnige plekjes, dus het blijft een beetje gokken.',choices:[['Wat doe je vandaag?','day'],['Heb je een tip voor mij?','tip'],['Zullen we even niets doen?','rest']]},
+ day:{text:'Een beetje wandelen. Een beetje luisteren. Misschien straks hetzelfde, maar dan onder een andere boom. Een uitstekend volle dag.',choices:[['Dat klinkt als een goed plan.','rest'],['Wat hoor je in het woud?','hear']]},
+ tip:{text:'Je hoeft niet ieder pad af te lopen om ergens aan te komen. Soms ligt het mooiste vlak naast je hoef. Of voet. Dat is bij jou anders geregeld.',choices:[['Ik zal beter kijken.','rest'],['Tot later, wijze wandelaar.','end']]},
+ hear:{text:context.roots?'De grote boom klinkt vandaag minder alleen. Jij bent daar geweest, hè? Ik dacht al dat de bladeren iets vrolijker ruisten.':'De wind, een vogel, en een eekhoorn met heel veel plannen. Twee van die drie raad ik aan om rustig naar te luisteren.',choices:[['Waar vind ik die eekhoorn?','friend'],['Ik luister even met je mee.','rest']]},
+ friend:{text:'Bij de moswachter. Hij heeft daar een hand als uitkijkplek. Volgens hem is het een zeer exclusief boomhuis.',choices:[['Daar ga ik eens kijken.','end']]},
+ rest:{text:'Graag. Ik ben daar behoorlijk goed in.\n\nHet hert laat zijn oren ontspannen. Er hoeft even helemaal niets.',choices:[['Dank je voor de fijne pauze.','end']]}
+ },
+ squirrel:{
+ start:{text:met?'Ah, mijn favoriete bezoeker zonder staart! Ik heb nieuws. De noot ligt ergens anders dan ik dacht. Dat biedt mogelijkheden.':'Welkom op mijn uitkijkplek! De moswachter noemt dit zijn hand. We hebben allebei een beetje gelijk.',choices:[['Heb je het hier naar je zin?','home'],['Wat ben je aan het doen?','nut'],['Vertel eens iets vrolijks.','happy']]},
+ home:{text:'Zon op mijn oren, een boom naast mijn bed en een huisbaas die nooit haast heeft. Alleen de lift is nogal langzaam.',choices:[['Jullie passen goed bij elkaar.','keeper'],['En die noot van je?','nut']]},
+ nut:{text:'Ik zoek een noot die ik heel slim verstopt heb. Zo slim dat ik mezelf heb verrast. Als ik hem niet vind, wordt het misschien een boom. Ook goed.',choices:[['Dat klinkt als tuinieren met een omweg.','garden'],['Ik duim voor je.','happy']]},
+ garden:{text:'Precies! Eindelijk iemand die mijn werkwijze begrijpt. Ik noem het: eerst een tussendoortje, later een bos.',choices:[['Ga vooral zo door.','end'],['Wat vindt de moswachter ervan?','keeper']]},
+ keeper:{text:solved?'Hij bromt weer een deuntje sinds jij hem geholpen hebt. Niet helemaal zuiver. Wel heel gezellig.':'Hij vraagt iedere ochtend of ik goed geslapen heb. Ik zeg altijd ja. Zelfs als ik de halve nacht over hazelnoten heb nagedacht.',choices:[['Doe hem de groeten van mij.','end'],['Nog iets vrolijks?','happy']]},
+ happy:{text:'Er zit een nieuw blad aan het boompje. Niemand heeft eraan getrokken. Het is helemaal zelf gekomen! Ik vind dat knap.\n\nDe eekhoorn knikt tevreden.',choices:[['Ik ook. Tot snel!','end']]}
+ }
+ };
+ return trees[who]?.[node];
+}
+export function nearbySpeakers(position,deer,base){const distance=p=>Math.hypot(...p.map((v,i)=>v-position[i]));return [{id:'keeper',p:[86,base+6,36],r:22},{id:'squirrel',p:[96,base+16,43],r:20},{id:'deer',p:[deer[0],deer[1]+1.8,deer[2]],r:8}].filter(x=>distance(x.p)<x.r).sort((a,b)=>distance(a.p)-distance(b.p)).map(x=>x.id);}
