@@ -31,6 +31,12 @@ node --test tests/*.test.mjs
 - `docs/art-direction.md`: visuele ontwerpkeuzes.
 - `.openai/hosting.json`: configuratie van de bestaande ChatGPT Site.
 
+## De adem van Elyndra
+
+Kies **Ontdek plekken → De adem van Elyndra · aan de beek**. Blijf ongeveer zes seconden rustig staan bij de lichtjes. Rondkijken mag: boven de beek vormt zich langzaam een sterrengewelf. Even later maakt de draak een omweg over de wortelbogen. Geluid zet je zelf aan. Met minder beweging blijven de lichtjes op hun plek en verschijnt het gewelf door geleidelijk oplichten.
+
+De ervaring werkt ook als je de beek vanuit de wereld te voet bereikt.
+
 ## Herkomst
 
 Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. Deze repository is een kopie van die bronbestanden; wijzigingen worden niet automatisch met de bestaande website gesynchroniseerd.

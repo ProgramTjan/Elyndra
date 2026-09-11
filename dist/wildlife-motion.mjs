@@ -1,4 +1,4 @@
-import {IDENTITY,multiply} from './deer-motion.mjs?v=water19';
+import {IDENTITY,multiply} from './deer-motion.mjs?v=breath20';
 export function translate(x,y,z){const m=[...IDENTITY];m[12]=x;m[13]=y;m[14]=z;return m;}
 export function rotate(a,axis='y'){let c=Math.cos(a),s=Math.sin(a);return axis==='x'?[1,0,0,0,0,c,s,0,0,-s,c,0,0,0,0,1]:axis==='z'?[c,s,0,0,-s,c,0,0,0,0,1,0,0,0,0,1]:[c,0,-s,0,0,1,0,0,s,0,c,0,0,0,0,1];}
 export function joint(parent,position,angle=0,axis='y'){return multiply(parent,multiply(translate(...position),rotate(angle,axis)));}
@@ -14,9 +14,9 @@ export class BrookMotion{
  }
 }
 const smooth=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
-export function dragonPose(time,reduced=false){const t=reduced?0:time,angle=t*.035,cycle=t%12,flapping=reduced?0:smooth(cycle/.8)*(1-smooth((cycle-4.2)/1.3));const stroke=Math.sin(t*2.4),wing=.10+flapping*(stroke*.50-.08),flex=flapping*Math.sin(t*2.4-.65)*.21;
+export function dragonPose(time,reduced=false,flight=null){const t=reduced?0:time,angle=t*.035,cycle=t%12,flapping=reduced?0:smooth(cycle/.8)*(1-smooth((cycle-4.2)/1.3));const stroke=Math.sin(t*2.4),wing=.10+flapping*(stroke*.50-.08),flex=flapping*Math.sin(t*2.4-.65)*.21;
  // Clear the tallest garden crowns, while keeping the established circular route.
- const position=[-96+Math.cos(angle)*34,80+Math.sin(t*.18)*2,-180+Math.sin(angle)*34],heading=Math.PI-angle,root=joint(joint(IDENTITY,position,heading),[0,0,0],reduced?0:-.10,'z'),body=joint(root,[0,0,0],reduced?0:Math.cos(t*.18)*.10,'x');
+ const position=flight?.position??[-96+Math.cos(angle)*34,80+Math.sin(t*.18)*2,-180+Math.sin(angle)*34],heading=flight?.heading??Math.PI-angle,root=joint(joint(IDENTITY,position,heading),[0,0,0],reduced?0:-.10,'z'),body=joint(root,[0,0,0],reduced?0:Math.cos(t*.18)*.10,'x');
  let bones=[body,joint(body,[0,.10,-1.25],reduced?0:Math.sin(t*.32)*.06),null];bones[2]=joint(bones[1],[0,.28,-1.50],reduced?0:Math.sin(t*.4)*.035,'x');
  for(let side of[-1,1]){let shoulder=joint(body,[side*.48,.20,-.70],side*wing,'z');bones.push(shoulder,joint(shoulder,[side*2.4,.05,.35],side*flex,'z'));}
  let tail=joint(body,[0,-.05,1.30],reduced?0:Math.sin(t*.65)*.10);bones.push(tail);tail=joint(tail,[0,-.06,1.25],reduced?0:Math.sin(t*.65-.7)*.13);bones.push(tail);

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';import fs from 'node:fs';
-const uniformNames=new Set([...fs.readFileSync(new URL('../dist/world.js',import.meta.url),'utf8').matchAll(/uniform\s+\w+\s+(\w+)/g)].map(m=>m[1]));
+const uniformNames=new Set([...(fs.readFileSync(new URL('../dist/world.js',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/brook-wonder.mjs',import.meta.url),'utf8')).matchAll(/uniform\s+\w+\s+(\w+)/g)].map(m=>m[1]));
 let raf;const nodes=new Map(),events=new Map();let eye,viewYaw,viewPitch;
 const gl=new Proxy({FRAMEBUFFER_COMPLETE:1,checkFramebufferStatus:()=>1,getShaderParameter:()=>true,getProgramParameter:()=>true,createShader:()=>({}),createProgram:()=>({}),createVertexArray:()=>({}),createBuffer:()=>({}),bufferData:(target,data)=>{assert(data.every(Number.isFinite),'Uploaded geometry must be finite')},createTexture:()=>({}),createFramebuffer:()=>({}),getUniformLocation:(p,n)=>{assert(uniformNames.has(n.split('[')[0]),'Shader uniform exists: '+n);return n},uniform1f:(u,v)=>{if(u==='yaw')viewYaw=v;if(u==='pitch')viewPitch=v},uniformMatrix4fv:(u,t,v)=>{assert(Array.from(v).every(Number.isFinite),'Shader matrices must be finite')},uniform3fv:(u,v)=>{if(u==='eye')eye=[...v]}},{get:(o,k)=>o[k]??(()=>{})});
 function element(){const handlers={};return{style:{},children:[],hidden:false,open:false,classList:{add(){},remove(){}},textContent:'',innerHTML:'',getContext:()=>gl,appendChild(e){this.children.push(e)},addEventListener(k,f){(handlers[k]??=[]).push(f)},emit(k,e){for(const f of handlers[k]??[])f(e)},focus(){},showModal(){this.open=true},close(){this.open=false;for(let f of handlers.close??[])f()},setAttribute(){},setPointerCapture(){}}}
@@ -17,3 +17,11 @@ console.log('Passed: explicit watch/replay with reduced motion, 22-second comple
 const audioGains=[];function audioParam(){return{value:0,setTargetAtTime(v){assert(Number.isFinite(v));this.value=v},setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){}}}function audioNode(){return{connect(){},start(){},stop(){},frequency:audioParam(),Q:audioParam()}}
 globalThis.AudioContext=class{constructor(){this.currentTime=1;this.sampleRate=100;this.destination={}}resume(){}createGain(){let n={...audioNode(),gain:audioParam()};audioGains.push(n);return n}createOscillator(){return audioNode()}createBuffer(ch,n){return{getChannelData:()=>new Float32Array(n)}}createBufferSource(){return audioNode()}createBiquadFilter(){return audioNode()}};
 $('onboarding-free').onclick();$('sound').onclick();$('cathedral-view').onclick();frame(time+=50);const nearGain=audioGains[1].gain.value;assert(nearGain>0,'Local tone is audible near cathedral');$('destinations').children[2].onclick();frame(time+=50);assert.equal(audioGains[1].gain.value,0,'Local tone fades away from cathedral');$('sound').onclick();assert.equal(audioGains[0].gain.value,0,'Sound toggle silences all layers');console.log('Passed: optional audio, proximity falloff and mute.');
+
+// The new travel destination opens a walkable listening spot, with finite frames.
+$('brook-view').onclick();frame(time+=50);assert.equal($('fly').textContent,'Vliegen');
+assert(Math.hypot(eye[0]-13.467,eye[2]+8)<17,'Arrival must be inside the listening radius');
+for(let i=0;i<460;i++)frame(time+=50);
+assert.equal($('brook-title').textContent,'Een hemel onder de wortels','Stillness reveals the constellation');
+assert.equal($('brook-caption').hidden,false);
+console.log('Brook arrival, encounter integration and reduced-motion constellation passed.');
