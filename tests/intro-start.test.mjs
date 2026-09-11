@@ -25,3 +25,19 @@ for(let i=0;i<460;i++)frame(time+=50);
 assert.equal($('brook-title').textContent,'Een hemel onder de wortels','Stillness reveals the constellation');
 assert.equal($('brook-caption').hidden,false);
 console.log('Brook arrival, encounter integration and reduced-motion constellation passed.');
+// Walk to the hidden garden through the normal controls; discovering it unlocks return travel.
+assert.equal($('garden-view').hidden,true,'Secret destination starts undiscovered');
+for(let i=0;i<180 && Math.hypot(eye[0]+9,eye[2]+46)>1;i++){
+ const desired=Math.atan2(-9-eye[0],-(-46-eye[2]));
+ const turn=Math.atan2(Math.sin(desired-viewYaw),Math.cos(desired-viewYaw));
+ canvas.emit('pointerdown',{pointerId:7,pointerType:'touch',clientX:100,clientY:100});
+ canvas.emit('pointermove',{pointerId:7,pointerType:'touch',clientX:100+turn/.004,clientY:100});
+ canvas.emit('pointerup',{});
+ dispatchEvent({type:'keydown',code:'KeyW',repeat:false,preventDefault(){}});frame(time+=50);
+}
+dispatchEvent({type:'keyup',code:'KeyW'});
+for(let i=0;i<320;i++)frame(time+=50);
+assert.equal($('garden-view').hidden,false,'Arriving by foot reveals the secret destination');
+$('garden-view').onclick();frame(time+=50);
+assert(Math.hypot(eye[0]+9,eye[2]+46)<12,'Unlocked return travel arrives in the garden');
+console.log('Garden: normal walking, discovery, flower render and unlocked return travel passed.');

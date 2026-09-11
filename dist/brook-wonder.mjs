@@ -75,13 +75,14 @@ export function createBrookAtmosphere(gl, compileProgram, compact=false){
   color=vec4(glow.rgb*(halo*.38+core*.95),1.);}`;
   const program=compileProgram(vertex,fragment),vao=gl.createVertexArray(),buffer=gl.createBuffer();
   const vp=gl.getUniformLocation(program,'vp'),pixels=gl.getUniformLocation(program,'pixels');
-  const count=compact?100:180, data=new Float32Array((count+35)*7);
+  const count=compact?100:180, data=new Float32Array((count+140)*7);
   gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
   gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);
   gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,3,gl.FLOAT,false,28,0);
   gl.enableVertexAttribArray(1);gl.vertexAttribPointer(1,4,gl.FLOAT,false,28,12);
   return function render(matrix,state,night,reduced,height){
-    if(state.near<.001)return;
+    const companion=state.companion;
+    if(Math.max(state.near,companion?.near??0,companion?.gardenNear??0)<.001)return;
     let used=0;
     function point(p,r,g,b,size){data.set([...p,r,g,b,size],used*7);used++;}
     const t=reduced?0:state.time;
@@ -99,8 +100,22 @@ export function createBrookAtmosphere(gl, compileProgram, compact=false){
       const f=state.near*(.2+.5*state.bloom)*(reduced?.7:.5+.5*Math.sin(i*.6-t));
       point(p,.15*f,.65*f,.70*f,.22);
     }
-    const guide=guidePosition(state.time,state.bloom,reduced);
-    point([guide[0],guide[1]+.85,guide[2]-.8],.85*state.near,.74*state.near,.31*state.near,.34);
+    const guide=companion?.position??guidePosition(state.time,state.bloom,reduced),guideNear=companion?.near??state.near;
+    const heading=state.guideHeading??0;
+    point([guide[0]-Math.sin(heading)*.85,guide[1]+.75,guide[2]-Math.cos(heading)*.85],.95*guideNear,.75*guideNear,.26*guideNear,.48);
+    if(companion){
+      const garden=state.garden,near=companion.gardenNear,bloom=companion.bloom;
+      for(const flower of state.flowers){
+        const open=companion.discovered?ease((companion.gardenAge-flower.delay)/8):0;
+        point([flower.x,flower.y+.88,flower.z],near*(.08+open*.7),near*(.12+open*.8),near*(.08+open*.36),.32+open*.18);
+      }
+      for(let i=0;i<45;i++){
+        const a=i*2.399+t*.05,r=2+(i%11)*.72;
+        const p=[garden.x+Math.cos(a)*r,2+(i%7)*.55+Math.sin(t*.25+i)*.15,garden.z+Math.sin(a)*r];
+        point(p,.30*near*bloom,.66*near*bloom,.50*near*bloom,.20+(i%3)*.04);
+      }
+      for(const p of state.trail??[])point(p,.53*guideNear,.62*guideNear,.27*guideNear,.22);
+    }
     gl.useProgram(program);gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
     gl.bufferSubData(gl.ARRAY_BUFFER,0,data.subarray(0,used*7));
     gl.uniformMatrix4fv(vp,false,matrix);gl.uniform1f(pixels,height);

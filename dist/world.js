@@ -1,9 +1,10 @@
-import {BROOK,BrookWonder,guidePosition,visitingFlight,createBrookAtmosphere} from './brook-wonder.mjs?v=breath20';
-import {nearbySpeakers} from './conversation-model.mjs?v=breath20';
-import {BrookMotion,dragonPose,packBones} from './wildlife-motion.mjs?v=breath20';
-import {DeerMotion} from './deer-motion.mjs?v=breath20';
-import {keeperPose} from './keeper-motion.mjs?v=breath20';
-import {INTRO_SHOTS,INTRO_DURATION,introFrame} from './intro-route.mjs?v=breath20';
+import {GARDEN,ForestCompanion,gardenFlower,companionTrail} from './forest-companion.mjs?v=garden21';
+import {BROOK,BrookWonder,guidePosition,visitingFlight,createBrookAtmosphere} from './brook-wonder.mjs?v=garden21';
+import {nearbySpeakers} from './conversation-model.mjs?v=garden21';
+import {BrookMotion,dragonPose,packBones} from './wildlife-motion.mjs?v=garden21';
+import {DeerMotion} from './deer-motion.mjs?v=garden21';
+import {keeperPose} from './keeper-motion.mjs?v=garden21';
+import {INTRO_SHOTS,INTRO_DURATION,introFrame} from './intro-route.mjs?v=garden21';
 const $=id=>document.getElementById(id),canvas=$('world');
 let keeperMotion=[0,.65,.35,0],keeperGreeting=-1,keeperWasNear=false,lastKeeperShadow=-1;
 const mobile=matchMedia('(pointer:coarse)').matches;
@@ -14,9 +15,9 @@ if(!gl){$('welcome').innerHTML='<h1>Je browser kan dit woud<br>nog niet openen.<
 const vs=`#version 300 es
 precision highp float;
 layout(location=0) in vec3 a;layout(location=1) in vec3 n;layout(location=2) in vec3 c;layout(location=3) in float material;
-uniform mat4 vp;uniform vec3 offset;uniform float rot;uniform float time;uniform vec4 keeperMotion;uniform float keeperBase;uniform mat4 animalBones[18];
+uniform mat4 vp;uniform vec3 offset;uniform float rot;uniform float time;uniform vec4 keeperMotion;uniform float keeperBase;uniform mat4 animalBones[18];uniform float gardenBloom;
 out vec3 P;out vec3 N;out vec3 C;out float M;
-void main(){mat3 r=mat3(cos(rot),0.,-sin(rot),0.,1.,0.,sin(rot),0.,cos(rot));float bone=floor(material/10.)-5.;vec3 local=a,localNormal=n;if(bone>=0.){int index=int(clamp(bone,0.,17.));local=(animalBones[index]*vec4(a,1.)).xyz;localNormal=mat3(animalBones[index])*n;}P=r*local+offset;N=r*localNormal;C=c;M=mod(material,10.);
+void main(){mat3 r=mat3(cos(rot),0.,-sin(rot),0.,1.,0.,sin(rot),0.,cos(rot));float bone=floor(material/10.)-5.;vec3 local=a,localNormal=n;if(bone>=0.){int index=int(clamp(bone,0.,17.));local=(animalBones[index]*vec4(a,1.)).xyz;localNormal=mat3(animalBones[index])*n;}if(mod(material,10.)>5.5&&mod(material,10.)<6.5){float spread=mix(.20,1.,gardenBloom);local.xz*=spread;local.y+=(1.-gardenBloom)*length(a.xz)*1.15;localNormal=normalize(vec3(localNormal.x/spread,localNormal.y,localNormal.z/spread));}P=r*local+offset;N=r*localNormal;C=c;M=mod(material,10.);
 float part=floor(material/10.);if(part>.5&&part<4.5){P.y+=keeperMotion.x*smoothstep(keeperBase+8.,keeperBase+12.,P.y);
 if(part>1.5&&part<2.5){vec3 pivot=vec3(86.,keeperBase+19.+keeperMotion.x,36.);float a=keeperMotion.y,b=keeperMotion.z;mat3 ry=mat3(cos(a),0.,-sin(a),0.,1.,0.,sin(a),0.,cos(a));mat3 rx=mat3(1.,0.,0.,0.,cos(b),sin(b),0.,-sin(b),cos(b));P=pivot+ry*rx*(P-pivot);N=ry*rx*N;}
 if(part>3.5){float b=keeperMotion.w;vec3 pivot=vec3(P.x,keeperBase+15.+keeperMotion.x,43.7);mat3 rx=mat3(1.,0.,0.,0.,cos(b),sin(b),0.,-sin(b),cos(b));P=pivot+rx*(P-pivot);N=rx*N;}}
@@ -26,7 +27,7 @@ gl_Position=vp*vec4(P,1.);}`;
 const fs=`#version 300 es
 precision highp float;
 in vec3 P;in vec3 N;in vec3 C;in float M;
-uniform vec3 eye;uniform float night;uniform float time;uniform mat4 lightVP;uniform sampler2D shadowMap;uniform float shadowTexel;uniform float softShadows;uniform float wonder;
+uniform vec3 eye;uniform float night;uniform float time;uniform mat4 lightVP;uniform sampler2D shadowMap;uniform float shadowTexel;uniform float softShadows;uniform float wonder;uniform float gardenBloom;
 out vec4 outColor;
 float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
@@ -65,8 +66,10 @@ float breath=.85+.15*sin(time*.37);
 col+=base*vec3(.08,.36,.43)*hollow*wonder*breath;
 if(M>3.5&&M<4.5){float lace=pow(.5+.5*sin(P.x*2.1+sin(P.z*.6-time*.3)),14.)*pow(.5+.5*cos(P.z*1.3+time*.23),8.);col+=vec3(.12,.64,.76)*lace*hollow*(.12+wonder*.7);}
 col=mix(col,vec3(.16,.29,.30),hollow*exp(-max(0.,P.y+2.3)*.8)*min(.18,length(P-eye)*.006));
+if(M>5.5&&M<6.5)col+=C*gardenBloom*(.35+night*.75);
+if(M>6.5&&M<7.5)col+=C*(.12+gardenBloom*1.4);
 col+=C*glow*(.8+night*.7);float dist=length(P-eye);float mist=1.-exp(-dist*(.0021+.004*exp(-max(P.y,0.)*.12)));col=mix(col,sky(normalize(P-eye)),min(.92,mist));col=col/(col+vec3(.55));col=pow(col,vec3(.92));outColor=vec4(col,1.);}`;
-function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}let prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(prog));gl.useProgram(prog);const U={};for(let k of ['vp','offset','rot','eye','night','time','lightVP','shadowMap','shadowTexel','softShadows','keeperMotion','keeperBase','animalBones[0]','wonder'])U[k]=gl.getUniformLocation(prog,k);gl.enable(gl.DEPTH_TEST);
+function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}let prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(prog));gl.useProgram(prog);const U={};for(let k of ['vp','offset','rot','eye','night','time','lightVP','shadowMap','shadowTexel','softShadows','keeperMotion','keeperBase','animalBones[0]','wonder','gardenBloom'])U[k]=gl.getUniformLocation(prog,k);gl.enable(gl.DEPTH_TEST);
 let seed=8912;function rand(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}const TAU=Math.PI*2;let verts=[],material=0;
 function tri(a,b,c,col){let u=b.map((v,i)=>v-a[i]),v=c.map((v,i)=>v-a[i]),n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],l=Math.hypot(...n)||1;n=n.map(x=>x/l);for(let p of[a,b,c])verts.push(...p,...n,...col,material)}
 function cone(x,y,z,r1,r2,h,col,s=8){for(let i=0;i<s;i++){let t=i*TAU/s,t2=(i+1)*TAU/s,a=[x+Math.cos(t)*r1,y,z+Math.sin(t)*r1],b=[x+Math.cos(t2)*r1,y,z+Math.sin(t2)*r1],c=[x+Math.cos(t2)*r2,y+h,z+Math.sin(t2)*r2],d=[x+Math.cos(t)*r2,y+h,z+Math.sin(t)*r2];tri(a,c,b,col);tri(a,d,c,col);tri([x,y+h,z],c,d,col)}}
@@ -276,6 +279,19 @@ for(let side of[-1,1])for(let j=0;j<8;j++){
  orb(x,y-.1,z,.65+(j%3)*.23,.36,.85,[.24,.28,.19],12,7);
  material=2;leaves(x,y+.5,z,1.1,[.12,.28,.12],18);material=3;
 }
+material=5;
+for(let j=0;j<5;j++){
+ const a=Math.PI*.12+j*.47,x=GARDEN.x+Math.cos(a)*12,z=GARDEN.z-Math.sin(a)*12,y=ground(x,z);
+ const root=bezier([x,y-.4,z],[x-2,y+5+j*.35,z+2],[GARDEN.x+3-j*2,7.5,z+3],[GARDEN.x+2-j*2,5.5,GARDEN.z-2],22);
+ curveTube(root,root.map((_,k)=>.78*(1-k/24)+.04),[.20,.16,.095],10);
+ material=2;for(let k=3;k<19;k+=4){const p=root[k];leaves(p[0],p[1]+.4,p[2],1.9,[.14,.29,.11],mobile?20:35);}material=5;
+}
+material=3;
+for(let j=0;j<18;j++){
+ const a=j*2.399,r=10+(j%4)*.65,x=GARDEN.x+Math.cos(a)*r,z=GARDEN.z+Math.sin(a)*r;
+ if(z>GARDEN.z+5&&x>GARDEN.x)continue;
+ orb(x,ground(x,z)-.15,z,.65+(j%3)*.4,.45+(j%5)*.28,.8,[.20,.27,.19],12,7);
+}
 material=0;seed=hollowSeed;
 const terrain=upload();
 // Animated river surface, particles, drones, and portal use compact shared meshes.
@@ -328,6 +344,19 @@ for(let side of[-1,1]){dragonBone(side<0?3:5);curveTube([[0,0,0],[side*1.15,.10,
 for(let k=0;k<2;k++){dragonBone(7+k);let length=k===0?1.25:1.65;curveTube([[0,0,0],[0,-.04,length*.5],[0,-.06,length]],[k===0?.26:.14,k===0?.19:.08,k===0?.14:.015],feather,12);if(k===1)for(let side of[-1,1])for(let j=0;j<3;j++)flightFeather(side*j*.14,0,1.05+j*.06,side,.82-j*.12,.15,featherLight);}
 const dragonMesh=upload();material=0;let dragonState=dragonPose(0,true);
 orb(0,.5,0,.3,.35,.6,[.48,.25,.1]);orb(0,.8,-.5,.3,.3,.3,[.52,.29,.12]);orb(0,.95,.6,.35,.5,.6,[.48,.25,.1]);for(let side of[-1,1]){orb(side*.2,1.1,-.5,.1,.32,.08,[.45,.34,.14]);for(let j=0;j<3;j++)beam([side*.22,.4,-.3+j*.3],[side*.35,.05,-.25+j*.3],.055,[.4,.22,.1])}for(let side of[-1,1]){orb(side*.22,.89,-.67,.055,.065,.045,[.04,.065,.035],10,6);orb(side*.23,.91,-.69,.014,.019,.012,[.86,.87,.67],7,4);orb(side*.2,1.12,-.54,.043,.21,.04,[.64,.43,.27],10,6);}orb(0,.75,-.79,.07,.05,.06,[.16,.11,.065],10,6);for(let j=0;j<9;j++){let a=j*TAU/9;tri([Math.cos(a)*.25,.94,.57+Math.sin(a)*.35],[Math.cos(a)*.45,1.21,.57+Math.sin(a)*.65],[Math.cos(a+.3)*.24,1.12,.57+Math.sin(a+.3)*.36],[.26,.35,.12]);}const leaflingMesh=upload();
+material=5;curveTube([[0,-.6,0],[.03,-.25,.04],[0,0,0]],[.065,.047,.028],[.14,.29,.17],7);
+material=6;
+for(let petal=0;petal<7;petal++){
+ const angle=petal*TAU/7,point=(t,w)=>{const r=.12+t*1.12;return [Math.cos(angle)*r-Math.sin(angle)*w,-.06+Math.sin(t*Math.PI)*.24+t*t*.28,Math.sin(angle)*r+Math.cos(angle)*w];};
+ for(let k=0;k<9;k++){
+  const t=k/9,u=(k+1)/9,w=Math.sin(t*Math.PI)*.30,ww=Math.sin(u*Math.PI)*.30;
+  const col=[.24+t*.19,.48+t*.19,.53+t*.21],a=point(t,-w),b=point(t,w),c=point(u,ww),d=point(u,-ww);
+  tri(a,b,c,col);tri(a,c,d,col);tri(c,b,a,col);tri(d,c,a,col);
+ }
+}
+material=7;orb(0,.08,0,.13,.15,.13,[.83,.70,.32],12,8);
+const gardenFlowerMesh=upload();material=0;
+const gardenFlowers=Array.from({length:34},(_,i)=>gardenFlower(i,ground));
 const motes=Array.from({length:90},()=>({x:(rand()-.5)*190,z:(rand()-.5)*220,y:1+rand()*14,a:rand()*TAU}));const drones=Array.from({length:9},(_,i)=>({x:[-48,86,12][i%3],z:[-65,36,135][i%3],a:rand()*TAU}));
 let pos=[-20,4.5,30],yaw=-.29,pitch=.10,started=false,flying=false,night=0,targetNight=0,active=false,portalTime=0,discovered=new Set(),lastPlace=-1;let introActive=false,introElapsed=0,introSnapshot=null,lastIntroChapter=-1;const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;const keys={};let move=[0,0],look=null,joy=null,vertical=0;function perspective(fov,aspect,near,far){let f=1/Math.tan(fov/2);return[f/aspect,0,0,0,0,f,0,0,0,0,(far+near)/(near-far),-1,0,0,2*far*near/(near-far),0]}
 function mul(a,b){let o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)o[c*4+r]+=a[k*4+r]*b[c*4+k];return o}
@@ -355,8 +384,11 @@ const skyProgram=program(skyVertex,skyFragment),skyVAO=gl.createVertexArray(),SU
 function drawSky(){gl.disable(gl.DEPTH_TEST);gl.useProgram(skyProgram);gl.bindVertexArray(skyVAO);gl.uniform1f(SU.aspect,innerWidth/innerHeight);gl.uniform1f(SU.yaw,yaw);gl.uniform1f(SU.pitch,pitch);gl.uniform1f(SU.night,night);gl.uniform1f(SU.time,clock);gl.drawArrays(gl.TRIANGLES,0,3);gl.enable(gl.DEPTH_TEST);gl.useProgram(prog);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,shadowTexture);gl.uniform1i(U.shadowMap,0);gl.uniform1f(U.shadowTexel,1/shadowSize);gl.uniform1f(U.softShadows,qualitySettings().soft);gl.uniformMatrix4fv(U.lightVP,false,shadowAvailable?lightMatrix:new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,10000,10000,0,1]));}
 let projection;function resize(){let d=Math.min(devicePixelRatio,qualitySettings().pixel);canvas.width=Math.round(innerWidth*d);canvas.height=Math.round(innerHeight*d);gl.viewport(0,0,canvas.width,canvas.height);projection=perspective(Math.PI/2.9,innerWidth/innerHeight,.12,1100)}addEventListener('resize',resize);resize();renderShadows();
 const wonder=new BrookWonder();let wonderState=wonder.snapshot(pos),wonderPhase='far',wonderCaptionUntil=0,previousFlight=null;
+let rememberedGarden=false;try{rememberedGarden=localStorage.getItem('elyndra-secret-garden')==='found';}catch{}
+const companion=new ForestCompanion(ground,rememberedGarden);let companionState=companion.snapshot(pos),companionPhase='resting',companionCaptionUntil=0;
+$('garden-view').hidden=!rememberedGarden;
 const renderBrookAtmosphere=createBrookAtmosphere(gl,program,mobile);
-const guideAnimator=new BrookMotion(BROOK.x-4,BROOK.z+5,0,1.5,()=>BROOK.water+.12);
+const guideAnimator=new BrookMotion(BROOK.x-4,BROOK.z+5,0,1.5,(x,z)=>Math.max(BROOK.water+.12,ground(x,z)+.06));
 let guideState=guideAnimator.update(0,0,pos,true);
 function draw(m,offset=[0,0,0],rot=0){gl.bindVertexArray(m.vao);gl.uniform3fv(U.offset,offset);gl.uniform1f(U.rot,rot);gl.drawArrays(gl.TRIANGLES,0,m.count)}
 let toastTimer;function toast(t){$('toast').textContent=t;$('toast').style.opacity=1;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.opacity=0,4500)}
@@ -378,6 +410,12 @@ $('brook-view').onclick=()=>{
  for(const k in keys)keys[k]=false;move=[0,0];vertical=0;
  toast('Een kleine bewoner wacht bij de wortelbogen.');
 };
+$('garden-view').onclick=()=>{
+ pos=[GARDEN.x+5,Math.max(ground(GARDEN.x+5,GARDEN.z+9),water)+2.4,GARDEN.z+9];
+ const d=[GARDEN.x-pos[0],1-pos[1],GARDEN.z-pos[2]];yaw=Math.atan2(d[0],-d[2]);pitch=Math.atan2(d[1],Math.hypot(d[0],d[2]));
+ flying=false;$('fly').textContent='Vliegen';$('travelmenu').hidden=true;for(const k in keys)keys[k]=false;move=[0,0];vertical=0;
+ toast('De tuin heeft het licht voor je bewaard.');
+};
 $('time').onclick=()=>{targetNight=targetNight?0:1;$('time').textContent=targetNight?'Daglicht':'Schemering'};
 $('help').onclick=()=>$('instructions').hidden=false;$('closehelp').onclick=()=>$('instructions').hidden=true;
 $('travel').onclick=()=>$('travelmenu').hidden=!$('travelmenu').hidden;$('closemap').onclick=()=>$('travelmenu').hidden=true;
@@ -386,42 +424,61 @@ function activate(){if(Math.hypot(pos[0]-66,pos[2]+110)>=30)return;if(window.ely
 addEventListener('keydown',e=>{if(introActive||window.elyndraVisionOpen)return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.repeat)return;if(e.code==='KeyF'&&started)toggleFly();if(e.code==='KeyE')activate();if(e.code==='Escape'){$('instructions').hidden=true;$('travelmenu').hidden=true}});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(let k in keys)keys[k]=false;move=[0,0];vertical=0;look=null});
 canvas.addEventListener('pointerdown',e=>{if(!started)return;look={id:e.pointerId,x:e.clientX,y:e.clientY,touch:e.pointerType==='touch'};canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!look||look.id!==e.pointerId)return;yaw+=(e.clientX-look.x)*.004*(look.touch?1:-1);pitch-=(e.clientY-look.y)*.003;pitch=Math.max(-1.4,Math.min(1.4,pitch));look.x=e.clientX;look.y=e.clientY});for(let type of['pointerup','pointercancel'])canvas.addEventListener(type,()=>look=null);
 $('joystick').addEventListener('pointerdown',e=>{joy=e.pointerId;$('joystick').setPointerCapture(e.pointerId);updateJoy(e)});function updateJoy(e){let r=$('joystick').getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,l=Math.hypot(x,y);if(l>40){x*=40/l;y*=40/l}move=[x/40,-y/40];$('stick').style.transform=`translate(${x}px,${y}px)`}$('joystick').addEventListener('pointermove',e=>{if(joy===e.pointerId)updateJoy(e)});for(let type of['pointerup','pointercancel'])$('joystick').addEventListener(type,()=>{joy=null;move=[0,0];$('stick').style.transform='none'});for(let [id,v]of[['up',1],['down',-1]]){$(id).onpointerdown=e=>{e.preventDefault();$(id).setPointerCapture(e.pointerId);if(!flying)toggleFly();vertical=v};$(id).onpointerup=$(id).onpointercancel=()=>vertical=0}
-let audioCtx,audioGain,cathedralGain,rustleGain,brookGain,brookPan,soundOn=false;function initAudio(){audioCtx=new AudioContext();audioGain=audioCtx.createGain();audioGain.gain.value=.0;audioGain.connect(audioCtx.destination);cathedralGain=audioCtx.createGain();cathedralGain.gain.value=0;cathedralGain.connect(audioGain);for(let f of[82.41,123.47,164.81]){let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=f;g.gain.value=.055;o.connect(g);g.connect(cathedralGain);o.start();}for(let f of[110,164.81,220,293.66]){let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=f;g.gain.value=.022;o.connect(g);g.connect(audioGain);o.start()}let b=audioCtx.createBuffer(1,audioCtx.sampleRate*4,audioCtx.sampleRate),d=b.getChannelData(0);let a=0;for(let i=0;i<d.length;i++){a=(a+(Math.random()*2-1)*.025)*.992;d[i]=a}let n=audioCtx.createBufferSource();n.buffer=b;n.loop=true;let g=audioCtx.createGain();g.gain.value=.23;n.connect(g);g.connect(audioGain);n.start();let rustle=audioCtx.createBufferSource();rustle.buffer=b;rustle.loop=true;let filter=audioCtx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=1200;filter.Q.value=.7;rustleGain=audioCtx.createGain();rustleGain.gain.value=0;rustle.connect(filter);filter.connect(rustleGain);rustleGain.connect(audioGain);rustle.start();
+let audioCtx,audioGain,cathedralGain,rustleGain,brookGain,brookPan,gardenGain,soundOn=false;function initAudio(){audioCtx=new AudioContext();audioGain=audioCtx.createGain();audioGain.gain.value=.0;audioGain.connect(audioCtx.destination);cathedralGain=audioCtx.createGain();cathedralGain.gain.value=0;cathedralGain.connect(audioGain);for(let f of[82.41,123.47,164.81]){let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=f;g.gain.value=.055;o.connect(g);g.connect(cathedralGain);o.start();}for(let f of[110,164.81,220,293.66]){let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=f;g.gain.value=.022;o.connect(g);g.connect(audioGain);o.start()}let b=audioCtx.createBuffer(1,audioCtx.sampleRate*4,audioCtx.sampleRate),d=b.getChannelData(0);let a=0;for(let i=0;i<d.length;i++){a=(a+(Math.random()*2-1)*.025)*.992;d[i]=a}let n=audioCtx.createBufferSource();n.buffer=b;n.loop=true;let g=audioCtx.createGain();g.gain.value=.23;n.connect(g);g.connect(audioGain);n.start();let rustle=audioCtx.createBufferSource();rustle.buffer=b;rustle.loop=true;let filter=audioCtx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=1200;filter.Q.value=.7;rustleGain=audioCtx.createGain();rustleGain.gain.value=0;rustle.connect(filter);filter.connect(rustleGain);rustleGain.connect(audioGain);rustle.start();
  brookGain=audioCtx.createGain();brookGain.gain.value=0;
  if(audioCtx.createStereoPanner){brookPan=audioCtx.createStereoPanner();brookGain.connect(brookPan);brookPan.connect(audioGain);}else brookGain.connect(audioGain);
  const stream=audioCtx.createBufferSource();stream.buffer=b;stream.loop=true;
  const streamFilter=audioCtx.createBiquadFilter();streamFilter.type='lowpass';streamFilter.frequency.value=950;
  const streamGain=audioCtx.createGain();streamGain.gain.value=.65;stream.connect(streamFilter);streamFilter.connect(streamGain);streamGain.connect(brookGain);stream.start();
  for(const f of[196,293.66,392]){const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=f;g.gain.value=.025;o.connect(g);g.connect(brookGain);o.start();}
+ gardenGain=audioCtx.createGain();gardenGain.gain.value=0;gardenGain.connect(audioGain);
+ for(const f of[146.83,220,329.63,440]){const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=f;g.gain.value=.022;o.connect(g);g.connect(gardenGain);o.start();}
 }
 $('sound').onclick=()=>{if(!audioCtx)initAudio();audioCtx.resume();soundOn=!soundOn;audioGain.gain.setTargetAtTime(soundOn?.65:0,audioCtx.currentTime,.4);$('sound').textContent=soundOn?'Geluid aan':'Geluid uit';$('sound').setAttribute('aria-label',soundOn?'Geluid uitzetten':'Geluid aanzetten')};function chime(){if(!audioCtx||!soundOn)return;for(let [i,f]of[523.25,659.25,783.99,1046.5].entries()){let o=audioCtx.createOscillator(),g=audioCtx.createGain(),t=audioCtx.currentTime+i*.18;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.06,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+2.5);o.connect(g);g.connect(audioGain);o.start(t);o.stop(t+3)}}
 const celebrations=[];
 addEventListener('elyndra-puzzle-solved',e=>{let p=locations[e.detail];if(p){if(e.detail===1){active=true;portalTime=0;}celebrations.push({x:p.x,z:p.z,age:0});chime();}});
 let talkSignature='';
 let prev=0,clock=0,discoveryTimer=0;function frame(ms){requestAnimationFrame(frame);let dt=Math.min((ms-prev)/1000,.05);prev=ms;if(audioCtx&&cathedralGain){let distance=Math.hypot(pos[0]+48,pos[1]-13,pos[2]+59),near=Math.max(0,1-distance/52),audible=soundOn&&!window.elyndraVisionOpen&&!document.hidden?1:0;cathedralGain.gain.setTargetAtTime(near*near*audible,audioCtx.currentTime,.6);rustleGain.gain.setTargetAtTime(near*(.3+.12*Math.sin(clock*.7))*audible,audioCtx.currentTime,.8);}if(brookGain){const audible=soundOn&&!document.hidden&&!window.elyndraVisionOpen?1:0;brookGain.gain.setTargetAtTime(wonderState.near*(.45+wonderState.bloom*.55)*audible,audioCtx.currentTime,.8);if(brookPan){const dx=BROOK.x-pos[0],dz=BROOK.z-pos[2];brookPan.pan.setTargetAtTime(Math.max(-1,Math.min(1,(Math.cos(yaw)*dx+Math.sin(yaw)*dz)/18)),audioCtx.currentTime,.3);}}
-if(window.elyndraVisionOpen){$('brook-caption').hidden=true;return;}if(document.hidden)return;clock+=dt;deerState=deerAnimator.update(document.hidden?0:dt,clock,pos,reducedMotion);brookStates=brookAnimators.map(a=>a.update(document.hidden?0:dt,clock,pos,reducedMotion));dragonState=dragonPose(clock,reducedMotion);const keeperDistance=Math.hypot(pos[0]-86,pos[2]-36);if(started&&!introActive){if(keeperDistance<24&&!keeperWasNear){keeperGreeting=clock;keeperWasNear=true;}if(keeperDistance>36)keeperWasNear=false;}keeperMotion=keeperPose(clock,keeperGreeting<0?-1:clock-keeperGreeting,pos,gy,reducedMotion);
+if(gardenGain)gardenGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?companionState.gardenNear*companionState.bloom:0,audioCtx.currentTime,1.2);if(window.elyndraVisionOpen){$('brook-caption').hidden=true;return;}if(document.hidden)return;clock+=dt;deerState=deerAnimator.update(document.hidden?0:dt,clock,pos,reducedMotion);brookStates=brookAnimators.map(a=>a.update(document.hidden?0:dt,clock,pos,reducedMotion));dragonState=dragonPose(clock,reducedMotion);const keeperDistance=Math.hypot(pos[0]-86,pos[2]-36);if(started&&!introActive){if(keeperDistance<24&&!keeperWasNear){keeperGreeting=clock;keeperWasNear=true;}if(keeperDistance>36)keeperWasNear=false;}keeperMotion=keeperPose(clock,keeperGreeting<0?-1:clock-keeperGreeting,pos,gy,reducedMotion);
 night+=(targetNight-night)*dt*.45;
 if(introActive){updateIntro(dt);}else if(started){let mx=move[0]+(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0),mz=move[1]+(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0),l=Math.max(1,Math.hypot(mx,mz)),speed=(flying?16:6.5)*(keys.ShiftLeft?2.2:1);mx/=l;mz/=l;pos[0]+=(Math.cos(yaw)*mx+Math.sin(yaw)*mz)*speed*dt;pos[2]+=(Math.sin(yaw)*mx-Math.cos(yaw)*mz)*speed*dt;if(flying){pos[1]+=(vertical+(keys.Space?1:0)-(keys.KeyC?1:0)+mz*Math.sin(pitch)*.6)*speed*dt;pos[1]=Math.max(Math.max(ground(pos[0],pos[2]),water)+2,Math.min(160,pos[1]))}else{let h=Math.max(ground(pos[0],pos[2]),water+.15)+2.4;if(Math.abs(pos[2]-35)<4&&Math.abs(pos[0]-river(35))<23)h=Math.max(h,4.4+Math.sin((pos[0]-river(35)+22)/44*Math.PI)*4);pos[1]+=(h-pos[1])*Math.min(1,dt*4)}for(let trunk of trunkColliders){if(pos[1]>ground(trunk.x,trunk.z)+trunk.h)continue;let dx=pos[0]-trunk.x,dz=pos[2]-trunk.z,dist=Math.hypot(dx,dz),r=trunk.r+.45;if(dist<r){if(dist<.001){pos[0]=trunk.x+r}else{pos[0]=trunk.x+dx/dist*r;pos[2]=trunk.z+dz/dist*r}}}pos[0]=Math.max(-155,Math.min(155,pos[0]));pos[2]=Math.max(-235,Math.min(180,pos[2]));
 const talkCandidates=started&&!introActive?nearbySpeakers(pos,deerState.position,gy):[],signature=talkCandidates.join(',');if(signature!==talkSignature){talkSignature=signature;dispatchEvent(new CustomEvent('elyndra-talk-near',{detail:talkCandidates}));}
 let nearest=locations.findIndex(p=>Math.hypot(pos[0]-p.x,pos[2]-p.z)<p.r+10);if(nearest!==window.elyndraNearest){window.elyndraNearest=nearest;dispatchEvent(new CustomEvent('elyndra-near',{detail:nearest}));}if(nearest>=0&&nearest!==lastPlace){lastPlace=nearest;discovered.add(nearest);let p=locations[nearest];$('chapter').textContent=`ONTDEKT · ${discovered.size} / 5`;$('place').textContent=p.name;$('story').textContent=p.text;$('discovery').hidden=false;discoveryTimer=clock+9;chime();if(discovered.size===5)toast('Alle vijf wonderen gevonden. Het woud blijft van jou om te verkennen.')}if(clock>discoveryTimer)$('discovery').hidden=true;$('act').hidden=Math.hypot(pos[0]-66,pos[2]+110)>30;$('act').textContent=active?'Poort laten rusten':'Activeer de poort';if(active){portalTime+=dt;if(portalTime>2&&Math.hypot(pos[0]-66,pos[2]+110)<6&&pos[1]<py+24){pos=[-96,48,-155];flying=true;$('fly').textContent='Landen';yaw=0;pitch=.1;active=false;toast('Aan de andere kant van het licht… de zwevende tuinen.')}}
 }else{yaw=-.29+(reducedMotion?0:Math.sin(clock*.065)*.035);pitch=.16;pos[1]=ground(-20,30)+3.4+(reducedMotion?0:Math.sin(clock*.2)*.12)}
 wonderState=wonder.update(dt,pos,started&&!introActive);
-const gp=guidePosition(wonderState.time,wonderState.bloom,reducedMotion);
+companionState=companion.update(dt,pos,wonderState,started&&!introActive,reducedMotion);
+const gp=companionState.position;
 const oldGuide=[guideAnimator.x,guideAnimator.z];guideAnimator.x=gp[0];guideAnimator.z=gp[2];
-if(wonderState.bloom>.65&&!reducedMotion)guideAnimator.heading=Math.atan2(-(pos[0]-gp[0]),-(pos[2]-gp[2]));
+if(companionState.phase==='leading'||companionState.phase==='returning')guideAnimator.heading=companionState.heading;
+else if(wonderState.bloom>.65&&!reducedMotion)guideAnimator.heading=Math.atan2(-(pos[0]-gp[0]),-(pos[2]-gp[2]));
 else if(!reducedMotion)guideAnimator.heading=Math.atan2(-(gp[0]-oldGuide[0]),-(gp[2]-oldGuide[1]));
 guideState=guideAnimator.update(dt,clock,pos,reducedMotion);guideShadow=guideState;
 const flight=visitingFlight(wonderState.age,dragonState.position,reducedMotion);
 if(flight){const delta=previousFlight?flight.map((v,k)=>v-previousFlight[k]):[0,0,0];const direction=Math.hypot(delta[0],delta[2])>.0001?Math.atan2(-delta[0],-delta[2]):dragonState.heading;dragonState=dragonPose(clock,reducedMotion,{position:flight,heading:direction});previousFlight=flight;}else previousFlight=null;
-if((wonderState.near>.01||Math.hypot(pos[0]+96,pos[2]+180)<85||Math.hypot(pos[0]-66,pos[2]+90)<55||keeperDistance<90||Math.hypot(pos[0]-deerState.position[0],pos[2]-deerState.position[2])<65)&&clock-lastKeeperShadow>(mobile?.5:.25)){renderShadows();lastKeeperShadow=clock;}
+if((companionState.near>.01||wonderState.near>.01||Math.hypot(pos[0]+96,pos[2]+180)<85||Math.hypot(pos[0]-66,pos[2]+90)<55||keeperDistance<90||Math.hypot(pos[0]-deerState.position[0],pos[2]-deerState.position[2])<65)&&clock-lastKeeperShadow>(mobile?.5:.25)){renderShadows();lastKeeperShadow=clock;}
 if(wonderState.phase!==wonderPhase){
  wonderPhase=wonderState.phase;
  const captions={invitation:['De adem van Elyndra',wonderState.visits>1?'Je bent terug. De beek lijkt je te herkennen.':'Kom dichter bij de lichtjes. Blijf daar even rustig staan.'],awakening:['Het woud luistert','Boven het water komt iets samen.'],constellation:['Een hemel onder de wortels','Sommige wonderen vinden jou wanneer je even blijft.'],afterglow:['Je bent niet alleen','Kijk omhoog, voorbij de wortelbogen.']};
  const caption=captions[wonderPhase];if(caption){$('brook-title').textContent=caption[0];$('brook-text').textContent=caption[1];wonderCaptionUntil=clock+(wonderPhase==='invitation'?11:7);if(wonderPhase==='constellation')chime();}
 }
-$('brook-caption').hidden=!started||introActive||wonderState.near<.2||clock>wonderCaptionUntil||wonderPhase==='far';
-let heading=((yaw*180/Math.PI)%360+360)%360,dirs=['N','NO','O','ZO','Z','ZW','W','NW'];$('compass').textContent=`· · · ${dirs[Math.round(heading/45)%8]} · ${Math.round(heading)}° · · ·`;let sky=[.37*(1-night)+.025*night,.62*(1-night)+.055*night,.67*(1-night)+.11*night];gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);drawSky();gl.uniformMatrix4fv(U.vp,false,mul(projection,view()));gl.uniform3fv(U.eye,pos);gl.uniform1f(U.night,night);gl.uniform1f(U.time,clock);gl.uniform1f(U.wonder,wonderState.bloom);gl.uniform4fv(U.keeperMotion,keeperMotion);gl.uniform1f(U.keeperBase,gy);gl.uniformMatrix4fv(U['animalBones[0]'],false,deerUniforms());draw(terrain);if(Math.hypot(pos[0]+48,pos[2]+65)<75){let count=mobile?12:22;for(let j=0;j<count;j++){let a=j*2.399,t=reducedMotion?j*.73:clock,r=9+(j%5)*3,x=-48+Math.cos(a)*r+Math.sin(t*.3+j)*1.1,z=-65+Math.sin(a)*r+Math.cos(t*.24+j)*.8,y=ground(x,z)+1+((j*1.73-t*.38)%11+11)%11;draw(driftingLeaf,[x,y,z],a+t*.25);if(j%2===0)draw(mote,[x+1,ground(x,z)+2+Math.sin(t*.5+j)*.6,z+2]);}}for(let i=celebrations.length-1;i>=0;i--){let c=celebrations[i];c.age+=dt;if(c.age>14){celebrations.splice(i,1);continue;}for(let j=0;j<24;j++){let a=j*TAU/24+c.age*.6,r=3+c.age*.8;draw(mote,[c.x+Math.cos(a)*r,ground(c.x,c.z)+2+c.age*.8+Math.sin(a)*2,c.z+Math.sin(a)*r]);}}draw(riverMesh);for(let m of motes){let x=m.x+Math.sin(clock*.3+m.a)*3,z=m.z+Math.cos(clock*.25+m.a)*3;draw(mote,[x,Math.max(ground(x,z),water)+m.y+Math.sin(clock+m.a),z])}for(let d of drones){let a=clock*.13+d.a;draw(drone,[d.x+Math.cos(a)*12,ground(d.x,d.z)+8+Math.sin(clock+d.a)*1.3,d.z+Math.sin(a)*12],-a)}draw(stagMesh);if(wonderState.near>.01){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(guideState.bones));draw(brookMesh);}for(let state of brookStates){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(state.bones));draw(brookMesh);}draw(leaflingMesh,[96,gy+15.8+keeperMotion[0],43],Math.sin(clock*.4)*.3);gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(dragonState.bones));draw(dragonMesh);if(active){draw(portal,[66,py+12,-110],0);for(let j=0;j<(mobile?14:24);j++){let a=j*TAU/(mobile?14:24)+clock*.22,r=8.8-Math.sin(clock*.4+j)*.4;draw(mote,[66+Math.cos(a)*r,py+12+Math.sin(a)*r,-109.5+Math.sin(clock*.3+j)*.4]);}}
-renderBrookAtmosphere(mul(projection,view()),wonderState,night,reducedMotion,canvas.height);
+if(companionState.phase!==companionPhase){
+ companionPhase=companionState.phase;
+ const words={inviting:['Er is nog iets…','Het beekwezen kijkt om. Kom dichterbij als je mee wilt.'],leading:['Volg de lichtdrager','Hij kent een plek die op geen kaart staat.'],waiting:['Ik wacht wel op je','Volg het gouden licht langs de beek.'],arrived:['De slapende tuin','Een klein licht kan een hele tuin wakker maken.']};
+ if(words[companionPhase]){const text=words[companionPhase];$('brook-title').textContent=text[0];$('brook-text').textContent=text[1];companionCaptionUntil=clock+9;}
+}
+if(companionState.wake){
+ $('garden-view').hidden=false;try{localStorage.setItem('elyndra-secret-garden','found');}catch{}
+ $('brook-title').textContent='De slapende tuin';$('brook-text').textContent='De bloemen openen zich. Deze plek onthoudt je bezoek.';companionCaptionUntil=clock+12;chime();
+}
+$('brook-caption').hidden=!started||introActive||(Math.max(wonderState.near,companionState.near,companionState.gardenNear)<.2)||(clock>Math.max(wonderCaptionUntil,companionCaptionUntil))||(wonderPhase==='far'&&companionPhase==='resting'&&clock>companionCaptionUntil);
+let heading=((yaw*180/Math.PI)%360+360)%360,dirs=['N','NO','O','ZO','Z','ZW','W','NW'];$('compass').textContent=`· · · ${dirs[Math.round(heading/45)%8]} · ${Math.round(heading)}° · · ·`;let sky=[.37*(1-night)+.025*night,.62*(1-night)+.055*night,.67*(1-night)+.11*night];gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);drawSky();gl.uniformMatrix4fv(U.vp,false,mul(projection,view()));gl.uniform3fv(U.eye,pos);gl.uniform1f(U.night,night);gl.uniform1f(U.time,clock);gl.uniform1f(U.wonder,wonderState.bloom);gl.uniform1f(U.gardenBloom,0);gl.uniform4fv(U.keeperMotion,keeperMotion);gl.uniform1f(U.keeperBase,gy);gl.uniformMatrix4fv(U['animalBones[0]'],false,deerUniforms());draw(terrain);if(Math.hypot(pos[0]+48,pos[2]+65)<75){let count=mobile?12:22;for(let j=0;j<count;j++){let a=j*2.399,t=reducedMotion?j*.73:clock,r=9+(j%5)*3,x=-48+Math.cos(a)*r+Math.sin(t*.3+j)*1.1,z=-65+Math.sin(a)*r+Math.cos(t*.24+j)*.8,y=ground(x,z)+1+((j*1.73-t*.38)%11+11)%11;draw(driftingLeaf,[x,y,z],a+t*.25);if(j%2===0)draw(mote,[x+1,ground(x,z)+2+Math.sin(t*.5+j)*.6,z+2]);}}for(let i=celebrations.length-1;i>=0;i--){let c=celebrations[i];c.age+=dt;if(c.age>14){celebrations.splice(i,1);continue;}for(let j=0;j<24;j++){let a=j*TAU/24+c.age*.6,r=3+c.age*.8;draw(mote,[c.x+Math.cos(a)*r,ground(c.x,c.z)+2+c.age*.8+Math.sin(a)*2,c.z+Math.sin(a)*r]);}}draw(riverMesh);for(let m of motes){let x=m.x+Math.sin(clock*.3+m.a)*3,z=m.z+Math.cos(clock*.25+m.a)*3;draw(mote,[x,Math.max(ground(x,z),water)+m.y+Math.sin(clock+m.a),z])}for(let d of drones){let a=clock*.13+d.a;draw(drone,[d.x+Math.cos(a)*12,ground(d.x,d.z)+8+Math.sin(clock+d.a)*1.3,d.z+Math.sin(a)*12],-a)}draw(stagMesh);if(companionState.near>.01){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(guideState.bones));draw(brookMesh);}for(let state of brookStates){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(state.bones));draw(brookMesh);}draw(leaflingMesh,[96,gy+15.8+keeperMotion[0],43],Math.sin(clock*.4)*.3);gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(dragonState.bones));draw(dragonMesh);if(active){draw(portal,[66,py+12,-110],0);for(let j=0;j<(mobile?14:24);j++){let a=j*TAU/(mobile?14:24)+clock*.22,r=8.8-Math.sin(clock*.4+j)*.4;draw(mote,[66+Math.cos(a)*r,py+12+Math.sin(a)*r,-109.5+Math.sin(clock*.3+j)*.4]);}}
+if(companionState.gardenNear>.01){
+ for(const flower of gardenFlowers){
+  const bloom=companionState.discovered?Math.max(0,Math.min(1,(companionState.gardenAge-flower.delay)/8)):0;
+  gl.uniform1f(U.gardenBloom,bloom);draw(gardenFlowerMesh,[flower.x,flower.y+.7,flower.z],flower.rotation);
+ }
+}
+renderBrookAtmosphere(mul(projection,view()),{...wonderState,companion:companionState,garden:GARDEN,flowers:gardenFlowers,guideHeading:guideAnimator.heading,trail:['leading','waiting','returning'].includes(companionPhase)?companionTrail(companionState.progress,ground):[]},night,reducedMotion,canvas.height);
 }requestAnimationFrame(frame);
 
 addEventListener('elyndra-vision-open',()=>{for(let k in keys)keys[k]=false;move=[0,0];vertical=0;look=null;joy=null;$('stick').style.transform='none';});

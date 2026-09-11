@@ -37,6 +37,12 @@ Kies **Ontdek plekken → De adem van Elyndra · aan de beek**. Blijf ongeveer z
 
 De ervaring werkt ook als je de beek vanuit de wereld te voet bereikt.
 
+## De lichtdrager en de slapende tuin
+
+Na het sterrengewelf en de komst van de draak kijkt het beekwezen naar je om. Kom dichterbij om mee te gaan. Het zwemt rustig stroomopwaarts en wacht wanneer je achterblijft. Volg zijn gouden licht; aan het eind van de tocht openen de bloemen van een verborgen tuin zich.
+
+Je kunt de tuin ook zelf ontdekken. Je apparaat onthoudt de ontdekking; daarna verschijnt **De slapende tuin** bij **Ontdek plekken**. Wanneer browseropslag niet beschikbaar is, blijft de ervaring tijdens het bezoek werken.
+
 ## Herkomst
 
 Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. Deze repository is een kopie van die bronbestanden; wijzigingen worden niet automatisch met de bestaande website gesynchroniseerd.

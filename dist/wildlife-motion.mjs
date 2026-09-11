@@ -1,4 +1,4 @@
-import {IDENTITY,multiply} from './deer-motion.mjs?v=breath20';
+import {IDENTITY,multiply} from './deer-motion.mjs?v=garden21';
 export function translate(x,y,z){const m=[...IDENTITY];m[12]=x;m[13]=y;m[14]=z;return m;}
 export function rotate(a,axis='y'){let c=Math.cos(a),s=Math.sin(a);return axis==='x'?[1,0,0,0,0,c,s,0,0,-s,c,0,0,0,0,1]:axis==='z'?[c,s,0,0,-s,c,0,0,0,0,1,0,0,0,0,1]:[c,0,-s,0,0,1,0,0,s,0,c,0,0,0,0,1];}
 export function joint(parent,position,angle=0,axis='y'){return multiply(parent,multiply(translate(...position),rotate(angle,axis)));}

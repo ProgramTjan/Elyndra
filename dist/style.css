@@ -14,3 +14,5 @@
 #brook-view{width:100%;text-align:left;margin-bottom:12px;border-radius:10px;font-size:14px}
 #travelmenu{max-height:calc(100dvh - 125px);overflow:auto}
 @media(max-width:600px){#brook-caption{bottom:auto;top:140px;padding:14px 6px}#brook-text{font-size:14px}#travelmenu{bottom:100px;max-height:calc(100dvh - 155px)}}
+
+#garden-view{width:100%;text-align:left;margin-bottom:12px;border-radius:10px;font-size:14px;border-color:#8bd4b68c;color:#e1f2bc}
