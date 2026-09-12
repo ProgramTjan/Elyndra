@@ -1,16 +1,32 @@
 import assert from 'node:assert/strict';import fs from 'node:fs';
-const uniformNames=new Set([...(fs.readFileSync(new URL('../dist/world.js',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/brook-wonder.mjs',import.meta.url),'utf8')).matchAll(/uniform\s+\w+\s+(\w+)/g)].map(m=>m[1]));
+const uniformNames=new Set([...(fs.readFileSync(new URL('../dist/world.js',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/brook-wonder.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/atmosphere.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/cathedral-wonder.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/gate-wonder.mjs',import.meta.url),'utf8')).matchAll(/uniform\s+\w+\s+(\w+)/g)].map(m=>m[1]));
 let raf;const nodes=new Map(),events=new Map();let eye,viewYaw,viewPitch;
 const gl=new Proxy({FRAMEBUFFER_COMPLETE:1,checkFramebufferStatus:()=>1,getShaderParameter:()=>true,getProgramParameter:()=>true,createShader:()=>({}),createProgram:()=>({}),createVertexArray:()=>({}),createBuffer:()=>({}),bufferData:(target,data)=>{assert(data.every(Number.isFinite),'Uploaded geometry must be finite')},createTexture:()=>({}),createFramebuffer:()=>({}),getUniformLocation:(p,n)=>{assert(uniformNames.has(n.split('[')[0]),'Shader uniform exists: '+n);return n},uniform1f:(u,v)=>{if(u==='yaw')viewYaw=v;if(u==='pitch')viewPitch=v},uniformMatrix4fv:(u,t,v)=>{assert(Array.from(v).every(Number.isFinite),'Shader matrices must be finite')},uniform3fv:(u,v)=>{if(u==='eye')eye=[...v]}},{get:(o,k)=>o[k]??(()=>{})});
 function element(){const handlers={};return{style:{},children:[],hidden:false,open:false,classList:{add(){},remove(){}},textContent:'',innerHTML:'',getContext:()=>gl,appendChild(e){this.children.push(e)},addEventListener(k,f){(handlers[k]??=[]).push(f)},emit(k,e){for(const f of handlers[k]??[])f(e)},focus(){},showModal(){this.open=true},close(){this.open=false;for(let f of handlers.close??[])f()},setAttribute(){},setPointerCapture(){}}}
 for(const m of fs.readFileSync(new URL('../dist/index.html',import.meta.url),'utf8').matchAll(/id="([^"]+)"/g))nodes.set(m[1],element());
 globalThis.document={hidden:false,body:element(),getElementById(id){assert(nodes.has(id),id);return nodes.get(id)},querySelector:()=>[...nodes.values()].find(n=>n.open)??null,createElement:element};
-globalThis.window=globalThis;globalThis.innerWidth=400;globalThis.innerHeight=800;globalThis.devicePixelRatio=1;globalThis.matchMedia=q=>({matches:q.includes('coarse')||q.includes('reduced-motion')});globalThis.requestAnimationFrame=f=>{raf=f};globalThis.setTimeout=()=>1;globalThis.clearTimeout=()=>{};globalThis.addEventListener=(k,f)=>{if(!events.has(k))events.set(k,[]);events.get(k).push(f)};globalThis.dispatchEvent=e=>{for(const f of events.get(e.type)??[])f(e)};globalThis.CustomEvent=class{constructor(type,args){this.type=type;this.detail=args.detail}};
+globalThis.window=globalThis;globalThis.innerWidth=400;globalThis.innerHeight=800;globalThis.devicePixelRatio=1;globalThis.matchMedia=q=>({matches:q.includes('coarse')||q.includes('reduced-motion')});globalThis.requestAnimationFrame=f=>{raf=f};globalThis.setTimeout=()=>1;globalThis.clearTimeout=()=>{};globalThis.setInterval=()=>1;globalThis.addEventListener=(k,f)=>{if(!events.has(k))events.set(k,[]);events.get(k).push(f)};globalThis.dispatchEvent=e=>{for(const f of events.get(e.type)??[])f(e)};globalThis.CustomEvent=class{constructor(type,args){this.type=type;this.detail=args.detail}};
 await import('../dist/world.js');const frame=raf,$=id=>nodes.get(id);let time=0;frame(time+=50);
 $('enter').onclick();assert.equal($('intro-film').hidden,false,'Explicit watch must play even with reduced motion');for(let i=0;i<445;i++)frame(time+=50);assert($('onboarding').open,'Film ends with explanation');$('onboarding-free').onclick();frame(time+=50);const position=[...eye];
 $('intro-replay').onclick();assert.equal($('intro-film').hidden,false,'Explicit replay must also play');frame(time+=50);$('intro-skip').onclick();assert($('onboarding').open);$('onboarding-free').onclick();frame(time+=50);assert(Math.hypot(...eye.map((x,i)=>x-position[i]))<.2);
 const oldYaw=viewYaw,oldPitch=viewPitch;const canvas=$('world');canvas.emit('pointerdown',{pointerId:1,pointerType:'touch',clientX:100,clientY:100});canvas.emit('pointermove',{pointerId:1,pointerType:'touch',clientX:140,clientY:140});frame(time+=50);assert(Math.abs(viewYaw-oldYaw-.16)<1e-6,'Touch right must turn right');assert(Math.abs(viewPitch-oldPitch+.12)<1e-6,'Vertical behavior must stay unchanged');canvas.emit('pointerup',{});const touchYaw=viewYaw;canvas.emit('pointerdown',{pointerId:2,pointerType:'mouse',clientX:100,clientY:100});canvas.emit('pointermove',{pointerId:2,pointerType:'mouse',clientX:140,clientY:100});frame(time+=50);assert(Math.abs(viewYaw-touchYaw+.16)<1e-6,'Mouse drag must keep its existing direction');canvas.emit('pointerup',{});
 globalThis.devicePixelRatio=2;const beforeQuality=[...eye];$('quality').value='fast';$('quality').onchange();frame(time+=50);assert.equal(canvas.width,400);$('quality').value='high';$('quality').onchange();frame(time+=50);assert.equal(canvas.width,800);assert(Math.hypot(...eye.map((v,i)=>v-beforeQuality[i]))<.2,'Quality preserves camera');$('cathedral-view').onclick();frame(time+=50);const fixed=[...eye];$('cathedral-view').onclick();frame(time+=50);assert.deepEqual(eye,fixed,'Reference viewpoint is repeatable');
+$('weather').value='rain';$('weather').onchange();frame(time+=50);
+assert.equal($('fly').textContent,'Landen','Flight stays free under chosen rain');
+$('time').onclick();frame(time+=50);
+assert.equal($('time').textContent,'Middag','Light button advances the named hour');
+$('cathedral-breath').onclick();frame(time+=50);
+assert.equal($('fly').textContent,'Vliegen','The shrine is reached on foot; flight stays available');
+assert.equal($('time').textContent,'Gouden uur');
+for(let i=0;i<320;i++)frame(time+=50);
+assert.equal($('brook-title').textContent,'Een vergeten hartslag','Low sun and stillness wake the seed shrine');
+assert.equal($('brook-caption').hidden,false);
+$('gate-mirror').onclick();frame(time+=50);
+assert.equal($('fly').textContent,'Vliegen','The gate is reached on foot; flight stays available');
+assert.equal($('time').textContent,'Schemering');
+for(let i=0;i<320;i++)frame(time+=50);
+assert.equal($('brook-title').textContent,'Een bos dat hier niet groeit','Dusk and a waking ring hold the other forest');
+assert.equal($('brook-caption').hidden,false);
 $('start-direct').onclick();assert($('onboarding').open,'Direct explanation stays animation-free');assert.equal($('intro-film').hidden,true);
 console.log('Passed: explicit watch/replay with reduced motion, 22-second completion, skip, direct guide, camera restore, reversed touch yaw and preserved mouse/vertical controls.');
 // Exercise optional proximity audio without a physical audio device.
