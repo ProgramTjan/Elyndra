@@ -2,7 +2,7 @@
 
 Een vrij te verkennen 3D-fantasiewereld waarin natuur en robotica samenleven, met gesprekken, vier puzzels, visioenen en een filmische introductie.
 
-[Open Elyndra](https://elyndra-living-world.kcprobeertai.chatgpt.site/)
+[Speel Elyndra](https://programtjan.github.io/Elyndra/)
 
 ## Lokaal starten
 
@@ -29,7 +29,7 @@ node --test tests/*.test.mjs
 - `dist/`: website, wereld, interacties en beelden.
 - `tests/`: controles voor gesprekken, puzzels, introductie en bewegingen.
 - `docs/art-direction.md`: visuele ontwerpkeuzes.
-- `.openai/hosting.json`: configuratie van de bestaande ChatGPT Site.
+- `.openai/hosting.json`: configuratie van een eerdere ChatGPT Site.
 
 ## De adem van Elyndra
 
@@ -51,4 +51,4 @@ De draak en de lichtdrager herkennen een volgend bezoek op hetzelfde apparaat. D
 
 ## Herkomst
 
-Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. Deze repository is een kopie van die bronbestanden; wijzigingen worden niet automatisch met de bestaande website gesynchroniseerd.
+Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. De live site is GitHub Pages op `dist/`; een push naar `main` werkt de website bij.

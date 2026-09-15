@@ -1,8 +1,8 @@
-import {SPEAKERS,conversationNode} from './conversation-model.mjs?v=dragon22';
+import {SPEAKERS,conversationNode} from './conversation-model.mjs?v=story1';
 const $=id=>document.getElementById(id),dialog=$('conversation-dialog'),choices=$('conversation-choices'),KEY='elyndra-conversations-v1';let nearby=[],speaker=null,prior=null,met={};
 try{const saved=JSON.parse(localStorage.getItem(KEY)||'{}');for(let key of Object.keys(SPEAKERS))met[key]=saved?.[key]===true;}catch{}
 function remember(){met[speaker]=true;try{localStorage.setItem(KEY,JSON.stringify(met));}catch{}}
-function context(){return {met:!!met[speaker],solved:!!window.elyndraGame?.unlocked(3),roots:!!window.elyndraGame?.unlocked(0),all:window.elyndraGame?.count()===4};}
+function context(){const g=window.elyndraGame;return {met:!!met[speaker],solved:!!g?.unlocked(3),roots:!!g?.unlocked(0),gate:!!g?.unlocked(1),gardens:!!g?.unlocked(2),all:g?.count()===4};}
 function button(label,action){const b=document.createElement('button');b.textContent=label;b.onclick=action;choices.appendChild(b);}
 function render(node='start'){const who=SPEAKERS[speaker],data=conversationNode(speaker,node,context());$('conversation-name').textContent=who.name;$('conversation-tag').textContent=who.tag;$('conversation-text').textContent=data.text;choices.replaceChildren();for(let [label,next]of data.choices)button(label,()=>{if(next==='end'){remember();dialog.close();return;}if(next==='puzzle'){remember();dialog.close();window.elyndraStartPuzzle?.(3);return;}remember();render(next);});choices.firstElementChild?.focus();}
 function choose(who){speaker=who;render();}

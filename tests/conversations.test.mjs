@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';import {SPEAKERS,conversationNode,nearbySpeakers} from '../dist/conversation-model.mjs';
 for(let who of Object.keys(SPEAKERS))for(let solved of[false,true]){const seen=new Set(),todo=['start'];while(todo.length){let key=todo.pop();if(seen.has(key))continue;seen.add(key);let node=conversationNode(who,key,{solved,all:solved,met:true});assert(node,`${who}/${key}`);assert(node.text.length>15);assert(node.choices.length<=3);for(let [label,next]of node.choices){assert(label);if(next==='puzzle')assert(who==='keeper'&&!solved);else if(next!=='end')todo.push(next);}}}
 assert.notEqual(conversationNode('keeper','start').text,conversationNode('keeper','start',{solved:true}).text);
+assert(conversationNode('deer','hear',{gate:true}).text.includes('poort'));
+assert(conversationNode('keeper','start',{roots:true}).text.includes('zin'));
+assert(conversationNode('squirrel','keeper',{gate:true}).text.includes('poort'));
 assert(nearbySpeakers([-37,2,-46],[-37,0,-46],0).includes('deer'));assert(!nearbySpeakers([-37,100,-46],[-37,0,-46],0).includes('deer'));assert(nearbySpeakers([92,2,46],[-37,0,-46],0).includes('squirrel'));
 const listeners={},nodes=new Map(),storage=new Map();let focused,puzzle=-1,solved=false;
 function element(id){let events={};return{id,open:false,hidden:false,textContent:'',children:[],focus(){focused=this},replaceChildren(){this.children=[]},appendChild(b){this.children.push(b)},get firstElementChild(){return this.children[0]},addEventListener(type,f){(events[type]??=[]).push(f)},showModal(){this.open=true},close(){this.open=false;for(let f of events.close??[])f()},emit(type){for(let f of events[type]??[])f()}}}
