@@ -1,3 +1,4 @@
+import {DragonInvitation,createInvitationGlow,inDragonGlade} from './dragon-invitation.mjs?v=invite33';
 import {DRAGON_REST,DragonEncounter} from './dragon-encounter.mjs?v=dragon22';
 import {GARDEN,ForestCompanion,gardenFlower,companionTrail} from './forest-companion.mjs?v=dragon22';
 import {BROOK,BrookWonder,guidePosition,visitingFlight,createBrookAtmosphere} from './brook-wonder.mjs?v=dragon22';
@@ -97,7 +98,7 @@ const trunkColliders=[{x:-48,z:-65,r:6.8,h:47},{x:83,z:36,r:1.9,h:10},{x:89,z:36
 const trailSegments=[[[-5,76],[-20,30]],[[-20,30],[-48,-40]],[[-48,-40],[-48,-65]],[[-20,30],[86,35]],[[66,35],[66,-110]],[[-48,-65],[-96,-150]]];
 function trailDistance(x,z){return Math.min(...trailSegments.map(([a,b])=>{let dx=b[0]-a[0],dz=b[1]-a[1],t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/(dx*dx+dz*dz)));return Math.hypot(x-a[0]-dx*t,z-a[1]-dz*t)}))}
 function tree(x,z,s=1){let y=ground(x,z),h=(11+rand()*10)*s;trunkColliders.push({x,z,r:.6*s,h});cone(x,y,z,.6*s,.17*s,h,[.17,.115,.065],12);for(let i=0;i<7;i++){let a=i*2.4+rand()*.5,by=y+h*(.62+i*.05),ex=x+Math.cos(a)*(2+rand()*2)*s,ez=z+Math.sin(a)*(2+rand()*2)*s;beam([x,by-2*s,z],[ex,by,ez],.12*s,[.19,.13,.075]);leaves(ex,by,ez,2.5*s,[.09,.22+rand()*.11,.075],mobile?46:75)}for(let i=0;i<3;i++){let a=i*TAU/3;beam([x,y+.6,z],[x+Math.cos(a)*2*s,ground(x+Math.cos(a)*2*s,z+Math.sin(a)*2*s),z+Math.sin(a)*2*s],.16*s,[.19,.13,.075])}}
-for(let i=0;i<470;i++){let x=(rand()-.5)*335,z=(rand()-.5)*435-25;if(Math.abs(x-river(z))<19||locations.some(p=>Math.hypot(x-p.x,z-p.z)<p.r+2)||trailDistance(x,z)<4)continue;tree(x,z,.75+rand()*.6)}
+for(let i=0;i<470;i++){let x=(rand()-.5)*335,z=(rand()-.5)*435-25;if(Math.abs(x-river(z))<19||locations.some(p=>Math.hypot(x-p.x,z-p.z)<p.r+2)||trailDistance(x,z)<4)continue;const firstVertex=verts.length,firstCollider=trunkColliders.length;tree(x,z,.75+rand()*.6);if(inDragonGlade(x,z)){verts.length=firstVertex;trunkColliders.length=firstCollider;}}
 // Broken, branching crowns replace single spherical clouds at the focal tree.
 function cathedralCrown(x,y,z,r,col,count){const originalSeed=seed;for(let i=0;i<count*8;i++)rand();const nextSeed=seed;seed=originalSeed;
  let old=material;material=5;
@@ -407,13 +408,25 @@ $('garden-view').hidden=!rememberedGarden;
 let rememberedDragon=false;try{rememberedDragon=localStorage.getItem('elyndra-dragon-known')==='yes';}catch{}
 const dragonEncounter=new DragonEncounter(ground,rememberedDragon);let encounterState=dragonEncounter.snapshot(),dragonPhase='orbit',dragonCaptionUntil=0;
 
+const invitation=new DragonInvitation(ground);let invitationState=invitation.snapshot(),invitationPhase='idle';
 const compactGlow=quality!=='high';
+const renderInvitation=createInvitationGlow(gl,program,compactGlow);
 const renderBrookAtmosphere=createBrookAtmosphere(gl,program,compactGlow);
 const renderWeather=createWeatherAtmosphere(gl,program,compactGlow);
 const renderCathedral=createCathedralAtmosphere(gl,program,compactGlow);
 const renderGate=createGateAtmosphere(gl,program,compactGlow);
 const guideAnimator=new BrookMotion(BROOK.x-4,BROOK.z+5,0,1.5,(x,z)=>Math.max(BROOK.water+.12,ground(x,z)+.06));
 let guideState=guideAnimator.update(0,0,pos,true);
+const inviteButton=$('dragon-invite');
+function inviteDragon(){
+ if(!started||introActive||window.elyndraVisionOpen||!$('instructions').hidden||!$('travelmenu').hidden)return;
+ if(invitationState.canFinish){invitation.finish();return;}
+ if(invitation.invite(encounterState,pos))chime();
+}
+inviteButton.onclick=inviteDragon;
+addEventListener('keydown',e=>{
+ if(e.code==='KeyR'&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)){inviteDragon();}
+});
 function draw(m,offset=[0,0,0],rot=0){gl.bindVertexArray(m.vao);gl.uniform3fv(U.offset,offset);gl.uniform1f(U.rot,rot);gl.drawArrays(gl.TRIANGLES,0,m.count)}
 let toastTimer;function toast(t){$('toast').textContent=t;$('toast').style.opacity=1;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.opacity=0,4500)}
 function snapshot(){introSnapshot={pos:[...pos],yaw,pitch,started,flying};}
@@ -487,11 +500,12 @@ const celebrations=[];
 addEventListener('elyndra-puzzle-solved',e=>{let p=locations[e.detail];if(p){if(e.detail===1){active=true;portalTime=0;}celebrations.push({x:p.x,z:p.z,age:0});chime();}});
 let talkSignature='';
 let prev=0,clock=0,discoveryTimer=0;function frame(ms){requestAnimationFrame(frame);let dt=Math.min((ms-prev)/1000,.05);prev=ms;if(audioCtx&&cathedralGain){let distance=Math.hypot(pos[0]+48,pos[1]-13,pos[2]+59),near=Math.max(0,1-distance/52),audible=soundOn&&!window.elyndraVisionOpen&&!document.hidden?1:0;cathedralGain.gain.setTargetAtTime(near*near*audible*(.7+cathedralState.bloom*.9),audioCtx.currentTime,.6);rustleGain.gain.setTargetAtTime(near*(.3+.12*Math.sin(clock*.7))*audible,audioCtx.currentTime,.8);}if(brookGain){const audible=soundOn&&!document.hidden&&!window.elyndraVisionOpen?1:0;brookGain.gain.setTargetAtTime(wonderState.near*(.45+wonderState.bloom*.55)*audible,audioCtx.currentTime,.8);if(brookPan){const dx=BROOK.x-pos[0],dz=BROOK.z-pos[2];brookPan.pan.setTargetAtTime(Math.max(-1,Math.min(1,(Math.cos(yaw)*dx+Math.sin(yaw)*dz)/18)),audioCtx.currentTime,.3);}}
-if(dragonGain){const d=Math.hypot(pos[0]-DRAGON_REST.x,pos[2]-DRAGON_REST.z);const level=soundOn&&!document.hidden&&!window.elyndraVisionOpen?Math.max(0,1-d/22)*encounterState.settle*(.24+.1*Math.sin(clock*.8)+encounterState.bow*.2):0;dragonGain.gain.setTargetAtTime(level,audioCtx.currentTime,.7);}if(gardenGain)gardenGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?companionState.gardenNear*companionState.bloom:0,audioCtx.currentTime,1.2);if(rainGain)rainGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?skyState.rain*.2:0,audioCtx.currentTime,.9);if(window.elyndraVisionOpen){$('brook-caption').hidden=true;return;}clock+=dt;deerState=deerAnimator.update(document.hidden?0:dt,clock,pos,reducedMotion);brookStates=brookAnimators.map(a=>a.update(document.hidden?0:dt,clock,pos,reducedMotion));dragonState=dragonPose(clock,reducedMotion);const keeperDistance=Math.hypot(pos[0]-86,pos[2]-36);if(started&&!introActive){if(keeperDistance<24&&!keeperWasNear){keeperGreeting=clock;keeperWasNear=true;}if(keeperDistance>36)keeperWasNear=false;}keeperMotion=keeperPose(clock,keeperGreeting<0?-1:clock-keeperGreeting,pos,gy,reducedMotion);
+if(dragonGain){const dp=invitationState.pose??encounterState,where=dp.position??dragonState.position;const d=Math.hypot(pos[0]-where[0],pos[2]-where[2]);const level=soundOn&&!document.hidden&&!window.elyndraVisionOpen?Math.max(0,1-d/22)*dp.settle*(.24+.1*Math.sin(clock*.8)+dp.bow*.2+invitationState.breath*.18):0;dragonGain.gain.setTargetAtTime(level,audioCtx.currentTime,.7);}if(gardenGain)gardenGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?companionState.gardenNear*companionState.bloom:0,audioCtx.currentTime,1.2);if(rainGain)rainGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?skyState.rain*.2:0,audioCtx.currentTime,.9);if(document.hidden||window.elyndraVisionOpen){$('brook-caption').hidden=true;return;}clock+=dt;deerState=deerAnimator.update(document.hidden?0:dt,clock,pos,reducedMotion);brookStates=brookAnimators.map(a=>a.update(document.hidden?0:dt,clock,pos,reducedMotion));dragonState=dragonPose(clock,reducedMotion);const keeperDistance=Math.hypot(pos[0]-86,pos[2]-36);if(started&&!introActive){if(keeperDistance<24&&!keeperWasNear){keeperGreeting=clock;keeperWasNear=true;}if(keeperDistance>36)keeperWasNear=false;}keeperMotion=keeperPose(clock,keeperGreeting<0?-1:clock-keeperGreeting,pos,gy,reducedMotion);
 skyState=atmosphere.update(dt,true);night=skyState.night;if(skyState.name!==$('time').textContent)syncTimeButton();if(Math.abs(skyState.hour-lastSunHour)>.35){lightMatrix=aimSun(skyState.sun);lastSunHour=skyState.hour;}if(skyState.phase!==weatherPhase){weatherPhase=skyState.phase;if(weatherPhase==='afterglow'&&started)toast('De regen trekt weg. Alles glinstert.');}
-if(introActive){updateIntro(dt);}else if(started){let mx=move[0]+(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0),mz=move[1]+(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0),l=Math.max(1,Math.hypot(mx,mz)),speed=(flying?16:6.5)*(keys.ShiftLeft?2.2:1);mx/=l;mz/=l;pos[0]+=(Math.cos(yaw)*mx+Math.sin(yaw)*mz)*speed*dt;pos[2]+=(Math.sin(yaw)*mx-Math.cos(yaw)*mz)*speed*dt;if(flying){pos[1]+=(vertical+(keys.Space?1:0)-(keys.KeyC?1:0)+mz*Math.sin(pitch)*.6)*speed*dt;pos[1]=Math.max(Math.max(ground(pos[0],pos[2]),water)+2,Math.min(160,pos[1]))}else{let h=Math.max(ground(pos[0],pos[2]),water+.15)+2.4;if(Math.abs(pos[2]-35)<4&&Math.abs(pos[0]-river(35))<23)h=Math.max(h,4.4+Math.sin((pos[0]-river(35)+22)/44*Math.PI)*4);pos[1]+=(h-pos[1])*Math.min(1,dt*4)}for(let trunk of trunkColliders){if(pos[1]>ground(trunk.x,trunk.z)+trunk.h)continue;let dx=pos[0]-trunk.x,dz=pos[2]-trunk.z,dist=Math.hypot(dx,dz),r=trunk.r+.45;if(dist<r){if(dist<.001){pos[0]=trunk.x+r}else{pos[0]=trunk.x+dx/dist*r;pos[2]=trunk.z+dz/dist*r}}}if(encounterState.settle>.95&&pos[1]<ground(DRAGON_REST.x,DRAGON_REST.z)+4){
- const dx=pos[0]-DRAGON_REST.x,dz=pos[2]-DRAGON_REST.z,d=Math.hypot(dx,dz);
- if(d<1.45){pos[0]=DRAGON_REST.x+(d>.001?dx/d:1)*1.45;pos[2]=DRAGON_REST.z+(d>.001?dz/d:0)*1.45;}
+if(introActive){updateIntro(dt);}else if(started){let mx=move[0]+(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0),mz=move[1]+(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0),l=Math.max(1,Math.hypot(mx,mz)),speed=(flying?16:6.5)*(keys.ShiftLeft?2.2:1);mx/=l;mz/=l;pos[0]+=(Math.cos(yaw)*mx+Math.sin(yaw)*mz)*speed*dt;pos[2]+=(Math.sin(yaw)*mx-Math.cos(yaw)*mz)*speed*dt;if(flying){pos[1]+=(vertical+(keys.Space?1:0)-(keys.KeyC?1:0)+mz*Math.sin(pitch)*.6)*speed*dt;pos[1]=Math.max(Math.max(ground(pos[0],pos[2]),water)+2,Math.min(160,pos[1]))}else{let h=Math.max(ground(pos[0],pos[2]),water+.15)+2.4;if(Math.abs(pos[2]-35)<4&&Math.abs(pos[0]-river(35))<23)h=Math.max(h,4.4+Math.sin((pos[0]-river(35)+22)/44*Math.PI)*4);pos[1]+=(h-pos[1])*Math.min(1,dt*4)}for(let trunk of trunkColliders){if(pos[1]>ground(trunk.x,trunk.z)+trunk.h)continue;let dx=pos[0]-trunk.x,dz=pos[2]-trunk.z,dist=Math.hypot(dx,dz),r=trunk.r+.45;if(dist<r){if(dist<.001){pos[0]=trunk.x+r}else{pos[0]=trunk.x+dx/dist*r;pos[2]=trunk.z+dz/dist*r}}}const solidDragon=invitationState.pose??encounterState;
+if(solidDragon.position&&solidDragon.settle>.95&&pos[1]<solidDragon.position[1]+2.5){
+ const [x,,z]=solidDragon.position,dx=pos[0]-x,dz=pos[2]-z,d=Math.hypot(dx,dz);
+ if(d<1.45){pos[0]=x+(d>.001?dx/d:1)*1.45;pos[2]=z+(d>.001?dz/d:0)*1.45;}
 }
 pos[0]=Math.max(-155,Math.min(155,pos[0]));pos[2]=Math.max(-235,Math.min(180,pos[2]));
 const talkCandidates=started&&!introActive?nearbySpeakers(pos,deerState.position,gy):[],signature=talkCandidates.join(',');if(signature!==talkSignature){talkSignature=signature;dispatchEvent(new CustomEvent('elyndra-talk-near',{detail:talkCandidates}));}
@@ -508,9 +522,16 @@ else if(wonderState.bloom>.65&&!reducedMotion)guideAnimator.heading=Math.atan2(-
 else if(!reducedMotion)guideAnimator.heading=Math.atan2(-(gp[0]-oldGuide[0]),-(gp[2]-oldGuide[1]));
 guideState=guideAnimator.update(dt,clock,pos,reducedMotion);guideShadow=guideState;
 const flight=visitingFlight(wonderState.age,dragonState.position,reducedMotion);
-if(flight&&dragonEncounter.phase==='orbit'){const delta=previousFlight?flight.map((v,k)=>v-previousFlight[k]):[0,0,0];const direction=Math.hypot(delta[0],delta[2])>.0001?Math.atan2(-delta[0],-delta[2]):dragonState.heading;dragonState=dragonPose(clock,reducedMotion,{position:flight,heading:direction});previousFlight=flight;}else previousFlight=null;
-encounterState=dragonEncounter.update(dt,dragonState,pos,companionState,started&&!introActive,reducedMotion);
-if(encounterState.position)dragonState=dragonPose(clock,reducedMotion,{...encounterState,ground});
+if(flight&&dragonEncounter.phase==='orbit'&&!invitationState.active){const delta=previousFlight?flight.map((v,k)=>v-previousFlight[k]):[0,0,0];const direction=Math.hypot(delta[0],delta[2])>.0001?Math.atan2(-delta[0],-delta[2]):dragonState.heading;dragonState=dragonPose(clock,reducedMotion,{position:flight,heading:direction});previousFlight=flight;}else previousFlight=null;
+encounterState=dragonEncounter.update(dt,dragonState,pos,companionState,started&&!introActive&&invitation.phase==='idle',reducedMotion);
+invitationState=invitation.update(dt,pos,dragonState,started&&!introActive,reducedMotion);
+if(invitationState.released){
+ dragonEncounter.phase='orbit';dragonEncounter.position=null;dragonEncounter.calm=0;dragonEncounter.away=0;
+ dragonEncounter.settle=0;dragonEncounter.bow=0;dragonEncounter.look=0;
+ encounterState=dragonEncounter.snapshot();
+}
+const encounterPose=invitationState.pose??encounterState;
+if(encounterPose.position)dragonState=dragonPose(clock,reducedMotion,{...encounterPose,ground});
 if((companionState.gardenNear>.01||companionState.near>.01||wonderState.near>.01||Math.hypot(pos[0]+96,pos[2]+180)<85||Math.hypot(pos[0]-66,pos[2]+90)<55||keeperDistance<90||Math.hypot(pos[0]-deerState.position[0],pos[2]-deerState.position[2])<65)&&clock-lastKeeperShadow>(mobile?.5:.25)){renderShadows();lastKeeperShadow=clock;}
 if(wonderState.phase!==wonderPhase){
  wonderPhase=wonderState.phase;
@@ -548,6 +569,34 @@ if(encounterState.greeted){try{localStorage.setItem('elyndra-dragon-known','yes'
 const cathedralSpeaking=cathedralState.near>=.2&&cathedralPhase!=='far'&&cathedralPhase!=='afterglow';
 const gateSpeaking=gateState.near>=.2&&gatePhase!=='far'&&gatePhase!=='afterglow';
 $('brook-caption').hidden=!started||introActive||(Math.max(wonderState.near,companionState.near,companionState.gardenNear,cathedralState.near,gateState.near)<.2)||(!cathedralSpeaking&&!gateSpeaking&&clock>Math.max(wonderCaptionUntil,companionCaptionUntil,dragonCaptionUntil,cathedralCaptionUntil,gateCaptionUntil))||(wonderPhase==='far'&&companionPhase==='resting'&&cathedralPhase==='far'&&gatePhase==='far'&&clock>Math.max(companionCaptionUntil,dragonCaptionUntil,cathedralCaptionUntil,gateCaptionUntil));
+const mayInvite=started&&!introActive&&invitation.canInvite(encounterState,pos);
+const invitationVisible=started&&!introActive&&$('instructions').hidden&&$('travelmenu').hidden;
+inviteButton.hidden=!invitationVisible||!(mayInvite||invitationState.canFinish);
+const inviteLabel=invitationState.canFinish?'Laat het licht rusten'+(mobile?'':' · R'):'Ga je mee?'+(mobile?'':' · R');
+if(inviteButton.textContent!==inviteLabel)inviteButton.textContent=inviteLabel;
+if(invitationVisible&&(invitationState.active||mayInvite)){
+ const words={
+  accepting:['Hij gaat met je mee','Een buiging. Dan spreidt hij zijn vleugels.'],
+  takingoff:['Een stukje samen','Volg hem te voet. Hij wacht als je achterblijft.'],
+  leading:['Een stukje samen','Volg zijn lage vlucht naar de open plek.'],
+  waiting:['Hij kijkt naar je om','Kom weer dichterbij. Hij heeft alle tijd.'],
+  awakening:['Een plek voor jullie twee','Kom bij de lichtjes in het gras.'],
+  weaving:['Jouw stappen, zijn licht','Wandel tussen de lichtjes. Zijn adem laat bloemen op jouw pad ontwaken.'],
+  farewell:['Dit hebben jullie samen gemaakt','Hij buigt nog één keer. Een klein lichtje blijft even bij je.'],
+  departing:invitationState.completed?['Tot de volgende wandeling','Het licht vervaagt. De ontmoeting blijft.']:['Een andere keer','Hij geeft je de ruimte. Je kunt hem later opnieuw uitnodigen.']
+ };
+ const caption=mayInvite?['Hij vertrouwt je','Nodig hem uit voor een wandeling.']:words[invitationState.phase];
+ if(caption){
+  if($('brook-title').textContent!==caption[0])$('brook-title').textContent=caption[0];
+  if($('brook-text').textContent!==caption[1])$('brook-text').textContent=caption[1];
+  $('brook-caption').hidden=invitationState.phase==='departing'&&invitationState.elapsed>8;
+  $('discovery').hidden=true;
+ }
+}
+if(invitationPhase!==invitationState.phase){
+ invitationPhase=invitationState.phase;
+ if(invitationPhase==='weaving'||invitationPhase==='farewell')chime();
+}
 let heading=((yaw*180/Math.PI)%360+360)%360,dirs=['N','NO','O','ZO','Z','ZW','W','NW'];$('compass').textContent=`· · · ${dirs[Math.round(heading/45)%8]} · ${Math.round(heading)}° · · ·`;let sky=[.37*(1-night)+.025*night,.62*(1-night)+.055*night,.67*(1-night)+.11*night];gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);drawSky();gl.uniformMatrix4fv(U.vp,false,mul(projection,view()));gl.uniform3fv(U.eye,pos);gl.uniform1f(U.night,night);gl.uniform1f(U.time,clock);gl.uniform3fv(U.sunDir,skyState.sun);gl.uniform1f(U.warmth,skyState.warmth);gl.uniform1f(U.mistAmt,skyState.mist);gl.uniform1f(U.wet,skyState.wet);gl.uniform1f(U.wonder,wonderState.bloom);gl.uniform1f(U.gardenBloom,0);gl.uniform1f(U.cathedralBreath,cathedralState.bloom);gl.uniform1f(U.gateMirror,gateState.bloom);gl.uniform1f(U.lite,quality==='high'?0:1);gl.uniform4fv(U.keeperMotion,keeperMotion);gl.uniform1f(U.keeperBase,gy);gl.uniformMatrix4fv(U['animalBones[0]'],false,deerUniforms());draw(terrain);if(quality==='high'&&Math.hypot(pos[0]+48,pos[2]+65)<55){for(let j=0;j<22;j++){let a=j*2.399,t=reducedMotion?j*.73:clock,r=9+(j%5)*3,x=-48+Math.cos(a)*r+Math.sin(t*.3+j)*1.1,z=-65+Math.sin(a)*r+Math.cos(t*.24+j)*.8,y=ground(x,z)+1+((j*1.73-t*.38)%11+11)%11;draw(driftingLeaf,[x,y,z],a+t*.25);if(j%2===0)draw(mote,[x+1,ground(x,z)+2+Math.sin(t*.5+j)*.6,z+2]);}}for(let i=celebrations.length-1;i>=0;i--){let c=celebrations[i];c.age+=dt;if(c.age>14){celebrations.splice(i,1);continue;}for(let j=0;j<(quality==='high'?24:8);j++){let a=j*TAU/24+c.age*.6,r=3+c.age*.8;draw(mote,[c.x+Math.cos(a)*r,ground(c.x,c.z)+2+c.age*.8+Math.sin(a)*2,c.z+Math.sin(a)*r]);}}draw(riverMesh);const rich=quality==='high';for(let i=0;i<(rich?motes.length:0);i++){let m=motes[i],x=m.x+Math.sin(clock*.3+m.a)*3,z=m.z+Math.cos(clock*.25+m.a)*3;draw(mote,[x,Math.max(ground(x,z),water)+m.y+Math.sin(clock+m.a),z])}for(let i=0;i<(rich?drones.length:0);i++){let d=drones[i],a=clock*.13+d.a;draw(drone,[d.x+Math.cos(a)*12,ground(d.x,d.z)+8+Math.sin(clock+d.a)*1.3,d.z+Math.sin(a)*12],-a)}if(Math.hypot(pos[0]-deerState.position[0],pos[2]-deerState.position[2])<80)draw(stagMesh);if(companionState.near>.01){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(guideState.bones));draw(brookMesh);}for(let state of brookStates){if(Math.hypot(pos[0]-state.position[0],pos[2]-state.position[2])<70){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(state.bones));draw(brookMesh);}}if(keeperDistance<80)draw(leaflingMesh,[96,gy+15.8+keeperMotion[0],43],Math.sin(clock*.4)*.3);if(Math.hypot(pos[0]-dragonState.position[0],pos[2]-dragonState.position[2])<95){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(dragonState.bones));draw(dragonMesh);}if(active){draw(portal,[66,py+12,-110],0);for(let j=0;j<(rich?24:4);j++){let a=j*TAU/(rich?24:4)+clock*.22,r=8.8-Math.sin(clock*.4+j)*.4;draw(mote,[66+Math.cos(a)*r,py+12+Math.sin(a)*r,-109.5+Math.sin(clock*.3+j)*.4]);}}
 if(companionState.gardenNear>.01){
  for(const flower of gardenFlowers){
@@ -555,11 +604,21 @@ if(companionState.gardenNear>.01){
   gl.uniform1f(U.gardenBloom,bloom);draw(gardenFlowerMesh,[flower.x,flower.y+.7,flower.z],flower.rotation);
  }
 }
+if(invitationState.active){
+ for(const flower of invitationState.flowers){
+  if(flower.bloom<.01)continue;
+  gl.uniform1f(U.gardenBloom,flower.bloom);draw(gardenFlowerMesh,[flower.x,flower.y+.7,flower.z],flower.x*2.399);
+ }
+ gl.uniform1f(U.gardenBloom,0);
+}
 renderBrookAtmosphere(mul(projection,view()),{...wonderState,companion:companionState,garden:GARDEN,flowers:gardenFlowers,guideHeading:guideAnimator.heading,trail:['leading','waiting','returning'].includes(companionPhase)?companionTrail(companionState.progress,ground):[]},night,reducedMotion,canvas.height);
+const headBone=dragonState.bones[2];
+const dragonMouth=[0,1,2].map(i=>headBone[i+12]-headBone[i+8]*.88);
+renderInvitation(mul(projection,view()),invitationState,dragonMouth,ground,reducedMotion,canvas.height);
 renderWeather(mul(projection,view()),pos,{...skyState,time:clock},reducedMotion,canvas.height);
 renderCathedral(mul(projection,view()),cathedralState,shrineY,reducedMotion,canvas.height);
 renderGate(mul(projection,view()),gateState,py+12,reducedMotion,canvas.height);
 }requestAnimationFrame(frame);
-window.elyndraLook=()=>({pos:[...pos],flying,hour:skyState.hour,active,cathedral:cathedralState,gate:gateState});
+window.elyndraLook=()=>({pos:[...pos],flying,hour:skyState.hour,active,cathedral:cathedralState,gate:gateState,dragon:encounterState,invitation:invitationState});
 
 addEventListener('elyndra-vision-open',()=>{for(let k in keys)keys[k]=false;move=[0,0];vertical=0;look=null;joy=null;$('stick').style.transform='none';});

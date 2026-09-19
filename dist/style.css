@@ -16,3 +16,9 @@
 @media(max-width:600px){#brook-caption{bottom:auto;top:140px;padding:14px 6px}#brook-text{font-size:14px}#travelmenu{bottom:100px;max-height:calc(100dvh - 155px)}}
 
 #garden-view{width:100%;text-align:left;margin-bottom:12px;border-radius:10px;font-size:14px;border-color:#8bd4b68c;color:#e1f2bc}
+
+/* Invitation stays with its short caption, clear of the movement controls. */
+#dragon-invite{pointer-events:auto;min-height:46px;margin-top:15px;padding:12px 24px;font-size:16px;border-color:#dfdc9d;color:#f4f1cc;background:#244536ed;box-shadow:0 3px 24px #071c2680}
+#dragon-invite:hover{background:#3d6048}#dragon-invite:focus-visible{outline:2px solid #ffefb4;outline-offset:4px}
+@media(max-width:600px){#brook-caption:has(#dragon-invite:not([hidden])){top:116px}#dragon-invite{margin-top:10px}}
+@media(max-height:500px){#brook-caption{top:65px;bottom:auto;padding:8px;max-width:420px}#brook-title{font-size:22px}#brook-text{font-size:14px}#dragon-invite{padding:8px 20px;margin-top:8px}}

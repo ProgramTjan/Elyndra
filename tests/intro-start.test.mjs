@@ -63,3 +63,40 @@ for(let i=0;i<480;i++)frame(time+=50);
 assert.equal($('brook-title').textContent,'Hij blijft','The garden leads to a landed dragon');
 assert(Math.hypot(eye[0]+4,eye[2]+37)<.1,'The landing must not move the visitor');
 console.log('Dragon landing integration and visitor camera control passed.');
+
+// Invite through the actual UI and walk the shared route with normal movement input.
+function walkTo(x,z,limit=240){
+ for(let i=0;i<limit&&Math.hypot(eye[0]-x,eye[2]-z)>.55;i++){
+  const desired=Math.atan2(x-eye[0],-(z-eye[2])),turn=Math.atan2(Math.sin(desired-viewYaw),Math.cos(desired-viewYaw));
+  canvas.emit('pointerdown',{pointerId:9,pointerType:'touch',clientX:100,clientY:100});
+  canvas.emit('pointermove',{pointerId:9,pointerType:'touch',clientX:100+turn/.004,clientY:100});
+  canvas.emit('pointerup',{});dispatchEvent({type:'keydown',code:'KeyW',repeat:false,preventDefault(){}});frame(time+=50);
+ }
+ dispatchEvent({type:'keyup',code:'KeyW'});
+}
+walkTo(-8.25,-38.3);for(let i=0;i<220;i++)frame(time+=50);
+assert.equal($('dragon-invite').hidden,false,'A trusted greeting reveals the invitation');
+const invitedFrom=[...eye];$('dragon-invite').onclick();frame(time+=50);
+assert.equal(window.elyndraLook().invitation.phase,'accepting');
+assert(Math.hypot(...eye.map((v,i)=>v-invitedFrom[i]))<.1,'Accepting does not take the camera');
+for(let i=0;i<900&&window.elyndraLook().invitation.phase!=='waiting';i++)frame(time+=50);
+assert.equal(window.elyndraLook().invitation.phase,'waiting');
+for(let i=0;i<30&&window.elyndraLook().invitation.phase!=='weaving';i++){
+ const p=window.elyndraLook().invitation.pose.position;walkTo(p[0]+1,p[2]+3,25);
+ for(let j=0;j<20;j++)frame(time+=50);
+}
+assert.equal(window.elyndraLook().invitation.phase,'weaving','The existing controls can complete the cleared route');
+for(const [x,z] of [[-23,-16],[-19,-16],[-19,-12],[-23,-12]])walkTo(x,z);
+for(let i=0;i<180;i++)frame(time+=50);
+assert(window.elyndraLook().invitation.flowers.length>=4,'Walking creates the constellation');
+assert.equal($('dragon-invite').hidden,false);
+const paused=window.elyndraLook().invitation;window.elyndraVisionOpen=true;
+for(let i=0;i<80;i++)frame(time+=50);
+assert.deepEqual(window.elyndraLook().invitation,paused,'A modal pauses the integrated journey');
+window.elyndraVisionOpen=false;
+dispatchEvent({type:'keydown',code:'KeyR',repeat:false,target:{tagName:'BODY'}});frame(time+=50);
+assert.equal(window.elyndraLook().invitation.phase,'farewell','Keyboard and touch share the same action');
+for(let i=0;i<570;i++)frame(time+=50);
+assert.equal(window.elyndraLook().invitation.phase,'idle');
+assert.equal(window.elyndraLook().dragon.phase,'orbit','The ordinary dragon resumes after farewell');
+console.log('Invitation: touch, keyboard, walkable route, waiting, light flowers, paused dialogs and return to ordinary flight passed.');

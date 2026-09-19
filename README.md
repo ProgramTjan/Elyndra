@@ -49,6 +49,14 @@ Na je ontdekking van de tuin komt de draak landen op de open plek. Zijn vleugels
 
 De draak en de lichtdrager herkennen een volgend bezoek op hetzelfde apparaat. De lichtdrager begroet je en zwemt even mee voordat hij zijn eigen ritme hervat. Zonder browseropslag blijven de ontmoetingen gewoon werken tijdens je bezoek.
 
+## De uitnodiging van de draak
+
+Begroet de draak in de slapende tuin. Wanneer hij je vertrouwt en zijn kop buigt, verschijnt **Ga je mee?** (toets **R** op de computer). Hij vliegt laag naar een beschutte open plek, kijkt om en wacht als je achterblijft. Volg hem te voet.
+
+Wandel op de open plek tussen de lichtjes. Zijn adem volgt je stappen: bloemen openen en lichtlijnen verbinden ze tot jullie eigen sterrenbeeld. Met **Laat het licht rusten** (of **R**) neem je afscheid. Eén lichtje gaat even met je mee. Je kunt ook gewoon weglopen; later kun je hem opnieuw uitnodigen.
+
+Geluid is optioneel. Met minder beweging blijven de lichtdeeltjes rustig en cirkelt de wachtende draak niet. Je blijft zelf bewegen en rondkijken. De tijdelijke bloemen worden niet opgeslagen.
+
 ## Herkomst
 
 Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. De live site is GitHub Pages op `dist/`; een push naar `main` werkt de website bij.
