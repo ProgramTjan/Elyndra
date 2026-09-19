@@ -100,3 +100,29 @@ for(let i=0;i<570;i++)frame(time+=50);
 assert.equal(window.elyndraLook().invitation.phase,'idle');
 assert.equal(window.elyndraLook().dragon.phase,'orbit','The ordinary dragon resumes after farewell');
 console.log('Invitation: touch, keyboard, walkable route, waiting, light flowers, paused dialogs and return to ordinary flight passed.');
+
+// The squirrel is reached from normal travel, then followed on foot.
+$('destinations').children[3].onclick();for(let i=0;i<80;i++)frame(time+=50);
+assert.equal($('squirrel-invite').hidden,false,'The keeper destination makes the invitation discoverable');
+walkTo(96,50);$('squirrel-invite').onclick();frame(time+=50);
+assert.equal(window.elyndraLook().squirrel.phase,'invited');
+const audience=[...eye];for(let i=0;i<205;i++)frame(time+=50);
+assert(Math.hypot(eye[0]-audience[0],eye[2]-audience[2])<.01,'His climb never moves the camera');
+for(let i=0;i<250&&window.elyndraLook().squirrel.phase!=='ready';i++){
+ const p=window.elyndraLook().squirrel.position;walkTo(p[0]+1.7,p[2]-2.2,12);
+ for(let j=0;j<12;j++)frame(time+=50);
+}
+assert.equal(window.elyndraLook().squirrel.phase,'ready','The trail and stump colliders allow a complete walk');
+assert.equal($('squirrel-view').hidden,true,'The monument remains secret before the reveal');
+walkTo(130,140);frame(time+=50);assert.equal($('squirrel-invite').hidden,false);
+const sqPaused=window.elyndraLook().squirrel;window.elyndraVisionOpen=true;
+for(let i=0;i<80;i++)frame(time+=50);assert.deepEqual(window.elyndraLook().squirrel,sqPaused);window.elyndraVisionOpen=false;
+dispatchEvent({type:'keydown',code:'KeyG',repeat:false,target:{tagName:'BODY'}});frame(time+=50);
+assert.equal(window.elyndraLook().squirrel.phase,'revealing');
+for(let i=0;i<530;i++)frame(time+=50);
+assert(window.elyndraLook().squirrel.revealed);assert.equal($('squirrel-view').hidden,false);
+assert.equal(window.elyndraSquirrelContext().monument,true);
+$('squirrel-view').onclick();frame(time+=50);
+assert(Math.abs(viewYaw-Math.PI)<.001,'Return travel looks towards the monument');
+assert(Math.hypot(eye[0]-130,eye[2]-134)<.01);
+console.log('Squirrel: invitation at keeper, complete walk, camera freedom, touchstone, reveal, remembered context and return viewpoint passed.');

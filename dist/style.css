@@ -22,3 +22,9 @@
 #dragon-invite:hover{background:#3d6048}#dragon-invite:focus-visible{outline:2px solid #ffefb4;outline-offset:4px}
 @media(max-width:600px){#brook-caption:has(#dragon-invite:not([hidden])){top:116px}#dragon-invite{margin-top:10px}}
 @media(max-height:500px){#brook-caption{top:65px;bottom:auto;padding:8px;max-width:420px}#brook-title{font-size:22px}#brook-text{font-size:14px}#dragon-invite{padding:8px 20px;margin-top:8px}}
+
+#squirrel-invite{pointer-events:auto;min-height:46px;margin-top:15px;padding:12px 24px;font-size:16px;border-color:#d6ba7b;color:#fff0cb;background:#4a3924ee;box-shadow:0 3px 24px #071c2680}
+#squirrel-invite:hover{background:#685033}#squirrel-invite:focus-visible{outline:2px solid #ffdf98;outline-offset:4px}
+#squirrel-view{width:100%;text-align:left;margin-bottom:12px;border-radius:10px;font-size:14px;border-color:#c5a66d;color:#f4ddb1}
+@media(max-width:600px){#brook-caption:has(#squirrel-invite:not([hidden])){top:116px}#squirrel-invite{margin-top:10px}}
+@media(max-height:500px){#squirrel-invite{padding:8px 20px;margin-top:8px}}

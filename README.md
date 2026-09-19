@@ -57,6 +57,14 @@ Wandel op de open plek tussen de lichtjes. Zijn adem volgt je stappen: bloemen o
 
 Geluid is optioneel. Met minder beweging blijven de lichtdeeltjes rustig en cirkelt de wachtende draak niet. Je blijft zelf bewegen en rondkijken. De tijdelijke bloemen worden niet opgeslagen.
 
+## Het geheim van de eekhoorn
+
+Ga via **Ontdek plekken → De moswachter** naar zijn voeten. Kom dichterbij: onder zijn hand verschijnt **Laat je geheim zien** (toets **G**). De eekhoorn klautert omlaag en leidt je te voet naar de zuidoosthoek. Hij wacht op stronken en komt terug als je achterblijft.
+
+Bij de verborgen heuvel legt hij een eikel neer. Kom bij de kleine steen en kies **Raak de steen aan** (ook **G**). Wortels wijken voor een verweerd standbeeld, mét eikelkroon. De eekhoorn klimt erop en poseert — bijna zonder zijn evenwicht te verliezen.
+
+De ontdekking blijft lokaal bewaard en ontgrendelt **Het geheim van de eekhoorn** in het reismenu. Bij een volgend bezoek kan hij opnieuw naar zijn monument komen; het blijft één eekhoorn die echt door het woud reist. De moswachter heeft daarna iets over zijn bescheidenheid te zeggen. Zonder browseropslag werkt alles tijdens het bezoek. Met minder beweging blijven bladeren en de pose rustig.
+
 ## Herkomst
 
 Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. De live site is GitHub Pages op `dist/`; een push naar `main` werkt de website bij.
