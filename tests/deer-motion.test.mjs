@@ -1,3 +1,4 @@
+import {lakeGround} from '../dist/deer-mirror.mjs';
 import fs from 'node:fs';
 import assert from 'node:assert/strict';import {DeerMotion,solveLeg} from '../dist/deer-motion.mjs';
 const ground=(x,z)=>Math.sin(x*.12)*.12+z*.025;const deer=new DeerMotion(ground);let old,steps=0,moved=false,maxError=0;
@@ -10,5 +11,5 @@ console.log(`Deer: 18 rigid bones, ${steps} steps, planted support feet, bounded
 
 // Use the actual valley terrain to check reach over the full small walking circuit.
 const source=fs.readFileSync(new URL('../dist/world.js',import.meta.url),'utf8');const terrainCode=source.slice(source.indexOf('function river(z)'),source.indexOf('// A continuous valley'));
-const actualGround=new Function(terrainCode+';return ground;')();const walker=new DeerMotion(actualGround);let reach=0;
+const actualGround=new Function('lakeGround',terrainCode+';return ground;')(lakeGround);const walker=new DeerMotion(actualGround);let reach=0;
 for(let i=0;i<6000;i++){let p=walker.update(.025,i*.025,[0,0,0]);reach=Math.max(reach,p.maxFootError);}assert(reach<.04,`Actual terrain reach error ${reach}`);console.log('Actual valley: hoof targets remain within leg reach.');

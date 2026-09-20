@@ -28,3 +28,6 @@
 #squirrel-view{width:100%;text-align:left;margin-bottom:12px;border-radius:10px;font-size:14px;border-color:#c5a66d;color:#f4ddb1}
 @media(max-width:600px){#brook-caption:has(#squirrel-invite:not([hidden])){top:116px}#squirrel-invite{margin-top:10px}}
 @media(max-height:500px){#squirrel-invite{padding:8px 20px;margin-top:8px}}
+
+#deer-mirror-invite{pointer-events:auto;min-height:46px;margin-top:14px;padding:12px 24px;font-size:16px;border-color:#b6cddd;background:#183b50ed;color:#e7f2ff}#deer-mirror-invite:focus-visible{outline:2px solid #eac3e1;outline-offset:4px}#deer-mirror-view{width:100%;text-align:left;margin-bottom:12px;border-radius:10px;font-size:14px;color:#d2e7f5;border-color:#789caf}
+@media(max-width:600px){#brook-caption:has(#deer-mirror-invite:not([hidden])){top:116px}}

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';import fs from 'node:fs';
-const uniformNames=new Set([...(fs.readFileSync(new URL('../dist/world.js',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/brook-wonder.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/atmosphere.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/cathedral-wonder.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/gate-wonder.mjs',import.meta.url),'utf8')).matchAll(/uniform\s+\w+\s+(\w+)/g)].map(m=>m[1]));
+const uniformNames=new Set([...(fs.readFileSync(new URL('../dist/deer-mirror.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/world.js',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/brook-wonder.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/atmosphere.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/cathedral-wonder.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/gate-wonder.mjs',import.meta.url),'utf8')).matchAll(/uniform\s+\w+\s+(\w+)/g)].map(m=>m[1]));
 let raf;const nodes=new Map(),events=new Map();let eye,viewYaw,viewPitch;
 const gl=new Proxy({FRAMEBUFFER_COMPLETE:1,checkFramebufferStatus:()=>1,getShaderParameter:()=>true,getProgramParameter:()=>true,createShader:()=>({}),createProgram:()=>({}),createVertexArray:()=>({}),createBuffer:()=>({}),bufferData:(target,data)=>{assert(data.every(Number.isFinite),'Uploaded geometry must be finite')},createTexture:()=>({}),createFramebuffer:()=>({}),getUniformLocation:(p,n)=>{assert(uniformNames.has(n.split('[')[0]),'Shader uniform exists: '+n);return n},uniform1f:(u,v)=>{if(u==='yaw')viewYaw=v;if(u==='pitch')viewPitch=v},uniformMatrix4fv:(u,t,v)=>{assert(Array.from(v).every(Number.isFinite),'Shader matrices must be finite')},uniform3fv:(u,v)=>{if(u==='eye')eye=[...v]}},{get:(o,k)=>o[k]??(()=>{})});
 function element(){const handlers={};return{style:{},children:[],hidden:false,open:false,classList:{add(){},remove(){}},textContent:'',innerHTML:'',getContext:()=>gl,appendChild(e){this.children.push(e)},addEventListener(k,f){(handlers[k]??=[]).push(f)},emit(k,e){for(const f of handlers[k]??[])f(e)},focus(){},showModal(){this.open=true},close(){this.open=false;for(let f of handlers.close??[])f()},setAttribute(){},setPointerCapture(){}}}
@@ -126,3 +126,23 @@ $('squirrel-view').onclick();frame(time+=50);
 assert(Math.abs(viewYaw-Math.PI)<.001,'Return travel looks towards the monument');
 assert(Math.hypot(eye[0]-130,eye[2]-134)<.01);
 console.log('Squirrel: invitation at keeper, complete walk, camera freedom, touchstone, reveal, remembered context and return viewpoint passed.');
+
+// The lake encounter is reachable and completable through ordinary visitor inputs.
+$('deer-mirror-view').onclick();frame(time+=50);
+for(let i=0;i<130;i++)frame(time+=50);
+assert.equal($('deer-mirror-invite').hidden,false);
+const lakeEye=[...eye];$('deer-mirror-invite').onclick();frame(time+=50);
+assert.equal(window.elyndraLook().mirror.phase,'entering');
+assert(Math.hypot(...eye.map((v,i)=>v-lakeEye[i]))<.1,'Invitation preserves the visitor camera');
+for(let i=0;i<170;i++)frame(time+=50);
+assert.equal(window.elyndraLook().mirror.phase,'searching');
+const mirrorPaused=window.elyndraLook().mirror;window.elyndraVisionOpen=true;
+for(let i=0;i<80;i++)frame(time+=50);
+assert.deepEqual(window.elyndraLook().mirror,mirrorPaused);window.elyndraVisionOpen=false;
+walkTo(9,139);for(let i=0;i<70;i++)frame(time+=50);
+assert.equal(window.elyndraLook().mirror.phase,'opening','Ordinary walking can align the reflection');
+for(let i=0;i<650;i++)frame(time+=50);
+assert.equal(window.elyndraLook().mirror.phase,'farewell');
+assert.equal(window.elyndraLook().mirror.fade,1,'The deer returns visibly');
+assert(window.elyndraLook().mirror.completed);
+console.log('Deer mirror: travel, invitation, free camera, modal pause, walking alignment, underwater forest and visible return passed.');

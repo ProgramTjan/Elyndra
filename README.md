@@ -65,6 +65,14 @@ Bij de verborgen heuvel legt hij een eikel neer. Kom bij de kleine steen en kies
 
 De ontdekking blijft lokaal bewaard en ontgrendelt **Het geheim van de eekhoorn** in het reismenu. Bij een volgend bezoek kan hij opnieuw naar zijn monument komen; het blijft één eekhoorn die echt door het woud reist. De moswachter heeft daarna iets over zijn bescheidenheid te zeggen. Zonder browseropslag werkt alles tijdens het bezoek. Met minder beweging blijven bladeren en de pose rustig.
 
+## Het hert en zijn spiegelbeeld
+
+Kies **Ontdek plekken → Het hert aan het sterrenmeer**. Blijf even bij hem staan en kijk in het water: alleen zijn weerspiegelde gewei krijgt bloesem. Met **Ik pas op je schaduw** (toets **H**) begint de ontmoeting.
+
+Het hert verdwijnt in het meer, zijn spiegelbeeld blijft. Wandel langs de westelijke oever en breng de maan tussen de weerspiegelde bloesemtakken. De korte aanwijzing helpt je dichterbij. Als je even op de juiste plek blijft, opent een onderwaterbos met sterren en grote, rustige gestalten. Daarna keert het hert uit de oeverbegroeiing terug en valt er één blaadje van zijn kale gewei.
+
+Geen timer, vereist geluid of automatische camerabeweging. Weglopen beëindigt de ontmoeting rustig; na vertrek kun je haar opnieuw ontdekken. Minder beweging houdt het andere bos en de reflectie rustig.
+
 ## Herkomst
 
 Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. De live site is GitHub Pages op `dist/`; een push naar `main` werkt de website bij.
