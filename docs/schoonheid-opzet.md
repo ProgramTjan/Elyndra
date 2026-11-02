@@ -106,7 +106,7 @@ Eerste kandidaten, zonder de vallei te vergroten:
 |--------|----------|-------------|
 | Adem van de kathedraal | stilte onder de bogen bij laag zonlicht | **gebouwd** — zaadschrijn ademt; een vergeten vogel klinkt één keer |
 | Spiegel van de poort | poort actief + schemer | **gebouwd** — het water in de ring toont even het *andere* bos |
-| Dauw van de tuinen | na regen, vliegend tussen eilanden | watervallen worden zichtbaar; zaad-drones kruisen je pad |
+| Dauw van de tuinen | na regen, vliegend tussen eilanden | **gebouwd** — watervallen worden zichtbaar; zaadbewaarders kruisen je pad |
 | Hart van de wachter | na puzzel 4, nachtelijke stilte | het hartlicht synchroniseert met de vier hartslagen |
 
 ---
@@ -136,8 +136,16 @@ Geen grote herschrijving. Alleen deuren openzetten.
 
 ### Fase C — Drie nieuwe stilte-wonderen
 
-Kathedraal en poort zijn gebouwd (`cathedral-wonder.mjs`, `gate-wonder.mjs`). Tuinen volgen.  
+Gebouwd: kathedraal, poort en tuinen (`cathedral-wonder.mjs`, `gate-wonder.mjs`, `garden-dew.mjs`).  
 Geen nieuwe puzzel. Geen nieuwe visioen-afbeelding verplicht.
+
+Dauw van de tuinen, zoals gebouwd:
+
+- Conditie: natte lucht (regen of net na regen). Mist alleen telt niet. Vanaf de grond zie je de watervallen al zwak.
+- Blijven: zes seconden vliegend stilhangen tussen de eilanden. Dan laten de eilanden hun water los en worden de watervallen vol.
+- Daarna steken vier zaadbewaarders (dezelfde drones als in de vallei) over van eiland naar eiland, vlak voor je blik langs, met een spoor van stuifmeel. 's Nachts dragen ze blauwe lantaarns.
+- Terugkeer: bij een volgend bezoek blijft één zaadbewaarder halverwege stilhangen en kijkt je aan.
+- Reismenu: *Dauw van de tuinen · na regen* brengt je tussen de eilanden en geeft het bezoek een net gevallen bui, tenzij je zelf vast weer hebt gekozen.
 
 ### Fase D — Visioenen lekken naar de wereld
 
