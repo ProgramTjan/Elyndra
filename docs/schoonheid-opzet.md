@@ -151,6 +151,16 @@ Dauw van de tuinen, zoals gebouwd:
 
 De zestien bewoners uit `visions.js` zijn al geschreven. Laat er drie *zeldzaam* in de vallei verschijnen, in realtime-stijl, nooit als UI-popup. Wie ze ziet, herkent ze later in het visioen.
 
+Gebouwd in `rare-dwellers.mjs`. Elk komt één keer per venster, en alleen zolang je zacht bent:
+
+| Bewoner | Conditie | Wat gebeurt |
+|---------|----------|-------------|
+| De wortelvos | dageraad, te voet bij de wortelkathedraal | draaft het pad over, legt zijn oor op de grond, graaft; er welt water op |
+| De zilvervleugel | nacht, ring wakker, bij de lichtpoort | vliegt laag binnen, rust op een lantaarnpaal, buigt met haar zilveren vleugel open, vliegt door het licht |
+| Het bladortje | na regen, rustig staan voor de moswachter | klimt van zijn schouder langs een rank omlaag, drinkt, schudt zich uit, kijkt je aan, klimt terug |
+
+Rennen of te dichtbij komen laat ze eerder vertrekken. Wie ze echt in beeld heeft gehad, vindt ze terug in het visioen: het lichtpunt krijgt een gouden stip en de tekst zegt waar je ze zag (`elyndra-met-dwellers`). Bij een volgende ontmoeting klinkt een andere zin.
+
 ### Fase E — De andere oever (pas later)
 
 De lichtpoort belooft een bos dat hier niet groeit. Dat is de enige gerechtvaardigde “nieuwe wereld”: dezelfde schaal, andere lucht, andere flora. Niet eerder beginnen dan wanneer deze vallei op meerdere uren en weersomstandigheden leeft.
