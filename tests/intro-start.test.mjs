@@ -76,6 +76,16 @@ function walkTo(x,z,limit=240){
 }
 walkTo(-8.25,-38.3);for(let i=0;i<220;i++)frame(time+=50);
 assert.equal($('dragon-invite').hidden,false,'A trusted greeting reveals the invitation');
+// Isolate the shared encounter boundary: an active squirrel journey must suppress
+// an otherwise valid dragon invitation, and releasing it restores the prompt.
+const {SquirrelSecret}=await import('../dist/squirrel-secret.mjs?v=squirrel34');
+const originalSquirrelUpdate=SquirrelSecret.prototype.update;
+try{
+ SquirrelSecret.prototype.update=function(...args){return {...originalSquirrelUpdate.apply(this,args),active:true};};
+ frame(time+=50);assert.equal($('dragon-invite').hidden,true,'An active squirrel journey hides the unavailable dragon invitation');
+}finally{SquirrelSecret.prototype.update=originalSquirrelUpdate;}
+frame(time+=50);assert.equal($('dragon-invite').hidden,false,'The dragon invitation returns when the squirrel journey is inactive');
+
 const invitedFrom=[...eye];$('dragon-invite').onclick();frame(time+=50);
 assert.equal(window.elyndraLook().invitation.phase,'accepting');
 assert(Math.hypot(...eye.map((v,i)=>v-invitedFrom[i]))<.1,'Accepting does not take the camera');
@@ -146,3 +156,40 @@ assert.equal(window.elyndraLook().mirror.phase,'farewell');
 assert.equal(window.elyndraLook().mirror.fade,1,'The deer returns visibly');
 assert(window.elyndraLook().mirror.completed);
 console.log('Deer mirror: travel, invitation, free camera, modal pause, walking alignment, underwater forest and visible return passed.');
+
+
+// Menus and focused form controls own their input; gameplay resumes after closing.
+function key(code,target='BODY',extra={}){let prevented=false;dispatchEvent({type:'keydown',code,repeat:false,target:{tagName:target},preventDefault(){prevented=true},...extra});return prevented;}
+function release(code){dispatchEvent({type:'keyup',code});}
+function horizontalDistance(a,b){return Math.hypot(a[0]-b[0],a[2]-b[2]);}
+$('cathedral-view').onclick();frame(time+=50);
+key('KeyW');$('help').onclick();const menuPosition=window.elyndraLook().pos;
+assert.equal(key('ArrowDown','SELECT'),false,'Native select arrows must not be prevented');
+for(let i=0;i<20;i++)frame(time+=50);
+assert.equal(horizontalDistance(window.elyndraLook().pos,menuPosition),0,'Opening help clears held movement and select arrows do not move the visitor');
+release('KeyW');release('ArrowDown');
+assert.equal(key('Space','BUTTON'),false,'Space remains available to activate UI buttons');
+const menuYaw=viewYaw;canvas.emit('pointerdown',{pointerId:91,pointerType:'touch',clientX:100,clientY:100});canvas.emit('pointermove',{pointerId:91,clientX:160,clientY:100});frame(time+=50);
+assert.equal(viewYaw,menuYaw,'Touch look is blocked behind help');canvas.emit('pointerup',{});
+$('closehelp').onclick();
+assert.equal(key('Space','BUTTON'),false,'Focused gameplay buttons retain native Space activation');release('Space');
+const ordinaryPosition=window.elyndraLook().pos;key('KeyW','BUTTON');frame(time+=50);release('KeyW');
+assert(horizontalDistance(window.elyndraLook().pos,ordinaryPosition)>.1,'WASD still works after clicking a gameplay button');
+const modifierPosition=window.elyndraLook().pos;key('KeyW','BODY',{ctrlKey:true});frame(time+=50);release('KeyW');
+assert.equal(horizontalDistance(window.elyndraLook().pos,modifierPosition),0,'Browser modifier shortcuts do not move the visitor');
+key('KeyW');$('travel').onclick();const travelPosition=window.elyndraLook().pos;for(let i=0;i<10;i++)frame(time+=50);release('KeyW');
+assert.equal(horizontalDistance(window.elyndraLook().pos,travelPosition),0,'Opening travel clears held movement');key('Escape');assert($('travelmenu').hidden);
+
+// Register the actual vision shortcut module and check modal/intro isolation.
+for(const el of nodes.values()){el.getBoundingClientRect=()=>({width:800,height:600});el.replaceChildren=()=>{el.children=[]};el.classList.toggle=()=>{};}
+const originalCreate=document.createElement;
+document.createElement=()=>{const el=originalCreate();el.append=(...children)=>el.children.push(...children);el.querySelector=()=>({textContent:''});el.classList.toggle=()=>{};return el;};
+const puzzleRequests=[];window.elyndraGame={unlocked:()=>false,count:()=>0};window.elyndraStartPuzzle=i=>puzzleRequests.push(i);
+await import('../dist/visions.js');
+$('intro-replay').onclick();key('KeyV');assert.equal(puzzleRequests.length,0,'V cannot open a puzzle during the film');
+$('intro-skip').onclick();key('KeyV');assert.equal(puzzleRequests.length,0,'V cannot stack a puzzle over onboarding');
+$('onboarding-free').onclick();$('conversation-dialog').showModal();key('KeyV');assert.equal(puzzleRequests.length,0,'V cannot stack a puzzle over a conversation');$('conversation-dialog').close();
+$('help').onclick();key('KeyV');assert.equal(puzzleRequests.length,0,'V cannot open a puzzle behind help');$('closehelp').onclick();
+key('KeyV','BODY',{ctrlKey:true});assert.equal(puzzleRequests.length,0,'Modified V remains a browser shortcut');
+key('KeyV');assert.equal(puzzleRequests.length,1,'V still opens a nearby puzzle in normal play');release('KeyV');
+console.log('Input ownership: menus clear movement, selects/buttons retain native keys, touch look is blocked behind help, normal WASD survives button focus, and V respects intro/modals/modifiers.');
