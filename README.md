@@ -53,6 +53,12 @@ Na je ontdekking van de tuin komt de draak landen op de open plek. Zijn vleugels
 
 De draak en de lichtdrager herkennen een volgend bezoek op hetzelfde apparaat. De lichtdrager begroet je en zwemt even mee voordat hij zijn eigen ritme hervat. Zonder browseropslag blijven de ontmoetingen gewoon werken tijdens je bezoek.
 
+## Een groet door de wortels
+
+Als je de slapende tuin eenmaal hebt ontdekt, begroeten twee bloemen je met licht bij terugkeer. Wandel eerst een eindje weg of kom bij een volgend bezoek terug. Je kunt de tuin te voet of via **Ontdek plekken** bereiken.
+
+Heeft de draak in vertrouwen voor je gebogen? Ga dan naar **De moswachter**, spreek hem aan en vraag **Bedoel je de draak in de tuin?** Je kunt hem vragen zijn oude vriend te groeten. Keer daarna terug naar de **slapende tuin**: bij de twee lichtjes brandt nu een derde. De groet wordt op dit apparaat bewaard en werkt ook tijdens een bezoek zonder browseropslag. Met minder beweging verschijnen de lichtjes tegelijk; geluid is optioneel.
+
 ## De uitnodiging van de draak
 
 Begroet de draak in de slapende tuin. Wanneer hij je vertrouwt en zijn kop buigt, verschijnt **Ga je mee?** (toets **R** op de computer). Hij vliegt laag naar een beschutte open plek, kijkt om en wacht als je achterblijft. Volg hem te voet.

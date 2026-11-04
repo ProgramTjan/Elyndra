@@ -193,3 +193,34 @@ $('help').onclick();key('KeyV');assert.equal(puzzleRequests.length,0,'V cannot o
 key('KeyV','BODY',{ctrlKey:true});assert.equal(puzzleRequests.length,0,'Modified V remains a browser shortcut');
 key('KeyV');assert.equal(puzzleRequests.length,1,'V still opens a nearby puzzle in normal play');release('KeyV');
 console.log('Input ownership: menus clear movement, selects/buttons retain native keys, touch look is blocked behind help, normal WASD survives button focus, and V respects intro/modals/modifiers.');
+
+// Play the keeper's response through the real conversation and world controllers.
+// Earlier steps earned the dragon's trust; this harness also runs without storage.
+assert(window.elyndraForestMemory().dragonKnown);
+function litGardenFlowers(){
+ let count=0;
+ const uniform=gl.uniform1f;
+ gl.uniform1f=(name,value)=>{if(name==='returnLight'&&value>0)count++;uniform(name,value)};
+ try {frame(time+=50)} finally {gl.uniform1f=uniform}
+ return count;
+}
+$('garden-view').onclick();
+assert.equal(litGardenFlowers(),2,'A returning visitor sees two welcoming flowers in reduced motion');
+await import('../dist/conversations.js');
+$('destinations').children[3].onclick();frame(time+=50);
+walkTo(91,46);frame(time+=50);
+$('talk-near').onclick();
+const choices=$('conversation-choices');
+function chooseText(text){
+ const option=choices.children.find(b=>b.textContent===text);
+ assert(option,'Expected conversation choice: '+text);
+ option.onclick();
+}
+if(choices.children.some(b=>b.textContent==='De moswachter'))chooseText('De moswachter');
+chooseText('Bedoel je de draak in de tuin?');
+assert.equal(window.elyndraForestMemory().keeperLight,false,'Asking about the dragon is not consent to send the greeting');
+chooseText('Kun je hem nog groeten?');
+chooseText('Ik ga kijken.');
+$('garden-view').onclick();
+assert.equal(litGardenFlowers(),3,'The explicit greeting lights a third real garden flower');
+assert.match($('toast').textContent,/moswachter/);
