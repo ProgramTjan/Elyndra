@@ -13,12 +13,17 @@ export class ForestCompanion {
   constructor(ground,remembered=false){
     this.ground=ground;this.phase='resting';this.progress=0;this.timer=0;this.away=0;
     this.position=guidePosition(0,0,true);this.heading=0;this.bloom=remembered?1:0;
+    // A saved discovery counts as a previous visit. Leaving the wider circle
+    // rearms the greeting without retriggering it at the garden edge.
+    this.returnArmed=remembered;
+    this.welcomeAge=null;
+    this.welcomed=false;
     this.afterGreeting=false;this.greetReady=remembered;this.visitAway=0;this.discovered=remembered;this.gardenAge=remembered?20:0;this.wake=false;
   }
   height(x,z){return Math.max(BROOK.water+.12,this.ground(x,z)+.06);}
   restart(){this.phase='resting';this.progress=0;this.timer=0;this.away=0;}
   update(dt,viewer,wonder,enabled=true,reduced=false){
-    dt=Math.max(0,Math.min(.05,dt));this.wake=false;
+    dt=Math.max(0,Math.min(.05,dt));this.wake=false;this.welcomed=false;
     if(!enabled)return this.snapshot(viewer);
     const gardenDistance=Math.hypot(viewer[0]-GARDEN.x,viewer[2]-GARDEN.z);
     const inGarden=gardenDistance<12 && Math.abs(viewer[1]-this.ground(viewer[0],viewer[2]))<9;
@@ -61,6 +66,16 @@ export class ForestCompanion {
       if(this.phase==='returning'&&near&&distance(viewer,this.position)<7&&!this.afterGreeting){if(this.greetReady){this.phase='greeting';this.timer=0;this.greetReady=false;}else this.phase='leading';this.away=0;}
     }
     // The garden can also be found independently; altitude alone cannot unlock it.
+    if(this.discovered && gardenDistance>22){
+      this.returnArmed=true;
+      this.welcomeAge=null;
+    }
+    if(inGarden && this.returnArmed){
+      this.returnArmed=false;
+      this.welcomed=true;
+      this.welcomeAge=0;
+    }
+    if(this.welcomeAge!==null)this.welcomeAge=Math.min(4,this.welcomeAge+dt);
     if(inGarden){
       this.gardenAge+=dt;
       if(this.gardenAge>2&&!this.discovered){this.discovered=true;this.wake=true;}
@@ -84,7 +99,7 @@ export class ForestCompanion {
       bloom:this.bloom,discovered:this.discovered,wake:this.wake,
       near:1-ease((distance(viewer,this.position)-15)/25),
       gardenNear:1-ease((Math.hypot(viewer[0]-GARDEN.x,viewer[2]-GARDEN.z)-16)/30),
-      gardenAge:this.gardenAge};
+      gardenAge:this.gardenAge,welcomeAge:this.welcomeAge,welcomed:this.welcomed};
   }
 }
 

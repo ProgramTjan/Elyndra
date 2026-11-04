@@ -31,6 +31,25 @@ export function conversationNode(who,node,context={}){
  happy:{text:'Er zit een nieuw blad aan het boompje. Niemand heeft eraan getrokken. Het is helemaal zelf gekomen! Ik vind dat knap.\n\nDe eekhoorn knikt tevreden.',choices:[['Ik ook. Tot snel!','end']]}
  }
  };
+ if(who==='keeper' && context.dragonKnown){
+  const keeper=trees.keeper;
+  if(!context.keeperLight){
+   keeper.start.text+=' Hij kantelt zijn hoofd. “Zo boog mijn oude vriend ook. Bij jou heeft hij dat gedaan, hè?”';
+  }
+  keeper.start.choices[2]=[context.keeperLight?'Hoe gaat het met je oude vriend?':'Bedoel je de draak in de tuin?','dragon'];
+  keeper.dragon={
+   text:context.keeperLight
+    ? '“Leg je hand maar hier.” Onder zijn handpalm voelt de wortel warm. “Dat licht vindt zijn weg wel. Vroeger vond hij mij zo ook, zelfs in de mist.”'
+    : '“Toen hij klein was, paste zijn kop hier.” De moswachter houdt zijn hand als een kommetje. “Hij boog altijd eerst. Anders prikte zijn hoorn in mijn duim.”',
+   choices:context.keeperLight
+    ? [['Mag ik even bij je blijven?','sit'],['Tot later.','end']]
+    : [['Kun je hem nog groeten?','sendLight'],['Mag ik even bij je blijven?','sit'],['Tot later.','end']]
+  };
+  keeper.sendLight={
+   text:'Hij legt een vinger op een wortel. Een vonkje verdwijnt onder het mos. “De tuin heeft twee lampjes voor jou. Als je straks een derde ziet, weet je van wie die is.”',
+   choices:[['Ik ga kijken.','end'],['Ik blijf nog even.','sit']]
+  };
+ }
  return trees[who]?.[node];
 }
 export function nearbySpeakers(position,deer,base,squirrel=null){const distance=p=>Math.hypot(...p.map((v,i)=>v-position[i]));return [{id:'keeper',p:[86,base+6,36],r:22},{id:'squirrel',p:squirrel?[squirrel[0],squirrel[1]+1,squirrel[2]]:[96,base+16,43],r:squirrel&&Math.hypot(squirrel[0]-96,squirrel[2]-43)>3?9:20},{id:'deer',p:[deer[0],deer[1]+1.8,deer[2]],r:8}].filter(x=>distance(x.p)<x.r).sort((a,b)=>distance(a.p)-distance(b.p)).map(x=>x.id);}

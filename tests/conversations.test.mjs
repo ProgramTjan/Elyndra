@@ -25,3 +25,15 @@ canInteract=true;
 for(const extra of [{ctrlKey:true},{metaKey:true},{altKey:true},{target:{tagName:'SELECT'}},{target:{tagName:'INPUT'}},{target:{tagName:'DIV',isContentEditable:true}}]){assert.equal(pressTalk(extra),false);assert(!$('conversation-dialog').open,'Modified or editable T cannot start a conversation');}
 assert.equal(pressTalk(),true);assert($('conversation-dialog').open,'Unmodified T still opens a nearby conversation');$('conversation-close').onclick();
 console.log('Conversation shortcuts respect gameplay availability, form controls and browser modifiers.');
+
+for(const [dragonKnown,keeperLight] of [[false,false],[true,false],[true,true]]){
+ const ctx={dragonKnown,keeperLight,monument:true,solved:true,all:true};
+ const start=conversationNode('keeper','start',ctx);
+ assert(start.text.includes('ontvangstzaal'),'The monument remains part of the keeper’s greeting');
+ assert.equal(start.choices.some(([,next])=>next==='dragon'),dragonKnown);
+ if(dragonKnown){
+  const dragon=conversationNode('keeper','dragon',ctx);
+  assert.equal(dragon.choices.some(([,next])=>next==='sendLight'),!keeperLight);
+  assert(dragon.choices.some(([,next])=>next==='sit'));
+ }
+}
