@@ -3,7 +3,7 @@ import {SquirrelSecret,MONUMENT,STUMPS,readSecret,saveSecret,inSquirrelPath,squi
 import {createSquirrelSculptures} from './squirrel-sculpture.mjs?v=squirrel34';
 import {DragonInvitation,createInvitationGlow,inDragonGlade} from './dragon-invitation.mjs?v=invite33';
 import {DRAGON_REST,DragonEncounter} from './dragon-encounter.mjs?v=dragon22';
-import {GARDEN,ForestCompanion,gardenFlower,companionTrail} from './forest-companion.mjs?v=dragon22';
+import {GARDEN,ForestCompanion,gardenFlower,companionTrail} from './forest-companion.mjs?v=memory39';
 import {BROOK,BrookWonder,guidePosition,visitingFlight,createBrookAtmosphere} from './brook-wonder.mjs?v=dragon22';
 import {nearbySpeakers} from './conversation-model.mjs?v=squirrel34';
 import {BrookMotion,dragonPose,packBones} from './wildlife-motion.mjs?v=dragon22';
@@ -37,7 +37,7 @@ gl_Position=vp*vec4(P,1.);}`;
 const fs=`#version 300 es
 precision highp float;
 in vec3 P;in vec3 N;in vec3 C;in float M;
-uniform vec3 eye;uniform float night;uniform float time;uniform vec3 sunDir;uniform float warmth;uniform float mistAmt;uniform float wet;uniform mat4 lightVP;uniform sampler2D shadowMap;uniform float shadowTexel;uniform float softShadows;uniform float wonder;uniform float gardenBloom;uniform float cathedralBreath;uniform float gateMirror;uniform float lite;uniform float objectFade;
+uniform vec3 eye;uniform float night;uniform float time;uniform vec3 sunDir;uniform float warmth;uniform float mistAmt;uniform float wet;uniform mat4 lightVP;uniform sampler2D shadowMap;uniform float shadowTexel;uniform float softShadows;uniform float wonder;uniform float gardenBloom;uniform float returnLight;uniform float cathedralBreath;uniform float gateMirror;uniform float lite;uniform float objectFade;
 out vec4 outColor;
 float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
@@ -75,8 +75,9 @@ col=mix(col,vec3(.60,.70,.61)*(1.-night*.75),clamp(foam,0.,.45));}}
 if(lite<.5||wonder>.02){float hollow=exp(-dot(P.xz-vec2(13.467,-8.),P.xz-vec2(13.467,-8.))/260.);float breath=.85+.15*sin(time*.37);col+=base*vec3(.08,.36,.43)*hollow*wonder*breath;if(lite<.5&&M>3.5&&M<4.5){float lace=pow(.5+.5*sin(P.x*2.1+sin(P.z*.6-time*.3)),14.)*pow(.5+.5*cos(P.z*1.3+time*.23),8.);col+=vec3(.12,.64,.76)*lace*hollow*(.12+wonder*.7);}col=mix(col,vec3(.16,.29,.30),hollow*exp(-max(0.,P.y+2.3)*.8)*min(.18,length(P-eye)*.006));}
 if(M>5.5&&M<6.5)col+=C*gardenBloom*(.35+night*.75);
 if(M>6.5&&M<7.5)col+=C*(.12+gardenBloom*1.4);
+if(M>5.5&&M<7.5)col+=vec3(1.1,.55,.12)*returnLight;
 col+=C*glow*(.8+night*.7);float dist=length(P-eye);float mist=1.-exp(-dist*(.0021+.004*exp(-max(P.y,0.)*.12))*(1.+mistAmt*2.4));col=mix(col,sky(normalize(P-eye)),min(.94,mist));col*=1.-wet*.07;col=col/(col+vec3(.55));col=pow(col,vec3(.92));outColor=vec4(col,1.);}`;
-function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}let prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(prog));gl.useProgram(prog);const U={};for(let k of ['vp','offset','rot','eye','night','time','sunDir','warmth','mistAmt','wet','lightVP','shadowMap','shadowTexel','softShadows','keeperMotion','keeperBase','animalBones[0]','wonder','gardenBloom','cathedralBreath','gateMirror','lite','objectFade'])U[k]=gl.getUniformLocation(prog,k);gl.enable(gl.DEPTH_TEST);
+function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}let prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(prog));gl.useProgram(prog);const U={};for(let k of ['vp','offset','rot','eye','night','time','sunDir','warmth','mistAmt','wet','lightVP','shadowMap','shadowTexel','softShadows','keeperMotion','keeperBase','animalBones[0]','wonder','gardenBloom','returnLight','cathedralBreath','gateMirror','lite','objectFade'])U[k]=gl.getUniformLocation(prog,k);gl.enable(gl.DEPTH_TEST);
 let seed=8912;function rand(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}const TAU=Math.PI*2;let verts=[],material=0;
 function tri(a,b,c,col){let u=b.map((v,i)=>v-a[i]),v=c.map((v,i)=>v-a[i]),n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],l=Math.hypot(...n)||1;n=n.map(x=>x/l);for(let p of[a,b,c])verts.push(...p,...n,...col,material)}
 function cone(x,y,z,r1,r2,h,col,s=8){for(let i=0;i<s;i++){let t=i*TAU/s,t2=(i+1)*TAU/s,a=[x+Math.cos(t)*r1,y,z+Math.sin(t)*r1],b=[x+Math.cos(t2)*r1,y,z+Math.sin(t2)*r1],c=[x+Math.cos(t2)*r2,y+h,z+Math.sin(t2)*r2],d=[x+Math.cos(t)*r2,y+h,z+Math.sin(t)*r2];tri(a,c,b,col);tri(a,d,c,col);tri([x,y+h,z],c,d,col)}}
@@ -455,7 +456,15 @@ let rememberedGarden=false;try{rememberedGarden=localStorage.getItem('elyndra-se
 const companion=new ForestCompanion(ground,rememberedGarden);let companionState=companion.snapshot(pos),companionPhase='resting',companionCaptionUntil=0;
 $('garden-view').hidden=!rememberedGarden;
 let rememberedDragon=false;try{rememberedDragon=localStorage.getItem('elyndra-dragon-known')==='yes';}catch{}
+let keeperLight=false;
+try { keeperLight=localStorage.getItem('elyndra-keeper-light-v1')==='sent'; } catch {}
 const dragonEncounter=new DragonEncounter(ground,rememberedDragon);let encounterState=dragonEncounter.snapshot(),dragonPhase='orbit',dragonCaptionUntil=0;
+window.elyndraForestMemory=()=>({dragonKnown:dragonEncounter.known,keeperLight});
+addEventListener('elyndra-keeper-sends-light',()=>{
+  if(!dragonEncounter.known || keeperLight)return;
+  keeperLight=true;
+  try { localStorage.setItem('elyndra-keeper-light-v1','sent'); } catch {}
+});
 
 const invitation=new DragonInvitation(ground);let invitationState=invitation.snapshot(),invitationPhase='idle';
 const compactGlow=quality!=='high';
@@ -558,13 +567,16 @@ $('garden-view').onclick=()=>{
 $('time').onclick=()=>{skyState=atmosphere.jumpTo(nextLightHour(atmosphere.hour));night=skyState.night;syncTimeButton();toast(skyState.name);};
 $('weather').value=weatherPref;
 $('weather').onchange=()=>{weatherPref=$('weather').value;try{localStorage.setItem('elyndra-weather',weatherPref);}catch{}skyState=atmosphere.setPreference(weatherPref);toast(weatherPref==='auto'?'Dit bezoek houdt zijn weer. Volgende keer kiest het woud opnieuw.':weatherPref==='clear'?'De lucht klaart op.':weatherPref==='mist'?'Mist zakt tussen de stammen.':'Regen blijft, tot jij iets anders kiest.');};
-$('help').onclick=()=>$('instructions').hidden=false;$('closehelp').onclick=()=>$('instructions').hidden=true;
-$('travel').onclick=()=>$('travelmenu').hidden=!$('travelmenu').hidden;$('closemap').onclick=()=>$('travelmenu').hidden=true;
+function resetInput(){for(let k in keys)keys[k]=false;move=[0,0];vertical=0;look=null;joy=null;$('stick').style.transform='none';}
+function canPlayInput(){return started&&!introActive&&!window.elyndraVisionOpen&&$('instructions').hidden&&$('travelmenu').hidden;}
+function editingControl(e){return /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName??'')||e.target?.isContentEditable;}
+$('help').onclick=()=>{resetInput();$('travelmenu').hidden=true;$('instructions').hidden=false;};$('closehelp').onclick=()=>$('instructions').hidden=true;
+$('travel').onclick=()=>{resetInput();$('instructions').hidden=true;$('travelmenu').hidden=!$('travelmenu').hidden;};$('closemap').onclick=()=>$('travelmenu').hidden=true;
 locations.forEach((p,i)=>{let b=document.createElement('button');b.textContent=`0${i+1}  ${p.name}`;b.onclick=()=>{pos=[p.x,ground(p.x,p.z+30)+6,p.z+30];yaw=0;pitch=i===2?-.08:.15;if(i===0){pos=[-37,ground(-37,-15)+2.4,-15];yaw=-.40;pitch=.10;flying=false;$('fly').textContent='Vliegen'}if(i===2){flying=true;pos[1]=48;$('fly').textContent='Landen'}$('travelmenu').hidden=true;lastPlace=-1;toast('Je reist naar '+p.name.toLowerCase())};$('destinations').appendChild(b)});
 function activate(){if(Math.hypot(pos[0]-66,pos[2]+110)>=30)return;if(window.elyndraGame&&!window.elyndraGame.unlocked(1)){window.elyndraStartPuzzle(1);return;}if(Math.hypot(pos[0]-66,pos[2]+110)<30){active=!active;portalTime=0;toast(active?'De poort ontwaakt. Loop door het licht.':'De poort rust weer.');chime()}}$('act').onclick=activate;
-addEventListener('keydown',e=>{if(introActive||window.elyndraVisionOpen)return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.repeat)return;if(e.code==='KeyF'&&started)toggleFly();if(e.code==='KeyE')activate();if(e.code==='Escape'){$('instructions').hidden=true;$('travelmenu').hidden=true}});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(let k in keys)keys[k]=false;move=[0,0];vertical=0;look=null});
-canvas.addEventListener('pointerdown',e=>{if(!started)return;look={id:e.pointerId,x:e.clientX,y:e.clientY,touch:e.pointerType==='touch'};canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!look||look.id!==e.pointerId)return;yaw+=(e.clientX-look.x)*.004;pitch-=(e.clientY-look.y)*.003;pitch=Math.max(-1.4,Math.min(1.4,pitch));look.x=e.clientX;look.y=e.clientY});for(let type of['pointerup','pointercancel'])canvas.addEventListener(type,()=>look=null);
-$('joystick').addEventListener('pointerdown',e=>{joy=e.pointerId;$('joystick').setPointerCapture(e.pointerId);updateJoy(e)});function updateJoy(e){let r=$('joystick').getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,l=Math.hypot(x,y);if(l>40){x*=40/l;y*=40/l}move=[x/40,-y/40];$('stick').style.transform=`translate(${x}px,${y}px)`}$('joystick').addEventListener('pointermove',e=>{if(joy===e.pointerId)updateJoy(e)});for(let type of['pointerup','pointercancel'])$('joystick').addEventListener(type,()=>{joy=null;move=[0,0];$('stick').style.transform='none'});for(let [id,v]of[['up',1],['down',-1]]){$(id).onpointerdown=e=>{e.preventDefault();$(id).setPointerCapture(e.pointerId);if(!flying)toggleFly();vertical=v};$(id).onpointerup=$(id).onpointercancel=()=>vertical=0}
+addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||editingControl(e))return;if(e.code==='Escape'&&!introActive&&!window.elyndraVisionOpen){$('instructions').hidden=true;$('travelmenu').hidden=true;return;}if(!canPlayInput())return;if(e.code==='Space'&&e.target?.tagName==='BUTTON')return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.repeat)return;if(e.code==='KeyF')toggleFly();if(e.code==='KeyE')activate();});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',resetInput);
+canvas.addEventListener('pointerdown',e=>{if(!canPlayInput())return;look={id:e.pointerId,x:e.clientX,y:e.clientY,touch:e.pointerType==='touch'};canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!look||look.id!==e.pointerId)return;yaw+=(e.clientX-look.x)*.004;pitch-=(e.clientY-look.y)*.003;pitch=Math.max(-1.4,Math.min(1.4,pitch));look.x=e.clientX;look.y=e.clientY});for(let type of['pointerup','pointercancel'])canvas.addEventListener(type,()=>look=null);
+$('joystick').addEventListener('pointerdown',e=>{if(!canPlayInput())return;joy=e.pointerId;$('joystick').setPointerCapture(e.pointerId);updateJoy(e)});function updateJoy(e){let r=$('joystick').getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,l=Math.hypot(x,y);if(l>40){x*=40/l;y*=40/l}move=[x/40,-y/40];$('stick').style.transform=`translate(${x}px,${y}px)`}$('joystick').addEventListener('pointermove',e=>{if(joy===e.pointerId)updateJoy(e)});for(let type of['pointerup','pointercancel'])$('joystick').addEventListener(type,()=>{joy=null;move=[0,0];$('stick').style.transform='none'});for(let [id,v]of[['up',1],['down',-1]]){$(id).onpointerdown=e=>{if(!canPlayInput())return;e.preventDefault();$(id).setPointerCapture(e.pointerId);if(!flying)toggleFly();vertical=v};$(id).onpointerup=$(id).onpointercancel=()=>vertical=0}
 let audioCtx,audioGain,cathedralGain,rustleGain,brookGain,brookPan,gardenGain,dragonGain,rainGain,dewGain,soundOn=false;function initAudio(){audioCtx=new AudioContext();audioGain=audioCtx.createGain();audioGain.gain.value=.0;audioGain.connect(audioCtx.destination);cathedralGain=audioCtx.createGain();cathedralGain.gain.value=0;cathedralGain.connect(audioGain);for(let f of[82.41,123.47,164.81]){let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=f;g.gain.value=.055;o.connect(g);g.connect(cathedralGain);o.start();}for(let f of[110,164.81,220,293.66]){let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=f;g.gain.value=.022;o.connect(g);g.connect(audioGain);o.start()}let b=audioCtx.createBuffer(1,audioCtx.sampleRate*4,audioCtx.sampleRate),d=b.getChannelData(0);let a=0;for(let i=0;i<d.length;i++){a=(a+(Math.random()*2-1)*.025)*.992;d[i]=a}let n=audioCtx.createBufferSource();n.buffer=b;n.loop=true;let g=audioCtx.createGain();g.gain.value=.23;n.connect(g);g.connect(audioGain);n.start();let rustle=audioCtx.createBufferSource();rustle.buffer=b;rustle.loop=true;let filter=audioCtx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=1200;filter.Q.value=.7;rustleGain=audioCtx.createGain();rustleGain.gain.value=0;rustle.connect(filter);filter.connect(rustleGain);rustleGain.connect(audioGain);rustle.start();
  brookGain=audioCtx.createGain();brookGain.gain.value=0;
  if(audioCtx.createStereoPanner){brookPan=audioCtx.createStereoPanner();brookGain.connect(brookPan);brookPan.connect(audioGain);}else brookGain.connect(audioGain);
@@ -654,6 +666,11 @@ if(companionState.phase!==companionPhase){
  const words={greeting:['Je bent terug','De lichtdrager komt je begroeten.'],accompanying:['Een stukje samen','Hij zwemt even met je mee.'],inviting:['Er is nog iets…','Het beekwezen kijkt om. Kom dichterbij als je mee wilt.'],leading:['Volg de lichtdrager','Hij kent een plek die op geen kaart staat.'],waiting:['Ik wacht wel op je','Volg het gouden licht langs de beek.'],arrived:['De slapende tuin','Een klein licht kan een hele tuin wakker maken.']};
  if(words[companionPhase]){const text=words[companionPhase];$('brook-title').textContent=text[0];$('brook-text').textContent=text[1];companionCaptionUntil=clock+9;}
 }
+if(companionState.welcomed){
+  toast(keeperLight
+    ? 'Een derde bloem licht op. De groet van de moswachter is er al.'
+    : 'Twee bloemen lichten op aan je voeten. De tuin herkent je.');
+}
 if(companionState.wake){
  $('garden-view').hidden=false;try{localStorage.setItem('elyndra-secret-garden','found');}catch{}
  $('brook-title').textContent='De slapende tuin';$('brook-text').textContent='De bloemen openen zich. Deze plek onthoudt je bezoek.';companionCaptionUntil=clock+12;chime();
@@ -671,7 +688,7 @@ const cathedralSpeaking=cathedralState.near>=.2&&cathedralPhase!=='far'&&cathedr
 const gateSpeaking=gateState.near>=.2&&gatePhase!=='far'&&gatePhase!=='afterglow';
 const dewSpeaking=dewState.near>=.2&&dewPhase!=='far'&&dewPhase!=='afterglow';
 $('brook-caption').hidden=(!started||introActive||(Math.max(wonderState.near,companionState.near,companionState.gardenNear,cathedralState.near,gateState.near,dewState.near)<.2)||(!cathedralSpeaking&&!gateSpeaking&&!dewSpeaking&&clock>Math.max(wonderCaptionUntil,companionCaptionUntil,dragonCaptionUntil,cathedralCaptionUntil,gateCaptionUntil,dewCaptionUntil))||(wonderPhase==='far'&&companionPhase==='resting'&&cathedralPhase==='far'&&gatePhase==='far'&&dewPhase==='far'&&clock>Math.max(companionCaptionUntil,dragonCaptionUntil,cathedralCaptionUntil,gateCaptionUntil,dewCaptionUntil)))&&!(started&&!introActive&&clock<dwellerCaptionUntil);
-const mayInvite=started&&!introActive&&invitation.canInvite(encounterState,pos);
+const mayInvite=started&&!introActive&&!squirrelState.active&&invitation.canInvite(encounterState,pos);
 const invitationVisible=started&&!introActive&&$('instructions').hidden&&$('travelmenu').hidden;
 inviteButton.hidden=!invitationVisible||!(mayInvite||invitationState.canFinish);
 const inviteLabel=invitationState.canFinish?'Laat het licht rusten'+(mobile?'':' · R'):'Ga je mee?'+(mobile?'':' · R');
@@ -769,10 +786,19 @@ if(Math.hypot(pos[0]-MONUMENT.x,pos[2]-MONUMENT.z)<95){
  }
 }
 if(companionState.gardenNear>.01){
- for(const flower of gardenFlowers){
+ // A warm light spreads through two familiar flowers, and a third after
+ // the keeper's message. The light uses the existing petals at every quality.
+ const count=keeperLight?3:2;
+ for(const [i,flower] of gardenFlowers.entries()){
+  const age=companionState.welcomeAge;
+  const light=age!==null && i<count
+    ? (reducedMotion?1:Math.max(0,Math.min(1,(age-i*.65)/1.2)))
+    : 0;
   const bloom=companionState.discovered?Math.max(0,Math.min(1,(companionState.gardenAge-flower.delay)/8)):0;
+  gl.uniform1f(U.returnLight,light);
   gl.uniform1f(U.gardenBloom,bloom);draw(gardenFlowerMesh,[flower.x,flower.y+.7,flower.z],flower.rotation);
  }
+ gl.uniform1f(U.returnLight,0);
 }
 if(invitationState.active){
  for(const flower of invitationState.flowers){
@@ -798,4 +824,5 @@ renderSparks(mul(projection,view()),sparkPositions(dwellerPoses,clock,reducedMot
 }requestAnimationFrame(frame);
 window.elyndraLook=()=>({pos:[...pos],flying,hour:skyState.hour,active,cathedral:cathedralState,gate:gateState,dew:dewState,dwellers:dwellerState,dragon:encounterState,invitation:invitationState,squirrel:squirrelState,mirror:mirrorState});
 
-addEventListener('elyndra-vision-open',()=>{for(let k in keys)keys[k]=false;move=[0,0];vertical=0;look=null;joy=null;$('stick').style.transform='none';});
+window.elyndraCanInteract=canPlayInput;
+addEventListener('elyndra-vision-open',resetInput);

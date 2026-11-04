@@ -36,3 +36,18 @@ const restored=new ForestCompanion(ground,true);assert(restored.discovered);asse
 for(let i=0;i<34;i++){const f=gardenFlower(i,ground);assert(Object.values(f).every(Number.isFinite));assert(f.y>=-2.1);}
 for(let i=0;i<100;i++)assert(companionTrail(i/100,ground).flat().every(Number.isFinite));
 console.log('Companion: invitation, waiting, modal pause, complete journey, continuous return, independent discovery and remembered garden passed.');
+
+// Discovery and return are different gestures; hovering at the edge is not a new visit.
+const here=[GARDEN.x,ground(GARDEN.x,GARDEN.z)+2,GARDEN.z];
+const edge=[GARDEN.x+14,here[1],GARDEN.z];
+const far=[GARDEN.x+40,here[1],GARDEN.z];
+const visit=new ForestCompanion(ground);
+for(let i=0;i<200;i++)assert.equal(visit.update(.05,here,wonder).welcomeAge,null);
+visit.update(.05,edge,wonder);
+assert.equal(visit.update(.05,here,wonder).welcomed,false);
+visit.update(.05,far,wonder);
+assert.equal(visit.update(.05,[here[0],100,here[2]],wonder).welcomed,false);
+assert.equal(visit.update(.05,here,wonder,false).welcomed,false);
+assert.equal(visit.update(.05,here,wonder).welcomed,true);
+assert.equal(visit.update(.05,here,wonder).welcomed,false);
+assert.equal(new ForestCompanion(ground,true).update(.05,here,wonder).welcomed,true);

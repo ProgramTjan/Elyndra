@@ -5,13 +5,35 @@ assert(conversationNode('deer','hear',{gate:true}).text.includes('poort'));
 assert(conversationNode('keeper','start',{roots:true}).text.includes('zin'));
 assert(conversationNode('squirrel','keeper',{gate:true}).text.includes('poort'));
 assert(nearbySpeakers([-37,2,-46],[-37,0,-46],0).includes('deer'));assert(!nearbySpeakers([-37,100,-46],[-37,0,-46],0).includes('deer'));assert(nearbySpeakers([92,2,46],[-37,0,-46],0).includes('squirrel'));
-const listeners={},nodes=new Map(),storage=new Map();let focused,puzzle=-1,solved=false;
+const listeners={},nodes=new Map(),storage=new Map();let focused,puzzle=-1,solved=false,canInteract=true;
 function element(id){let events={};return{id,open:false,hidden:false,textContent:'',children:[],focus(){focused=this},replaceChildren(){this.children=[]},appendChild(b){this.children.push(b)},get firstElementChild(){return this.children[0]},addEventListener(type,f){(events[type]??=[]).push(f)},showModal(){this.open=true},close(){this.open=false;for(let f of events.close??[])f()},emit(type){for(let f of events[type]??[])f()}}}
 for(let id of['conversation-dialog','conversation-choices','conversation-name','conversation-tag','conversation-text','talk-near','conversation-close','quest-dialog'])nodes.set(id,element(id));
 const $=id=>nodes.get(id);globalThis.window=globalThis;globalThis.document={getElementById:$,createElement:()=>element('button'),get activeElement(){return focused},querySelector:()=>[...nodes.values()].find(x=>x.open)};globalThis.localStorage={getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)};globalThis.addEventListener=(t,f)=>(listeners[t]??=[]).push(f);globalThis.dispatchEvent=e=>{for(let f of listeners[e.type]??[])f(e)};
-window.elyndraGame={unlocked:()=>solved,count:()=>solved?4:0};window.elyndraStartPuzzle=i=>{puzzle=i;$('quest-dialog').showModal();window.elyndraVisionOpen=true;};
+window.elyndraCanInteract=()=>canInteract;window.elyndraGame={unlocked:()=>solved,count:()=>solved?4:0};window.elyndraStartPuzzle=i=>{puzzle=i;$('quest-dialog').showModal();window.elyndraVisionOpen=true;};
 await import('../dist/conversations.js');const nearby=ids=>dispatchEvent({type:'elyndra-talk-near',detail:ids}),choose=i=>$('conversation-choices').children[i].onclick();
 $('talk-near').focus();nearby(['keeper']);$('talk-near').onclick();assert($('conversation-dialog').open&&window.elyndraVisionOpen);choose(1);choose(0);choose(0);assert.equal(puzzle,3);assert(!$('conversation-dialog').open&&$('quest-dialog').open&&window.elyndraVisionOpen);
 $('quest-dialog').close();window.elyndraVisionOpen=false;solved=true;$('talk-near').onclick();assert($('conversation-text').textContent.includes('Vier hartslagen'));$('conversation-close').onclick();assert(!window.elyndraVisionOpen);assert(storage.get('elyndra-conversations-v1').includes('keeper'));
 nearby(['keeper','squirrel']);$('talk-near').onclick();assert.equal($('conversation-choices').children.length,2);choose(1);choose(1);assert($('conversation-text').textContent.includes('noot'));$('conversation-dialog').emit('cancel');$('conversation-dialog').close();assert(!window.elyndraVisionOpen);
 nearby([]);assert($('talk-near').hidden);$('talk-near').onclick();assert(!$('conversation-dialog').open);console.log('Conversations: reachable branches, solved follow-up, range/altitude, modal pause, puzzle handoff, multi-speaker choice, close and saved visits.');
+
+nearby(['keeper']);
+function pressTalk(extra={}){let prevented=false;dispatchEvent({type:'keydown',code:'KeyT',repeat:false,target:{tagName:'BODY'},preventDefault(){prevented=true},...extra});return prevented;}
+canInteract=false;
+$('talk-near').onclick();assert(!$('conversation-dialog').open,'Talk button respects intro/help/travel gameplay guard');
+assert.equal(pressTalk(),false,'Blocked T does not steal a key from the current UI');assert(!$('conversation-dialog').open);
+canInteract=true;
+for(const extra of [{ctrlKey:true},{metaKey:true},{altKey:true},{target:{tagName:'SELECT'}},{target:{tagName:'INPUT'}},{target:{tagName:'DIV',isContentEditable:true}}]){assert.equal(pressTalk(extra),false);assert(!$('conversation-dialog').open,'Modified or editable T cannot start a conversation');}
+assert.equal(pressTalk(),true);assert($('conversation-dialog').open,'Unmodified T still opens a nearby conversation');$('conversation-close').onclick();
+console.log('Conversation shortcuts respect gameplay availability, form controls and browser modifiers.');
+
+for(const [dragonKnown,keeperLight] of [[false,false],[true,false],[true,true]]){
+ const ctx={dragonKnown,keeperLight,monument:true,solved:true,all:true};
+ const start=conversationNode('keeper','start',ctx);
+ assert(start.text.includes('ontvangstzaal'),'The monument remains part of the keeper’s greeting');
+ assert.equal(start.choices.some(([,next])=>next==='dragon'),dragonKnown);
+ if(dragonKnown){
+  const dragon=conversationNode('keeper','dragon',ctx);
+  assert.equal(dragon.choices.some(([,next])=>next==='sendLight'),!keeperLight);
+  assert(dragon.choices.some(([,next])=>next==='sit'));
+ }
+}

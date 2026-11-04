@@ -31,6 +31,10 @@ node --test tests/*.test.mjs
 - `docs/art-direction.md`: visuele ontwerpkeuzes.
 - `.openai/hosting.json`: configuratie van een eerdere ChatGPT Site.
 
+## Doorontwikkeling
+
+De afgesproken volgorde en het vergezicht staan in [het ontwikkelplan](docs/ontwikkelplan.md). De bevindingen, gerichte fixes en open apparaatcontroles van stap 1 staan in [de controle van de speelervaring](docs/stap-1-controle.md).
+
 ## De adem van Elyndra
 
 Kies **Ontdek plekken → De adem van Elyndra · aan de beek**. Blijf ongeveer zes seconden rustig staan bij de lichtjes. Rondkijken mag: boven de beek vormt zich langzaam een sterrengewelf. Even later maakt de draak een omweg over de wortelbogen. Geluid zet je zelf aan. Met minder beweging blijven de lichtjes op hun plek en verschijnt het gewelf door geleidelijk oplichten.
@@ -48,6 +52,12 @@ Je kunt de tuin ook zelf ontdekken. Je apparaat onthoudt de ontdekking; daarna v
 Na je ontdekking van de tuin komt de draak landen op de open plek. Zijn vleugels vouwen zich en zijn kop volgt je. Blijf rustig op enkele meters voor hem staan: hij buigt naar je toe. Rennen of te dichtbij komen laat hem weer ruimte nemen. Je kunt vrij blijven kijken en bewegen.
 
 De draak en de lichtdrager herkennen een volgend bezoek op hetzelfde apparaat. De lichtdrager begroet je en zwemt even mee voordat hij zijn eigen ritme hervat. Zonder browseropslag blijven de ontmoetingen gewoon werken tijdens je bezoek.
+
+## Een groet door de wortels
+
+Als je de slapende tuin eenmaal hebt ontdekt, begroeten twee bloemen je met licht bij terugkeer. Wandel eerst een eindje weg of kom bij een volgend bezoek terug. Je kunt de tuin te voet of via **Ontdek plekken** bereiken.
+
+Heeft de draak in vertrouwen voor je gebogen? Ga dan naar **De moswachter**, spreek hem aan en vraag **Bedoel je de draak in de tuin?** Je kunt hem vragen zijn oude vriend te groeten. Keer daarna terug naar de **slapende tuin**: bij de twee lichtjes brandt nu een derde. De groet wordt op dit apparaat bewaard en werkt ook tijdens een bezoek zonder browseropslag. Met minder beweging verschijnen de lichtjes tegelijk; geluid is optioneel.
 
 ## De uitnodiging van de draak
 
