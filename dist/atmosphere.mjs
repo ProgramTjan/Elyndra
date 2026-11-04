@@ -95,6 +95,14 @@ export class Atmosphere {
     }
     return this.snapshot();
   }
+  // A visit that just had rain, unless the visitor chose fixed weather.
+  afterRain() {
+    if (this.locked) return false;
+    this.weather = 'rain';
+    this.rainAge = 96;
+    Object.assign(this, weatherAmounts(this.weather, this.rainAge));
+    return true;
+  }
   update(dt, enabled = true) {
     dt = Math.max(0, Math.min(.05, dt));
     if (enabled && this.cycle) this.hour = wrapHour(this.hour + dt * 24 / DAY_SECONDS);

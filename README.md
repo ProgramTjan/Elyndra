@@ -77,6 +77,22 @@ Het hert verdwijnt in het meer, zijn spiegelbeeld blijft. Wandel langs de westel
 
 Geen timer, vereist geluid of automatische camerabeweging. Weglopen beëindigt de ontmoeting rustig; na vertrek kun je haar opnieuw ontdekken. Minder beweging houdt het andere bos en de reflectie rustig.
 
+## Dauw van de tuinen
+
+Kies **Ontdek plekken → Dauw van de tuinen · na regen**. Je hangt vliegend tussen de zwevende eilanden, net na een bui. Blijf ongeveer zes seconden stil hangen: de eilanden laten hun water los en de watervallen worden vol. Daarna steken de zaadbewaarders over, kleine drones die stuifmeel van eiland naar eiland dragen, vlak langs je blik. 's Nachts dragen ze lantaarns. Kom je later terug, dan blijft er één even bij je hangen.
+
+Zonder regen blijven de tuinen droog. Heb je onder **?** zelf helder weer of mist vastgezet, dan respecteert het reismenu dat en wachten de tuinen. Geluid is optioneel; minder beweging houdt de druppels als stille parels.
+
+## Zeldzame bewoners
+
+Drie bewoners uit de visioenen laten zich soms in de vallei zien. Er is geen knop of kaart voor; ze komen alleen onder hun eigen omstandigheden, één keer per venster:
+
+- **De wortelvos** bij dageraad, als je te voet bij de wortelkathedraal bent.
+- **De zilvervleugel** in de nacht bij de lichtpoort, als de ring wakker is.
+- **Het bladortje** na de regen, als je rustig voor de moswachter blijft staan.
+
+Rennen of te dichtbij komen laat ze eerder gaan. Heb je er een echt gezien, dan herken je hem later in het visioen: zijn lichtpunt krijgt een gouden stip en vertelt waar je hem zag. Je apparaat onthoudt dat; zonder browseropslag werkt het tijdens je bezoek.
+
 ## Herkomst
 
 Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. De live site is GitHub Pages op `dist/`; een push naar `main` werkt de website bij.

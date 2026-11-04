@@ -32,3 +32,5 @@
 
 #deer-mirror-invite{pointer-events:auto;min-height:46px;margin-top:14px;padding:12px 24px;font-size:16px;border-color:#b6cddd;background:#183b50ed;color:#e7f2ff}#deer-mirror-invite:focus-visible{outline:2px solid #eac3e1;outline-offset:4px}#deer-mirror-view{width:100%;text-align:left;margin-bottom:12px;border-radius:10px;font-size:14px;color:#d2e7f5;border-color:#789caf}
 @media(max-width:600px){#brook-caption:has(#deer-mirror-invite:not([hidden])){top:116px}}
+.vision-point.met{border-color:#ffe3a0;box-shadow:0 0 22px #ffd37a70,inset 0 0 0 3px #ffe3a033}
+.vision-point.met::after{content:'';position:absolute;right:-3px;top:-3px;width:10px;height:10px;border-radius:50%;background:#ffdc8a;box-shadow:0 0 8px #ffd37a}

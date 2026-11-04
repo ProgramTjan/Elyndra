@@ -17,7 +17,7 @@ De scripts en stylesheet krijgen nieuwe cacheversies. Een afzonderlijke pull-req
 
 ## Uitgevoerde controles
 
-- De bestaande 23 door Node gerapporteerde tests slagen. De integratietest is uitgebreid met regressiecontroles voor menu-invoer, native select/knopbediening, touch-rondkijken, normaal lopen na knopfocus V tijdens intro, uitleg, gesprekken en instellingen, T tijdens geblokkeerde interactie en de drakenknop tijdens de eekhoornontmoeting.
+- Bij de eerste controle op 2 november slaagden 23 tests. Op 4 november slagen alle 25 tests op de gecombineerde branch, inclusief dauw en zeldzame bewoners. De integratietest is uitgebreid met regressiecontroles voor menu-invoer, native select/knopbediening, touch-rondkijken, normaal lopen na knopfocus V tijdens intro, uitleg, gesprekken en instellingen, T tijdens geblokkeerde interactie en de drakenknop tijdens de eekhoornontmoeting.
 - Tests controleren onder andere de vier puzzels, opgeslagen puzzeltoestand, intro en overslaan, licht en weer, de beek, tuin, drakengroet en wandeling, eekhoornroute en spiegelhert. DOM en WebGL zijn hierbij gesimuleerd; dit is geen bewijs van werkelijke rendering of framerate.
 - De live GitHub Pages-site is geopend in de beschikbare cloudbrowser. De wereld kon daar niet starten: `WebGL2 unavailable`. De begrijpelijke foutmelding en herlaadknop waren zichtbaar. Dit is een beperking van die testomgeving; er is geen conclusie getrokken dat Elyndra op normale apparaten niet werkt.
 - CSS-analyse: bij 667×375 en 640×800 begint een reismenu op maximale hoogte na de wijziging op y=55, voorheen y=−65. Bij 390×844 blijft de bestaande regel behouden. Dit is een berekening uit de CSS, geen gemeten browserlayout.
@@ -39,4 +39,4 @@ Voer deze controles uit op een browser met werkende WebGL 2. Gebruik een aparte 
 
 ## Beslismoment
 
-Beoordeel de pull request en bovenstaande open controles vóór visuele acceptatie van stap 1. Het ontwikkelplan beschrijft vervolgens stap 2; de nieuwe tuinervaring is nog niet geïmplementeerd. Samenvoegen naar `main` publiceert de wijzigingen en wordt apart afgestemd.
+Beoordeel de pull request en bovenstaande open controles vóór visuele acceptatie van stap 1. Op 4 november zijn ook de dauwervaring en de drie nieuwe visioenbewoners uit main opgenomen in de testbranch. Neem die mee in de visuele speeltest. Samenvoegen naar `main` publiceert de wijzigingen en wordt apart afgestemd.

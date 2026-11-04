@@ -8,7 +8,7 @@ Een compacte vallei waarin natuur en vriendelijke machines samenleven. Verdiepin
 
 De oorspronkelijke stappen 1 t/m 5 komen eerst. **Daarna** volgt het vergezicht: meer avontuur en verhaal, vervolgens mooiere beelden, vervolgens levendigere bewoners. Deze volgorde volgt de verduidelijking van AJ op 2 november. De eerdere ideeën over verhaal en bewoners binnen stappen 3–5 blijven dus onderdeel van de eerste reeks.
 
-Elke stap levert een afzonderlijk beoordeelbare versie op. Eerst implementatie, passende tests en visuele beoordeling, dan samen kijken. Een branch en pull request maken de wijzigingen reviewbaar; samenvoegen naar `main` publiceert automatisch via GitHub Pages en wordt apart afgestemd. Alleen stap 1 is nu gestart. De rest is planning, geen automatische opdracht om alles te bouwen.
+Elke stap levert een afzonderlijk beoordeelbare versie op. Eerst implementatie, passende tests en visuele beoordeling, dan samen kijken. Een branch en pull request maken de wijzigingen reviewbaar; samenvoegen naar `main` publiceert automatisch via GitHub Pages en wordt apart afgestemd. Stand op 4 november 2026: de gedragsfixes van stap 1 staan in [PR #1](https://github.com/ProgramTjan/Elyndra/pull/1). Op main staan inmiddels de dauwervaring (stap 2) en drie visioenbewoners (de kern van stap 4). De visuele speeltest blijft open. Beoordeel daarna welke herkenningsreacties van stap 3 nog ontbreken; stap 5 en het vergezicht komen vervolgens aan bod.
 
 ## Eerste reeks
 

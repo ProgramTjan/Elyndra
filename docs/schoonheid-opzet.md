@@ -106,7 +106,7 @@ Eerste kandidaten, zonder de vallei te vergroten:
 |--------|----------|-------------|
 | Adem van de kathedraal | stilte onder de bogen bij laag zonlicht | **gebouwd** — zaadschrijn ademt; een vergeten vogel klinkt één keer |
 | Spiegel van de poort | poort actief + schemer | **gebouwd** — het water in de ring toont even het *andere* bos |
-| Dauw van de tuinen | na regen, vliegend tussen eilanden | watervallen worden zichtbaar; zaad-drones kruisen je pad |
+| Dauw van de tuinen | na regen, vliegend tussen eilanden | **gebouwd** — watervallen worden zichtbaar; zaadbewaarders kruisen je pad |
 | Hart van de wachter | na puzzel 4, nachtelijke stilte | het hartlicht synchroniseert met de vier hartslagen |
 
 ---
@@ -136,12 +136,30 @@ Geen grote herschrijving. Alleen deuren openzetten.
 
 ### Fase C — Drie nieuwe stilte-wonderen
 
-Kathedraal en poort zijn gebouwd (`cathedral-wonder.mjs`, `gate-wonder.mjs`). Tuinen volgen.  
+Gebouwd: kathedraal, poort en tuinen (`cathedral-wonder.mjs`, `gate-wonder.mjs`, `garden-dew.mjs`).  
 Geen nieuwe puzzel. Geen nieuwe visioen-afbeelding verplicht.
+
+Dauw van de tuinen, zoals gebouwd:
+
+- Conditie: natte lucht (regen of net na regen). Mist alleen telt niet. Vanaf de grond zie je de watervallen al zwak.
+- Blijven: zes seconden vliegend stilhangen tussen de eilanden. Dan laten de eilanden hun water los en worden de watervallen vol.
+- Daarna steken vier zaadbewaarders (dezelfde drones als in de vallei) over van eiland naar eiland, vlak voor je blik langs, met een spoor van stuifmeel. 's Nachts dragen ze blauwe lantaarns.
+- Terugkeer: bij een volgend bezoek blijft één zaadbewaarder halverwege stilhangen en kijkt je aan.
+- Reismenu: *Dauw van de tuinen · na regen* brengt je tussen de eilanden en geeft het bezoek een net gevallen bui, tenzij je zelf vast weer hebt gekozen.
 
 ### Fase D — Visioenen lekken naar de wereld
 
 De zestien bewoners uit `visions.js` zijn al geschreven. Laat er drie *zeldzaam* in de vallei verschijnen, in realtime-stijl, nooit als UI-popup. Wie ze ziet, herkent ze later in het visioen.
+
+Gebouwd in `rare-dwellers.mjs`. Elk komt één keer per venster, en alleen zolang je zacht bent:
+
+| Bewoner | Conditie | Wat gebeurt |
+|---------|----------|-------------|
+| De wortelvos | dageraad, te voet bij de wortelkathedraal | draaft het pad over, legt zijn oor op de grond, graaft; er welt water op |
+| De zilvervleugel | nacht, ring wakker, bij de lichtpoort | vliegt laag binnen, rust op een lantaarnpaal, buigt met haar zilveren vleugel open, vliegt door het licht |
+| Het bladortje | na regen, rustig staan voor de moswachter | klimt van zijn schouder langs een rank omlaag, drinkt, schudt zich uit, kijkt je aan, klimt terug |
+
+Rennen of te dichtbij komen laat ze eerder vertrekken. Wie ze echt in beeld heeft gehad, vindt ze terug in het visioen: het lichtpunt krijgt een gouden stip en de tekst zegt waar je ze zag (`elyndra-met-dwellers`). Bij een volgende ontmoeting klinkt een andere zin.
 
 ### Fase E — De andere oever (pas later)
 
