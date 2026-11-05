@@ -34,3 +34,5 @@
 @media(max-width:600px){#brook-caption:has(#deer-mirror-invite:not([hidden])){top:116px}}
 .vision-point.met{border-color:#ffe3a0;box-shadow:0 0 22px #ffd37a70,inset 0 0 0 3px #ffe3a033}
 .vision-point.met::after{content:'';position:absolute;right:-3px;top:-3px;width:10px;height:10px;border-radius:50%;background:#ffdc8a;box-shadow:0 0 8px #ffd37a}
+
+#vision-visit-fox{margin-top:10px;font-size:13px;border-color:#d9ecae75;max-width:100%}

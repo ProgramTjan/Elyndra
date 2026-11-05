@@ -91,13 +91,21 @@ Zonder regen blijven de tuinen droog. Heb je onder **?** zelf helder weer of mis
 
 ## Zeldzame bewoners
 
-Drie bewoners uit de visioenen laten zich soms in de vallei zien. Er is geen knop of kaart voor; ze komen alleen onder hun eigen omstandigheden, één keer per venster:
+Drie bewoners uit de visioenen laten zich soms in de vallei zien. Ze komen onder hun eigen omstandigheden, één keer per venster. De wortelvos heeft daarnaast een route vanuit zijn visioen:
 
 - **De wortelvos** bij dageraad, als je te voet bij de wortelkathedraal bent.
 - **De zilvervleugel** in de nacht bij de lichtpoort, als de ring wakker is.
 - **Het bladortje** na de regen, als je rustig voor de moswachter blijft staan.
 
 Rennen of te dichtbij komen laat ze eerder gaan. Heb je er een echt gezien, dan herken je hem later in het visioen: zijn lichtpunt krijgt een gouden stip en vertelt waar je hem zag. Je apparaat onthoudt dat; zonder browseropslag werkt het tijdens je bezoek.
+
+## Stap 4 · De bron van de wortelvos
+
+Open het vrijgespeelde visioen **De wortelkathedraal**, tik op **De wortelvos** en kies **Zoek de wortelvos · bij dageraad**. Je komt te voet op een rustige plek naast het pad, met zicht op zijn route. Blijf ongeveer dertien seconden staan. Hij luistert, graaft en legt een kleine bron bloot. Je houdt zelf controle over de camera en kunt altijd weglopen of vliegen.
+
+Na het graven blijft er water tussen de stenen staan. **Ontdek plekken → De bron van de wortelvos** brengt je terug, zonder het tijdstip te veranderen. De bron blijft op dit apparaat bewaard, los van je puzzelvoortgang. Zonder opslag blijft ze tijdens deze sessie aanwezig. Een eerder geziene vos betekent niet automatisch dat zijn bron al is ontdekt.
+
+Schrikt hij voordat hij klaar is? Ga via zijn visioen opnieuw bij dageraad kijken. De zilvervleugel en het bladortje blijven hun bestaande natuurlijke ontmoetingen houden.
 
 ## Herkomst
 
