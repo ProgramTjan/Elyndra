@@ -148,3 +148,35 @@ run(reducedA, 5, foxSpot, foxView);
 for (const sp of sparkPositions({fox: reducedA.pose('fox')}, 3)) assert(sp.p.every(Number.isFinite));
 
 console.log('Dwellers: dawn fox, night owl through the ring, leafling after rain, shyness, once per window, memory and pauses passed.');
+
+// A spring is earned by digging, not merely by the encounter clock advancing.
+const {readSpring, saveSpring, SPRING_KEY, FOX_WATCH} = await import('../dist/rare-dwellers.mjs');
+const source = new RareDwellers(ground);
+let discoveries = 0;
+for(let i=0;i<800;i++) if(source.update(.05,foxSpot,foxView).springNow) discoveries++;
+assert.equal(discoveries,1,'The completed dig reveals the source exactly once');
+assert(source.snapshot().springFound,'The source remains when the fox has left');
+const frightened = new RareDwellers(ground);
+run(frightened,9.5,foxSpot,foxView);
+const close = frightened.pose('fox').position;
+run(frightened,.2,[close[0],close[1]+2.4,close[2]],foxView);
+run(frightened,1.5,foxSpot,foxView);
+assert.equal(frightened.pose('fox').spring,0,'An early retreat cannot create water later on its exit route');
+assert.equal(frightened.springFound,false);
+frightened.visitFox(foxSpot);
+run(frightened,13.5,foxSpot,foxView);
+assert(frightened.springFound,'An explicit fresh dawn lets a startled visitor try again');
+assert(frightened.fox.met,'Teleporting to the viewpoint must not look like running');
+const waiting = new RareDwellers(ground);
+run(waiting,10,foxSpot,foxView);run(waiting,20,foxSpot,foxView,false);
+assert.equal(waiting.springFound,false,'Pausing before the dig cannot finish it');
+saveSpring(storage);assert.equal(store.get(SPRING_KEY),'found');
+const reload = new RareDwellers(ground,readMet(storage),readSpring(storage));
+assert(reload.snapshot().springFound,'A new visit restores the source independently of the current weather');
+assert.equal(reload.snapshot().springNow,false,'Restoring does not replay a discovery');
+assert.equal(readSpring(null),false);
+assert.equal(readSpring({getItem(){throw Error('blocked')}}),false);
+assert.doesNotThrow(()=>saveSpring({setItem(){throw Error('full')}}));
+store.set(SPRING_KEY,'bad');assert.equal(readSpring(storage),false);
+assert(Math.hypot(FOX_WATCH[0]-FOX.dig[0],FOX_WATCH[1]-FOX.dig[1])>6);
+console.log('Fox spring: completed digging, early retreat, explicit retry, pause, persistence and blocked storage passed.');

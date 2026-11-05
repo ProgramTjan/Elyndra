@@ -10,6 +10,12 @@ export const DWELLERS = Object.freeze({
   leafling: Object.freeze({scene: 3, point: 1, name: 'Het bladortje', met: 'Je zag het na de regen langs de arm van de moswachter naar beneden klimmen.'})
 });
 export const STORAGE_KEY = 'elyndra-met-dwellers';
+export const SPRING_KEY = 'elyndra-fox-spring-v1';
+export function readSpring(storage) { try { return storage?.getItem(SPRING_KEY) === 'found'; } catch { return false; } }
+export function saveSpring(storage) { try { storage?.setItem(SPRING_KEY, 'found'); } catch {} }
+export const FOX_WATCH = Object.freeze([-45, -26]);
+// Just in front of the fox's digging paws; shared by the water and its glints.
+export function springPosition(ground) { return [-46.39, ground(-46.39, -40.10) + .08, -40.10]; }
 export const FOX = Object.freeze({from: [-64, -36], dig: [-47, -40], exit: [-27, -50]});
 export const KEEPER = Object.freeze({x: 86, z: 36});
 export const GATE_RING = Object.freeze({x: 66, z: -110, rise: 12, radius: 12});
@@ -80,7 +86,8 @@ class Dweller {
 }
 
 export class RareDwellers {
-  constructor(ground, met = new Set()) {
+  constructor(ground, met = new Set(), springFound = false) {
+    this.springFound = springFound; this.springNow = false;
     this.ground = ground;
     this.metSet = new Set(met);
     this.fox = new Dweller('fox', this.metSet.has('fox'));
@@ -94,7 +101,13 @@ export class RareDwellers {
       .map(p => [p[0], ground(p[0], p[2]), p[2]]);
   }
   get all() { return [this.fox, this.owl, this.leafling]; }
+  // An explicit journey from the vision starts a fresh dawn encounter.
+  visitFox(viewer) {
+    this.fox.stop(); this.fox.used = false;
+    this.previous = [...viewer]; this.speed = 0;
+  }
   update(dt, viewer, ctx = {}, enabled = true) {
+    this.springNow = false;
     dt = Math.min(.05, Math.max(0, dt));
     for (const d of this.all) d.metNow = d.noticedNow = false;
     if (!enabled) { this.previous = [...viewer]; return this.snapshot(viewer, ctx); }
@@ -115,6 +128,9 @@ export class RareDwellers {
       duration: 22, stay: 16,
       shy: (pose) => running || Math.hypot(viewer[0] - pose.position[0], viewer[2] - pose.position[2]) < 6
     }, viewer, facing);
+    if (!this.springFound && this.fox.phase === 'present' && this.fox.time >= 12.8 && !this.fox.spooked) {
+      this.springFound = this.springNow = true;
+    }
     // Silver wing: night, the ring awake, the visitor near the gate.
     this.advance(this.owl, dt, {
       window: night(hour) && !!ctx.portal,
@@ -179,6 +195,7 @@ export class RareDwellers {
     for (const d of this.all) {
       out[d.id] = {phase: d.phase, time: d.time, met: d.met, metNow: d.metNow, noticedNow: d.noticedNow, seen: d.seen, used: d.used, leaving: d.leaveAt !== Infinity, spooked: d.spooked};
     }
+    out.springFound = this.springFound; out.springNow = this.springNow;
     out.met = [...this.metSet];
     out.justMet = this.all.find(d => d.metNow)?.id ?? null;
     const noticed = this.all.find(d => d.noticedNow);
@@ -217,7 +234,7 @@ export function foxPose(d, route, ground, viewer, clock, reduced = false) {
     gait = d.spooked ? 1.6 : 1;
     fade = 1 - ease((t - d.leaveAt - span + .4) / 1.2);
   }
-  if (d.time >= 11) spring = ease((d.time - 11) / 2) * (d.phase === 'waiting' ? 0 : 1);
+  if (d.time >= 11 && d.leaveAt >= 11) spring = ease((d.time - 11) / 2) * (d.phase === 'waiting' ? 0 : 1);
   position = [position[0], ground(position[0], position[2]), position[2]];
   const time = reduced ? 0 : clock;
   const stride = reduced ? 0 : Math.sin(time * 9 * Math.max(1, gait)) * .55 * Math.min(1, gait);
@@ -240,8 +257,7 @@ export function foxPose(d, route, ground, viewer, clock, reduced = false) {
     if (front && sit) swing = swing * (1 - sit) - sit * .25;
     legs.push(joint(body, [side * .12, -.08, front ? -.32 : .32], swing, 'x'));
   }
-  const last = route[route.length - 1], prior = route[route.length - 2], l = Math.hypot(last[0] - prior[0], last[2] - prior[2]) || 1;
-  const springAt = [last[0] + (last[0] - prior[0]) / l * .62, last[1] + .04, last[2] + (last[2] - prior[2]) / l * .62];
+  const springAt = springPosition(ground);
   return {bones: [body, head, tail, tip, ...legs], position, heading, fade, spring, dig, springAt};
 }
 
@@ -426,7 +442,17 @@ export function createDwellerMeshes({orb, cone, beam, curveTube, tri, upload, ma
   }
   material(0);
   const vine = upload();
-  return {fox, owl, leafling, vine};
+  // A small water basin remains after the encounter, even on a later visit.
+  const [sx, sy, sz] = springPosition(ground);
+  material(3);
+  for (let i = 0; i < 9; i++) {
+    const a = i * Math.PI * 2 / 9, x = sx + Math.cos(a) * .8, z = sz + Math.sin(a) * .6;
+    orb(x, ground(x, z) + .06, z, .25, .12, .22, [.2, .27, .16], 8, 5);
+  }
+  material(4); orb(sx, sy, sz, .72, .035, .51, [.04, .24, .25], 20, 6);
+  material(0);
+  const spring = upload();
+  return {fox, owl, leafling, vine, spring};
 }
 
 // Small light: the spring the fox uncovers, rain shaken from the leafling, silver glints.

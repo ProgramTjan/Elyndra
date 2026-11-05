@@ -8,7 +8,7 @@ Een compacte vallei waarin natuur en vriendelijke machines samenleven. Verdiepin
 
 De oorspronkelijke stappen 1 t/m 5 komen eerst. **Daarna** volgt het vergezicht: meer avontuur en verhaal, vervolgens mooiere beelden, vervolgens levendigere bewoners. Deze volgorde volgt de verduidelijking van AJ op 2 november. De eerdere ideeën over verhaal en bewoners binnen stappen 3–5 blijven dus onderdeel van de eerste reeks.
 
-Elke stap levert een afzonderlijk beoordeelbare versie op. Eerst implementatie, passende tests en visuele beoordeling, dan samen kijken. Een branch en pull request maken de wijzigingen reviewbaar; samenvoegen naar `main` publiceert automatisch via GitHub Pages en wordt apart afgestemd. Stand op 4 november 2026: de gedragsfixes van stap 1 staan in [PR #1](https://github.com/ProgramTjan/Elyndra/pull/1). Op main staan inmiddels de dauwervaring (stap 2) en drie visioenbewoners (de kern van stap 4). De visuele speeltest blijft open. Stap 3 voegt op de ontwikkelbranch een herinnering tussen de draak, de moswachter en de slapende tuin toe. Beoordeel deze ontmoeting samen; daarna volgt stap 5.
+Elke stap levert een afzonderlijk beoordeelbare versie op. Eerst implementatie, passende tests en visuele beoordeling, dan samen kijken. Een branch en pull request maken de wijzigingen reviewbaar; samenvoegen naar `main` publiceert automatisch via GitHub Pages en wordt apart afgestemd. Stand op 5 november 2026: stap 1 en stap 3 zijn gepubliceerd via PR #1 en #2 en door AJ beoordeeld. Stap 2 en de drie visioenbewoners stonden al op main. AJ heeft stap 4 aangevraagd. Deze ronde maakt de wortelvos vanuit zijn visioen vindbaar en geeft zijn ontmoeting een blijvend gevolg: een bron, met een opgeslagen terugkeerplek. Implementatie en geautomatiseerde controle zijn gereed op `codex/elyndra-step-4`; visuele beoordeling en publicatie worden apart afgestemd. Daarna volgt stap 5.
 
 ## Eerste reeks
 
@@ -17,7 +17,7 @@ Elke stap levert een afzonderlijk beoordeelbare versie op. Eerst implementatie, 
 | 1 · Beleving controleren | Betrouwbare basis voor doorontwikkeling | Laden, intro, menus, toetsenbord/touch, opslag en bestaande ontmoetingen controleren. Reproduceerbare fouten gericht herstellen. Tests groen; browser- en apparaatbeperkingen expliciet vastleggen. | Huidige versie |
 | 2 · De tuinen na de regen | Eén nieuw volledig natuurmoment | Na regen verschijnen druppels, kleine watervallen en zaaddrones rond de bestaande eilanden. Zelf blijven vliegen en kijken; vertrek en terugkeer veilig; sober mobiel en minder beweging ondersteund. Weerconditie moet testbaar zijn. | Stap 1 beoordeeld |
 | 3 · Het woud herinnert zich jou | Bestaande ontmoetingen hangen samen | Begin met twee herkenbare reacties: bijvoorbeeld moswachter na drakengroet en tuin bij terugkeer. Op hetzelfde apparaat bewaard; zonder opslag binnen de sessie bruikbaar. Geen verborgen blokkade voor vrij verkennen. | Stap 2 en afgesproken herinneringen |
-| 4 · Visioenen worden werkelijkheid | Eén visioenbewoner verschijnt in de vallei | Kies samen één bewoner, bijvoorbeeld de wortelvos. Een duidelijke conditie, een eigen gedrag en een veilige terugkeer; eerst één geslaagde ontmoeting beoordelen. | Stap 3 beoordeeld |
+| 4 · Visioenen worden werkelijkheid | Eén visioenbewoner verschijnt in de vallei | Wortelvos: vanuit zijn visioen naar dageraad, rustig kijken tot hij een bron blootlegt, bron bewaren en veilig terugkeren. Bestaande spontane ontmoetingen blijven mogelijk; eerst deze ontmoeting beoordelen. | Stap 3 beoordeeld |
 | 5 · Vier hartslagen samen | Een voelbaar slot van de bestaande puzzelreis | Na vier puzzels reageren licht en bewoners als geheel. Ook bij laden van bestaande voltooide voortgang bereikbaar. Geluid optioneel, minder beweging ondersteund, daarna vrij verkennen. | Stappen 1–4 en gekozen slotontwerp |
 
 ## Vergezicht na stap 5
@@ -56,4 +56,4 @@ Gereed wanneer gedrag leesbaar en gevarieerd is, routes niet vastlopen en bewone
 
 ## Eerstvolgende beoordelmoment
 
-Stap 1: bevindingen en gerichte fixes bekijken, met onderscheid tussen geautomatiseerde logica, browserwaarneming en nog open apparaatcontroles. Daarna bepalen we of stap 2 kan beginnen. De open controles staan in `docs/stap-1-controle.md`.
+Stap 4: open het wortelvisioen, kies de wortelvos en reis naar dageraad. Bekijk het luisteren en graven, laat hem rustig vertrekken en keer via het reismenu terug naar de bron. Probeer ook weglopen, opnieuw beginnen en herladen. Het visuele resultaat op telefoon en laptop blijft een open speeltest; de geautomatiseerde tests gebruiken een DOM/WebGL-harnas. Zie `docs/stap-4-controle.md`.
