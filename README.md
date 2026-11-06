@@ -107,6 +107,14 @@ Na het graven blijft er water tussen de stenen staan. **Ontdek plekken → De br
 
 Schrikt hij voordat hij klaar is? Ga via zijn visioen opnieuw bij dageraad kijken. De zilvervleugel en het bladortje blijven hun bestaande natuurlijke ontmoetingen houden.
 
+## Vier hartslagen samen
+
+Na het herstellen van de vierde letter kies je op het beloningsscherm **Beluister de vier hartslagen bij de moswachter**. Je kunt ook eerst je visioen bekijken en later via **Avontuur** gaan. Dat werkt eveneens als je de vier letters tijdens een eerder bezoek hebt hersteld.
+
+Bij de moswachter komen vier kleuren bij elkaar. Een zaaddrone daalt uit de tuinen. Bij de vierde hartslag buigt de moswachter zich naar zijn boompje. Er opent een nieuw blad dat je bij een volgend bezoek kunt terugvinden. Ook bij de wortels, poort en tuinen blijft een lichtje branden.
+
+De scène duurt ongeveer achttien seconden in speeltijd. Je kunt om je heen kijken, wegwandelen en opnieuw luisteren via **Avontuur**. Geluid volgt de geluidsknop. Met minder beweging verschijnen de vier lichten op vaste plekken. Als opslaan op het apparaat lukt, blijft het nieuwe blad ook na herladen zichtbaar.
+
 ## Herkomst
 
 Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. De live site is GitHub Pages op `dist/`; een push naar `main` werkt de website bij.

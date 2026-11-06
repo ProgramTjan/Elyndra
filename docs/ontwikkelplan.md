@@ -8,7 +8,7 @@ Een compacte vallei waarin natuur en vriendelijke machines samenleven. Verdiepin
 
 De oorspronkelijke stappen 1 t/m 5 komen eerst. **Daarna** volgt het vergezicht: meer avontuur en verhaal, vervolgens mooiere beelden, vervolgens levendigere bewoners. Deze volgorde volgt de verduidelijking van AJ op 2 november. De eerdere ideeën over verhaal en bewoners binnen stappen 3–5 blijven dus onderdeel van de eerste reeks.
 
-Elke stap levert een afzonderlijk beoordeelbare versie op. Eerst implementatie, passende tests en visuele beoordeling, dan samen kijken. Een branch en pull request maken de wijzigingen reviewbaar; samenvoegen naar `main` publiceert automatisch via GitHub Pages en wordt apart afgestemd. Stand op 5 november 2026: stap 1 en stap 3 zijn gepubliceerd via PR #1 en #2 en door AJ beoordeeld. Stap 2 en de drie visioenbewoners stonden al op main. AJ heeft stap 4 aangevraagd. Deze ronde maakt de wortelvos vanuit zijn visioen vindbaar en geeft zijn ontmoeting een blijvend gevolg: een bron, met een opgeslagen terugkeerplek. Implementatie en geautomatiseerde controle zijn gereed op `codex/elyndra-step-4`; visuele beoordeling en publicatie worden apart afgestemd. Daarna volgt stap 5.
+Elke stap levert een afzonderlijk beoordeelbare versie op. Eerst implementatie, passende tests en visuele beoordeling, dan samen kijken. Een branch en pull request maken de wijzigingen reviewbaar; samenvoegen naar `main` publiceert automatisch via GitHub Pages en wordt apart afgestemd. Stand op 6 november 2026: stappen 1–4 zijn gepubliceerd. Stap 5 is uitgewerkt op `codex/elyndra-step-5`. Na de vier letters brengt een vrijwillig bezoek aan de moswachter hun antwoorden samen. Een blad in zijn hand en vier lichten in de vallei bewaren het slot. De volgende ontwikkelronde na beoordeling en publicatie is stap 6, avontuur en verhaal.
 
 ## Eerste reeks
 
@@ -56,4 +56,4 @@ Gereed wanneer gedrag leesbaar en gevarieerd is, routes niet vastlopen en bewone
 
 ## Eerstvolgende beoordelmoment
 
-Stap 4: open het wortelvisioen, kies de wortelvos en reis naar dageraad. Bekijk het luisteren en graven, laat hem rustig vertrekken en keer via het reismenu terug naar de bron. Probeer ook weglopen, opnieuw beginnen en herladen. Het visuele resultaat op telefoon en laptop blijft een open speeltest; de geautomatiseerde tests gebruiken een DOM/WebGL-harnas. Zie `docs/stap-4-controle.md`.
+Stap 5: kies na de vierde letter of vanuit **Avontuur** voor **Beluister de vier hartslagen bij de moswachter**. Bekijk de vier reacties in de vallei en keer later terug naar het jonge blad. Een bestaande volledige puzzelvoortgang geeft dezelfde toegang. Beoordeel vooral of het samenkomen van de vier plekken leesbaar is en het slot voldoende tijd krijgt.

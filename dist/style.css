@@ -36,3 +36,12 @@
 .vision-point.met::after{content:'';position:absolute;right:-3px;top:-3px;width:10px;height:10px;border-radius:50%;background:#ffdc8a;box-shadow:0 0 8px #ffd37a}
 
 #vision-visit-fox{margin-top:10px;font-size:13px;border-color:#d9ecae75;max-width:100%}
+
+#quest-finale{display:block;margin:14px auto;max-width:100%}
+#quest-finale[hidden],#finale-caption[hidden]{display:none}
+#finale-caption{position:fixed;left:50%;bottom:132px;transform:translateX(-50%);width:min(32rem,88vw);padding:10px 16px;border-radius:12px;text-align:center;background:#102327e8;color:#edf2dd;pointer-events:none}
+#finale-caption strong{font:22px Georgia,serif;color:#e6edba}
+#finale-caption p{margin:4px 0 0;line-height:1.4}
+@media(max-width:700px){#finale-caption{bottom:auto;top:80px;font-size:14px}}
+@media(max-height:500px){#finale-caption{top:auto;bottom:65px;padding:6px 12px;font-size:13px}}
+body:has(#finale-caption:not([hidden])) #toast{visibility:hidden}

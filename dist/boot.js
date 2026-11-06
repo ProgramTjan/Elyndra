@@ -1,7 +1,7 @@
 const status=document.getElementById('start-status');
 try {
-  await import('./quests.js?v=story1');
-  await import('./world.js?v=dweller40');
+  await import('./quests.js?v=finale41');
+  await import('./world.js?v=finale41');
   await import('./visions.js?v=dweller40');
   await import('./conversations.js?v=memory39');
   const enter=document.getElementById('enter'),direct=document.getElementById('start-direct');
