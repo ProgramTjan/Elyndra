@@ -408,14 +408,16 @@ const gardenFlowerMesh=upload();material=0;
 const gardenFlowers=Array.from({length:34},(_,i)=>gardenFlower(i,ground)).filter(f=>Math.hypot(f.x-DRAGON_REST.x,f.z-DRAGON_REST.z)>2.2);
 // One new leaf at the end of the existing sapling, made of two folded halves.
 material=7;
-const leafBase=[0,0,0], leafRidge=[.65,.95,.15], leafTip=[1.4,2.15,.05];
+const leafBase=[0,0,0], leafRidge=[1.0,1.95,1.15], leafTip=[2.5,3.65,1.65];
 for (const side of [-1,1]) {
-  const edge=[.58+side*.62,1-side*.25,.40];
-  const tint=side===1 ? [.83,1.04,.30] : [.56,.85,.18];
+  const edge=[.97+side*.84,1.76-side*.28,1.54];
+  const tint=side===1 ? [1,.89,.26] : [.68,.79,.15];
   for (const [a,b,c] of [[leafBase,edge,leafRidge],[leafRidge,edge,leafTip]]) {
     tri(a,b,c,tint);tri(c,b,a,tint);
   }
 }
+beam(leafBase,leafRidge,.045,[1.16,.91,.38]);
+beam(leafRidge,leafTip,.025,[1.16,.91,.38]);
 const finaleLeaf=upload();material=0;
 const motes=Array.from({length:90},()=>({x:(rand()-.5)*190,z:(rand()-.5)*220,y:1+rand()*14,a:rand()*TAU}));const drones=Array.from({length:9},(_,i)=>({x:[-48,86,12][i%3],z:[-65,36,135][i%3],a:rand()*TAU}));
 let weatherPref='auto';try{let saved=localStorage.getItem('elyndra-weather');if(['auto','clear','mist','rain'].includes(saved))weatherPref=saved;}catch{}
@@ -648,7 +650,7 @@ addEventListener('elyndra-hear-forest', () => {
   if (!window.elyndraFinaleReady() || document.querySelector('dialog[open]')) return;
   const [x,z] = finaleWatch;
   pos = [x, Math.max(ground(x,z), water+.15) + 2.4, z];
-  const target = [gx+6, gy+14, gz+3];
+  const target = [gx+6, gy+16, gz+3];
   const [dx,dy,dz] = target.map((value,i) => value - pos[i]);
   yaw = Math.atan2(dx,-dz);
   pitch = Math.atan2(dy,Math.hypot(dx,dz));
@@ -931,7 +933,9 @@ const palm = [saplingTip[0], saplingTip[1]+keeperMotion[0], saplingTip[2]];
 if (completedForest && Math.hypot(pos[0]-gx,pos[2]-gz)<95) {
   const fold = firstBloom && finaleElapsed !== null && !reducedMotion
     ? Math.max(0, 1 - (finaleElapsed - 3*BEAT_SECONDS)/1.6) : 0;
+  gl.uniform1f(U.returnLight,.82);
   draw(finaleLeaf,[palm[0],palm[1]-fold*.8,palm[2]],-1.4*fold);
+  gl.uniform1f(U.returnLight,0);
 }
 if (finaleElapsed !== null && finaleBeat >= 2) {
   const approach = reducedMotion ? 1 : Math.min(1,(finaleElapsed-2*BEAT_SECONDS)/3);
