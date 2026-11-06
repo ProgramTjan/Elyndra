@@ -257,3 +257,55 @@ assert(Math.hypot(eye[0]+45,eye[2]+26)<.2);
 const freePosition=[...eye];key('KeyD');for(let i=0;i<10;i++)frame(time+=50);release('KeyD');
 assert(horizontalDistance(eye,freePosition)>1,'The encounter leaves normal walking available');
 console.log('Fox vision handoff, natural view, completed source, unlocked return and free walking passed.');
+
+// Complete a different puzzle last: the ceremony is gated by four letters,
+// not by the keeper's puzzle, and stays optional on the reward screen.
+const puzzleSave = 'elyndra-heartbeats-v1', bloomSave = 'elyndra-four-heartbeats-v1';
+const finaleStore = new Map([[puzzleSave, JSON.stringify({
+  version:1, solved:[true,true,false,true], stones:[true,false,true,true,false,false]
+})]]);
+globalThis.localStorage = {
+  getItem:key => finaleStore.get(key) ?? null,
+  setItem:(key,value) => finaleStore.set(key,value)
+};
+$('quest-body').querySelectorAll = () => [];
+for (const id of ['balance-check','quest-reward','quest-replay']) nodes.set(id,element());
+await import('../dist/quests.js');
+window.elyndraStartPuzzle(-1);
+assert($('quest-finale').hidden,'Three letters cannot open the finale');
+window.elyndraStartPuzzle(2);
+$('balance-check').onclick();
+assert.equal($('quest-finale').hidden,false,'The fourth victory offers the finale with the vision reward');
+assert.equal(window.elyndraLook().finale.elapsed,null,'Victory leaves the player free to choose');
+$('quest-finale').onclick();
+assert(!$('quest-dialog').open);
+frame(time+=50);
+assert.equal(window.elyndraLook().finale.beat,0);
+const finalePosition=[...eye];
+$('help').onclick();
+const pausedFinale = window.elyndraLook().finale.elapsed;
+for(let i=0;i<90;i++)frame(time+=50);
+assert.equal(window.elyndraLook().finale.elapsed,pausedFinale);
+$('closehelp').onclick();
+const witnessed=new Set();
+for(let i=0;i<370;i++){
+  frame(time+=50);
+  if(!$('finale-caption').hidden)witnessed.add($('finale-name').textContent);
+}
+assert.deepEqual([...witnessed],['Het geheugen','De drempel','Het evenwicht','De stem']);
+assert.equal(window.elyndraLook().finale.elapsed,null,'The scene returns to exploration');
+assert(horizontalDistance(eye,finalePosition)<.1,'The ceremony does not move the camera after arrival');
+assert.equal(finaleStore.get(bloomSave),'bloom');
+assert.equal(JSON.parse(finaleStore.get(puzzleSave)).solved.filter(Boolean).length,4);
+
+// Reload the actual quest controller from the saved state. No puzzle event is
+// needed to make a completed save eligible. Leaving a replay does not erase it.
+await import('../dist/quests.js?restored-finale');
+window.elyndraStartPuzzle(-1);
+assert.equal($('quest-finale').hidden,false);
+$('quest-finale').onclick();
+frame(time+=50);
+$('garden-view').onclick();frame(time+=50);
+assert.equal(window.elyndraLook().finale.elapsed,null,'Travelling away ends the scene');
+assert(window.elyndraLook().finale.leafOpened);
+console.log('Finale: fourth puzzle in arbitrary order, optional reward, four beats, pause, saved overview, replay and departure passed.');
