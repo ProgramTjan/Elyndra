@@ -78,7 +78,7 @@ walkTo(-8.25,-38.3);for(let i=0;i<220;i++)frame(time+=50);
 assert.equal($('dragon-invite').hidden,false,'A trusted greeting reveals the invitation');
 // Isolate the shared encounter boundary: an active squirrel journey must suppress
 // an otherwise valid dragon invitation, and releasing it restores the prompt.
-const {SquirrelSecret}=await import('../dist/squirrel-secret.mjs?v=squirrel34');
+const {SquirrelSecret}=await import('../dist/squirrel-secret.mjs?v=gathering42');
 const originalSquirrelUpdate=SquirrelSecret.prototype.update;
 try{
  SquirrelSecret.prototype.update=function(...args){return {...originalSquirrelUpdate.apply(this,args),active:true};};
@@ -309,3 +309,51 @@ $('garden-view').onclick();frame(time+=50);
 assert.equal(window.elyndraLook().finale.elapsed,null,'Travelling away ends the scene');
 assert(window.elyndraLook().finale.leafOpened);
 console.log('Finale: fourth puzzle in arbitrary order, optional reward, four beats, pause, saved overview, replay and departure passed.');
+
+// Real conversation -> film -> pickup -> escort, using the same world and controls.
+$('destinations').children[3].onclick();
+for(let i=0;i<700;i++)frame(time+=50);
+walkTo(91,46);frame(time+=50);
+assert.equal(window.elyndraLook().squirrel.phase,'home');
+$('talk-near').onclick();
+if(choices.children.some(b=>b.textContent==='De eekhoorn'))chooseText('De eekhoorn');
+chooseText('Kom je naar een samenkomst bij de moswachter?');
+assert.equal(window.elyndraLook().gathering.phase,'idle','Asking is not acceptance');
+const beforeFilm=window.elyndraLook();
+chooseText('Ik help je. Laat maar zien!');
+assert(!$('conversation-dialog').open&&!window.elyndraVisionOpen,'Native dialogue releases the film');
+assert.equal(window.elyndraLook().gathering.phase,'cinematic');
+assert.equal(window.elyndraCanInteract(),false);
+frame(time+=50);const scenePosition=[...eye];
+key('KeyW');canvas.emit('pointerdown',{pointerId:42,pointerType:'touch',clientX:100,clientY:100});
+canvas.emit('pointermove',{pointerId:42,clientX:160,clientY:200});
+for(let i=0;i<20;i++)frame(time+=50);
+assert.deepEqual(eye,scenePosition,'Reduced motion camera is fixed and gameplay cannot steal it');
+const filmAge=window.elyndraLook().gathering.elapsed;
+document.hidden=true;for(let i=0;i<20;i++)frame(time+=50);document.hidden=false;
+assert.equal(window.elyndraLook().gathering.elapsed,filmAge,'Background tab pauses film');
+key('Escape');
+assert.equal(window.elyndraLook().gathering.phase,'needNut');
+assert.deepEqual(window.elyndraLook().pos,beforeFilm.pos,'Skip restores the player camera');
+assert.equal(window.elyndraCanInteract(),true);
+assert($('gathering-pickup').hidden,'Pickup requires proximity');
+const waitPosition=window.elyndraLook().squirrel.position;
+$('squirrel-invite').onclick();frame(time+=50);
+assert.equal(window.elyndraLook().squirrel.phase,'gathering','Old secret cannot borrow an occupied actor');
+$('help').onclick();const pauseAge=window.elyndraLook().gathering.elapsed;
+for(let i=0;i<20;i++)frame(time+=50);
+assert.equal(window.elyndraLook().gathering.elapsed,pauseAge);
+$('closehelp').onclick();walkTo(96,50);walkTo(104,59);walkTo(106,64);frame(time+=50);
+assert.equal($('gathering-pickup').hidden,false,'The nut is reachable via the existing cleared path');
+$('gathering-pickup').onclick();frame(time+=50);
+assert.equal(window.elyndraLook().gathering.phase,'escort');
+for(let i=0;i<60&&window.elyndraLook().gathering.phase==='escort';i++){
+ const p=window.elyndraLook().squirrel.position;walkTo(p[0]+1,p[2]+2,12);frame(time+=50);
+}
+assert.equal(window.elyndraLook().gathering.phase,'arrival');
+for(let i=0;i<110;i++)frame(time+=50);
+assert.equal(window.elyndraLook().gathering.phase,'done');
+for(let i=0;i<200;i++)frame(time+=50);
+assert.equal(window.elyndraLook().squirrel.phase,'home','The only squirrel returns to his previous role');
+assert(window.elyndraLook().squirrel.revealed,'The old monument memory remains intact');
+console.log('Gathering: real dialogue handoff, input isolation, fixed camera, skip, pause, reachable mobile pickup, escort and actor return passed.');

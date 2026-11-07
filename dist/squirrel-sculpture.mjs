@@ -1,10 +1,10 @@
-import {MONUMENT,STUMPS} from './squirrel-secret.mjs?v=squirrel34';
+import {MONUMENT,STUMPS} from './squirrel-secret.mjs?v=gathering42';
 
 // The same sculpture in warm fur and weathered stone. Seven joints keep the
 // living squirrel's head, curled tail and paws attached during the journey.
 export function createSquirrelSculptures({orb,cone,beam,curveTube,tri,upload,material}){
  const origins=[[0,0,0],[0,1.35,-.15],[0,.35,.3],[-.23,.85,-.12],[.23,.85,-.12],[-.24,.25,.18],[.24,.25,.18]];
- function sculpt(stone=false){
+ function sculpt(stone=false,holdingNut=true){
   const scale=stone?MONUMENT.scale:1;
   let part=0;
   const bone=i=>{part=i;material(stone?3:(i+5)*10);};
@@ -36,7 +36,7 @@ export function createSquirrelSculptures({orb,cone,beam,curveTube,tri,upload,mat
    else{ball([0,-.15,-.10],[.14,.10,.29],fur);for(let j=0;j<3;j++)line([-.065+j*.065,-.19,-.29],[-.065+j*.065,-.19,-.39],.018,dark);}
   }
   // An acorn held importantly against the chest, like a royal orb.
-  bone(0);ball([0,.8,-.48],[.14,.20,.14],stone?[.50,.45,.28]:[.64,.42,.15]);ball([0,.94,-.48],[.16,.085,.16],stone?[.27,.30,.22]:[.28,.22,.10]);line([0,1,-.48],[.015,1.10,-.46],.022,dark);
+  if(holdingNut){bone(0);ball([0,.8,-.48],[.14,.20,.14],stone?[.50,.45,.28]:[.64,.42,.15]);ball([0,.94,-.48],[.16,.085,.16],stone?[.27,.30,.22]:[.28,.22,.10]);line([0,1,-.48],[.015,1.10,-.46],.022,dark);}
   if(stone){
    // A conspicuously oversized acorn crown and little carved leaf points.
    ball([0,2.12,-.10],[.25,.32,.25],[.56,.47,.26],20,12);
@@ -48,7 +48,7 @@ export function createSquirrelSculptures({orb,cone,beam,curveTube,tri,upload,mat
   }
   const result=upload();material(0);return result;
  }
- const squirrel=sculpt(),statue=sculpt(true);
+ const squirrel=sculpt(),squirrelEmpty=sculpt(false,false),statue=sculpt(true);
  material(3);
  cone(0,-.2,0,3.5,3.5,.45,[.27,.31,.28],12);
  cone(0,.25,0,3.1,2.9,.35,[.42,.46,.39],12);
@@ -73,5 +73,5 @@ export function createSquirrelSculptures({orb,cone,beam,curveTube,tri,upload,mat
  material(0);orb(0,0,0,.13,.18,.13,[.78,.52,.19],12,7);orb(0,.1,0,.16,.07,.16,[.34,.28,.12],12,7);beam([0,.14,0],[.02,.25,0],.023,[.46,.31,.12]);const acorn=upload();
  material(5);cone(0,0,0,.62,.48,.85,[.25,.17,.085],12);cone(0,.85,0,.48,.48,.035,[.55,.39,.19],12);const stump=upload();
  material(0);tri([-.24,0,0],[0,.07,-.1],[.24,0,0],[.53,.47,.17]);tri([.24,0,0],[0,.07,.1],[-.24,0,0],[.27,.38,.14]);const leaf=upload();
- material(0);return {squirrel,statue,pedestal,covers,touchstone,acorn,stump,leaf};
+ material(0);return {squirrel,squirrelEmpty,statue,pedestal,covers,touchstone,acorn,stump,leaf};
 }

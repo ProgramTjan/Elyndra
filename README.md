@@ -118,3 +118,7 @@ De scène duurt ongeveer achttien seconden in speeltijd. Je kunt om je heen kijk
 ## Herkomst
 
 Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. De live site is GitHub Pages op `dist/`; een push naar `main` werkt de website bij.
+
+## De eerste uitnodiging
+
+Na de vier hartslagen kun je de eekhoorn uitnodigen voor een samenkomst bij de moswachter. Spreek hem te voet aan en kies **Ik help je. Laat maar zien!** Je ziet hem zijn noten verzamelen; daarna pak je de weggerolde noot op met **E** of de knop en loop je samen terug. De scène is over te slaan en ondersteunt minder beweging. Via **Ontdek plekken → De samenkomst** hervat je de opdracht. Zie [de controle van deze eerste ontmoeting](docs/stap-6-eerste-uitnodiging.md).

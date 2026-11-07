@@ -8,7 +8,7 @@ Een compacte vallei waarin natuur en vriendelijke machines samenleven. Verdiepin
 
 De oorspronkelijke stappen 1 t/m 5 komen eerst. **Daarna** volgt het vergezicht: meer avontuur en verhaal, vervolgens mooiere beelden, vervolgens levendigere bewoners. Deze volgorde volgt de verduidelijking van AJ op 2 november. De eerdere ideeën over verhaal en bewoners binnen stappen 3–5 blijven dus onderdeel van de eerste reeks.
 
-Elke stap levert een afzonderlijk beoordeelbare versie op. Eerst implementatie, passende tests en visuele beoordeling, dan samen kijken. Een branch en pull request maken de wijzigingen reviewbaar; samenvoegen naar `main` publiceert automatisch via GitHub Pages en wordt apart afgestemd. Stand op 6 november 2026: stappen 1–4 zijn gepubliceerd. Stap 5 is uitgewerkt op `codex/elyndra-step-5`. Na de vier letters brengt een vrijwillig bezoek aan de moswachter hun antwoorden samen. Een blad in zijn hand en vier lichten in de vallei bewaren het slot. De volgende ontwikkelronde na beoordeling en publicatie is stap 6, avontuur en verhaal.
+Elke stap levert een afzonderlijk beoordeelbare versie op. Eerst implementatie, passende tests en visuele beoordeling, dan samen kijken. Een branch en pull request maken de wijzigingen reviewbaar; samenvoegen naar `main` publiceert automatisch via GitHub Pages en wordt apart afgestemd. Stand op 7 november 2026: stappen 1–5 zijn gepubliceerd. Stap 6 begint met de eerste uitnodiging voor een samenkomst van bosbewoners. De eekhoorn krijgt één volledige speelbare ontmoeting, inclusief een korte scène in de spelwereld. Deze versie wordt apart beoordeeld vóór publicatie.
 
 ## Eerste reeks
 
@@ -22,15 +22,17 @@ Elke stap levert een afzonderlijk beoordeelbare versie op. Eerst implementatie, 
 
 ## Vergezicht na stap 5
 
-Dit is een volgorde van ontwikkelrondes, geen kalenderbelofte. Omvang en tempo worden per ronde vastgesteld na beoordeling van de vorige. De concrete verhaalscènes hieronder zijn voorstellen om later samen uit te werken.
+Dit is een volgorde van ontwikkelrondes, geen kalenderbelofte. Omvang en tempo worden per ronde vastgesteld na beoordeling van de vorige. De samenkomst en korte scènes in de spelwereld zijn met AJ als richting gekozen. De vervolgbewoners en de uiteindelijke keuze worden na de eerste ontmoeting verder afgestemd.
 
 ### 6 · Meer avontuur en verhaal
 
 Doel: een samenhangende nieuwe reis met nieuwsgierigheid, betekenisvolle handelingen en een afronding.
 
-1. **Verhaalontwerp:** bepaal met AJ de centrale vraag, de rol van de speler en de verbinding met de vier hartslagen. Mogelijke richting: waarom bewaakt de moswachter het zaad, en wat laat het andere bos in de lichtpoort zien? Leg de hoofdlijn en twee of drie ontmoetingen vast voordat we bouwen.
-2. **Eerste speelbare hoofdstuk:** bouw één begin–ontdekking–keuze–gevolg in de bestaande vallei. Aanwijzingen via plekken, gedrag en korte gesprekken. De speler kan onderbreken en verdergaan; bestaande opgeslagen voortgang blijft bruikbaar.
-3. **Vervolg en afronding:** breid alleen na beoordeling uit. Geef een keuze een zichtbaar gevolg in de omgeving of een ontmoeting. Een gebied achter de poort blijft een afzonderlijke ontwerpbeslissing; het is geen voorwaarde voor een goed verhaal.
+1. **Nu · de eerste uitnodiging:** na vier hartslagen vraag je de eekhoorn naar de samenkomst. Een scène van tien seconden laat hem afdalen en noten verzamelen. Eén noot rolt weg. De speler pakt hem op en loopt samen met hem naar de moswachter. Geen tijdslimiet; scène overslaan behoudt de opdracht; minder beweging begint direct bij de voorraad met een vaste detailcamera. Voortgang blijft bewaard en de oude monumentontmoeting blijft bestaan.
+2. **Daarna · meer gasten en een aanleiding:** werk de uitnodigingen van de wortelvos en de draak uit. Iedere bewoner brengt iets mee vanuit zijn eigen activiteit. Verbind dit aan het zaad van de moswachter; een aankomst van de uil kan de aanleiding vormen. Dit zijn vervolgrichtingen, nog geen gebouwde scènes.
+3. **Samenkomst en keuze:** laat de genodigden echt samenkomen. Bespreek waar het zaad mag groeien, bijvoorbeeld bij de bron of in de slapende tuin, en maak het gevolg zichtbaar. Een antwoord vanuit het andere bos kan het volgende hoofdstuk openen. Een nieuw gebied achter de poort blijft een afzonderlijke ontwerpbeslissing.
+
+De eerste ronde bouwt uitsluitend de eekhoornontmoeting. Korte filmische momenten tonen activiteiten in dezelfde 3D-wereld en geven daarna de besturing terug; ze vervangen de handelingen van de speler niet.
 
 Gereed wanneer een nieuwe speler de verhaallijn zonder externe uitleg kan volgen, de belangrijkste keuze begrijpt en de afloop in de wereld herkent. Vrij verkennen blijft mogelijk.
 
@@ -56,4 +58,4 @@ Gereed wanneer gedrag leesbaar en gevarieerd is, routes niet vastlopen en bewone
 
 ## Eerstvolgende beoordelmoment
 
-Stap 5: kies na de vierde letter of vanuit **Avontuur** voor **Beluister de vier hartslagen bij de moswachter**. Bekijk de vier reacties in de vallei en keer later terug naar het jonge blad. Een bestaande volledige puzzelvoortgang geeft dezelfde toegang. Beoordeel vooral of het samenkomen van de vier plekken leesbaar is en het slot voldoende tijd krijgt.
+Stap 6, eerste ontmoeting: herstel de vier hartslagen, reis naar de moswachter en spreek de eekhoorn te voet aan. Kies **Kom je naar een samenkomst bij de moswachter?** en vervolgens **Ik help je. Laat maar zien!** Bekijk of het verzamelen en wegrollen leesbaar zijn. Pak de noot op via de knop of E en volg hem naar de moswachter. Via **Ontdek plekken → De samenkomst** kun je terugkeren na vertrek. Beoordeel ook de vaste camera bij minder beweging, overslaan en de hervatting na herladen.

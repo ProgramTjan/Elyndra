@@ -50,6 +50,19 @@ export function conversationNode(who,node,context={}){
    choices:[['Ik ga kijken.','end'],['Ik blijf nog even.','sit']]
   };
  }
+ if(context.all){
+  const sq=trees.squirrel;
+  if(context.gatheringPhase==='idle')trees.keeper.start.text+=' “Nu we elkaar weer verstaan, zouden we eens samen kunnen komen. Vraag de eekhoorn maar of hij iets wil meenemen.”';
+  if(context.gatheringPhase==='done'){
+   sq.start.text='De eerste hapjes liggen klaar bij de moswachter. “Ik heb ze geteld. Twee keer. Voor de zekerheid ook geproefd. Eén keer.”';
+   trees.keeper.start.text+=' “Onze eerste gast heeft de hapjes gebracht. Er is plek voor meer.”';
+  }else if(['needNut','escort','arrival'].includes(context.gatheringPhase)){
+   sq.start.text=context.gatheringPhase==='needNut'?'“Mijn noot! Op het pad, vlak achter me. Wil jij hem pakken? Dan kunnen we samen naar de moswachter.”':'“Kom, naar de moswachter! Een samenkomst begint met iemand die iets meebrengt.”';
+  }else if(context.gatheringAvailable){
+   sq.start.choices[2]=['Kom je naar een samenkomst bij de moswachter?','gathering'];
+   sq.gathering={text:'“Een samenkomst? Met iedereen?” Zijn staart veert overeind. “Dan neem ik de hapjes mee. Wacht, ik heb een voorraad. Deze keer weet ik wél waar.”',choices:[['Ik help je. Laat maar zien!','gatheringStart'],['Straks. Bewaar wat voor me.','end']]};
+  }
+ }
  return trees[who]?.[node];
 }
 export function nearbySpeakers(position,deer,base,squirrel=null){const distance=p=>Math.hypot(...p.map((v,i)=>v-position[i]));return [{id:'keeper',p:[86,base+6,36],r:22},{id:'squirrel',p:squirrel?[squirrel[0],squirrel[1]+1,squirrel[2]]:[96,base+16,43],r:squirrel&&Math.hypot(squirrel[0]-96,squirrel[2]-43)>3?9:20},{id:'deer',p:[deer[0],deer[1]+1.8,deer[2]],r:8}].filter(x=>distance(x.p)<x.r).sort((a,b)=>distance(a.p)-distance(b.p)).map(x=>x.id);}
