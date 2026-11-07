@@ -1,11 +1,12 @@
 import {MIRROR,DeerMirror,lakeGround,createMirrorRenderer,surfacePoint} from './deer-mirror.mjs?v=mirror35';
-import {SquirrelSecret,MONUMENT,STUMPS,readSecret,saveSecret,inSquirrelPath,squirrelPose} from './squirrel-secret.mjs?v=squirrel34';
-import {createSquirrelSculptures} from './squirrel-sculpture.mjs?v=squirrel34';
+import {SquirrelGathering} from './squirrel-gathering.mjs?v=gathering42';
+import {SquirrelSecret,MONUMENT,STUMPS,readSecret,saveSecret,inSquirrelPath,squirrelPose} from './squirrel-secret.mjs?v=gathering42';
+import {createSquirrelSculptures} from './squirrel-sculpture.mjs?v=gathering42';
 import {DragonInvitation,createInvitationGlow,inDragonGlade} from './dragon-invitation.mjs?v=invite33';
 import {DRAGON_REST,DragonEncounter} from './dragon-encounter.mjs?v=dragon22';
 import {GARDEN,ForestCompanion,gardenFlower,companionTrail} from './forest-companion.mjs?v=memory39';
 import {BROOK,BrookWonder,guidePosition,visitingFlight,createBrookAtmosphere} from './brook-wonder.mjs?v=dragon22';
-import {nearbySpeakers} from './conversation-model.mjs?v=squirrel34';
+import {nearbySpeakers} from './conversation-model.mjs?v=gathering42';
 import {BrookMotion,dragonPose,packBones} from './wildlife-motion.mjs?v=dragon22';
 import {DeerMotion} from './deer-motion.mjs?v=mirror35';
 import {HEARTBEATS, BEAT_SECONDS, FINALE_SECONDS, addHeartbeatLights} from './heartbeat-finale.mjs?v=finale41';
@@ -438,7 +439,7 @@ const depthFragment=`#version 300 es
 precision highp float;void main(){}`;
 const depthProgram=program(vs,depthFragment);
 function renderShadows(){if(quality!=='high'||!shadowAvailable)return;gl.useProgram(depthProgram);gl.bindTexture(gl.TEXTURE_2D,null);gl.bindFramebuffer(gl.FRAMEBUFFER,shadowFB);gl.viewport(0,0,shadowSize,shadowSize);gl.clear(gl.DEPTH_BUFFER_BIT);gl.uniformMatrix4fv(gl.getUniformLocation(depthProgram,'vp'),false,lightMatrix);gl.uniform3fv(gl.getUniformLocation(depthProgram,'offset'),[0,0,0]);gl.uniform1f(gl.getUniformLocation(depthProgram,'rot'),0);gl.uniform1f(gl.getUniformLocation(depthProgram,'time'),0);gl.uniform4fv(gl.getUniformLocation(depthProgram,'keeperMotion'),keeperMotion);gl.uniform1f(gl.getUniformLocation(depthProgram,'keeperBase'),gy);gl.uniformMatrix4fv(gl.getUniformLocation(depthProgram,'animalBones[0]'),false,deerUniforms());gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(1,1);gl.bindVertexArray(terrain.vao);gl.drawArrays(gl.TRIANGLES,0,terrain.count);if(mirrorState.fade>.45){gl.bindVertexArray(stagMesh.vao);gl.drawArrays(gl.TRIANGLES,0,stagMesh.count);}for(let [mesh,state]of [[brookMesh,brookStates[0]],[brookMesh,brookStates[1]],[dragonMesh,dragonState]]){gl.uniformMatrix4fv(gl.getUniformLocation(depthProgram,'animalBones[0]'),false,packBones(state.bones));gl.bindVertexArray(mesh.vao);gl.drawArrays(gl.TRIANGLES,0,mesh.count);}if(typeof guideShadow!=='undefined'&&guideShadow){gl.uniformMatrix4fv(gl.getUniformLocation(depthProgram,'animalBones[0]'),false,packBones(guideShadow.bones));gl.bindVertexArray(brookMesh.vao);gl.drawArrays(gl.TRIANGLES,0,brookMesh.count);}const shadowMesh=(mesh,offset,rot=0)=>{gl.uniform3fv(gl.getUniformLocation(depthProgram,'offset'),offset);gl.uniform1f(gl.getUniformLocation(depthProgram,'rot'),rot);gl.bindVertexArray(mesh.vao);gl.drawArrays(gl.TRIANGLES,0,mesh.count);};
-gl.uniformMatrix4fv(gl.getUniformLocation(depthProgram,'animalBones[0]'),false,packBones(squirrelPose(squirrelState,reducedMotion)));shadowMesh(squirrelMeshes.squirrel,[0,0,0]);
+gl.uniformMatrix4fv(gl.getUniformLocation(depthProgram,'animalBones[0]'),false,packBones(squirrelPose(squirrelState,reducedMotion)));shadowMesh(gathering.active?squirrelMeshes.squirrelEmpty:squirrelMeshes.squirrel,[0,0,0]);
 const sy=ground(MONUMENT.x,MONUMENT.z),sr=squirrelState.reveal;
 if(sr>.001){shadowMesh(squirrelMeshes.pedestal,[MONUMENT.x,sy-(1-sr)*2,MONUMENT.z]);shadowMesh(squirrelMeshes.statue,[MONUMENT.x,sy+MONUMENT.base-(1-sr)*11,MONUMENT.z]);}
 for(let i=0;i<2;i++){const side=i?1:-1;shadowMesh(squirrelMeshes.covers[i],[MONUMENT.x+side*sr*5,sy-sr*3.2,MONUMENT.z+sr*2],side*sr*.24);}
@@ -455,9 +456,11 @@ const skyProgram=program(skyVertex,skyFragment),skyVAO=gl.createVertexArray(),SU
 function drawSky(){gl.disable(gl.DEPTH_TEST);gl.useProgram(skyProgram);gl.bindVertexArray(skyVAO);gl.uniform1f(SU.aspect,innerWidth/innerHeight);gl.uniform1f(SU.yaw,yaw);gl.uniform1f(SU.pitch,pitch);gl.uniform1f(SU.night,night);gl.uniform1f(SU.time,clock);gl.uniform3fv(SU.sunDir,skyState.sun);gl.uniform1f(SU.warmth,skyState.warmth);gl.uniform1f(SU.mistAmt,skyState.mist);gl.uniform1f(SU.lite,quality==='high'?0:1);gl.drawArrays(gl.TRIANGLES,0,3);gl.enable(gl.DEPTH_TEST);gl.useProgram(prog);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,shadowTexture);gl.uniform1i(U.shadowMap,0);gl.uniform1f(U.shadowTexel,1/shadowSize);gl.uniform1f(U.softShadows,qualitySettings().soft);gl.uniformMatrix4fv(U.lightVP,false,shadowAvailable?lightMatrix:new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,10000,10000,0,1]));gl.uniform3fv(U.sunDir,skyState.sun);gl.uniform1f(U.warmth,skyState.warmth);gl.uniform1f(U.mistAmt,skyState.mist);gl.uniform1f(U.wet,skyState.wet);}
 let squirrelStorage;try{squirrelStorage=localStorage;}catch{}
 const squirrelSecret=new SquirrelSecret(ground,readSecret(squirrelStorage));
-let squirrelState=squirrelSecret.snapshot(pos);
+const gathering=new SquirrelGathering(ground,squirrelStorage);
+let sceneCamera=null;
+let squirrelState=gathering.actor(squirrelSecret.snapshot(pos));
 $('squirrel-view').hidden=!squirrelState.revealed;
-window.elyndraSquirrelContext=()=>({monument:squirrelState.revealed,squirrelAway:squirrelState.phase!=='home'});
+window.elyndraSquirrelContext=()=>({monument:squirrelState.revealed,squirrelAway:squirrelState.phase!=='home',gatheringPhase:gathering.phase,gatheringAvailable:!gathering.active&&squirrelSecret.canInvite(pos)&&!invitationState.active});
 let projection;function resize(){let d=Math.min(devicePixelRatio,qualitySettings().pixel);canvas.width=Math.round(innerWidth*d);canvas.height=Math.round(innerHeight*d);gl.viewport(0,0,canvas.width,canvas.height);projection=perspective(Math.PI/2.9,innerWidth/innerHeight,.12,quality==='high'?1100:720)}addEventListener('resize',resize);resize();if(quality==='high')renderShadows();
 const wonder=new BrookWonder();let wonderState=wonder.snapshot(pos),wonderPhase='far',wonderCaptionUntil=0,previousFlight=null;
 const cathedralWonder=new CathedralWonder();let cathedralState=cathedralWonder.snapshot(pos),cathedralPhase='far',cathedralCaptionUntil=0;
@@ -504,6 +507,7 @@ addEventListener('keydown',e=>{
 });
 const squirrelButton=$('squirrel-invite');
 function followSquirrel(){
+ if(gathering.active)return;
  if(!started||introActive||window.elyndraVisionOpen||!$('instructions').hidden||!$('travelmenu').hidden||invitationState.active)return;
  if(squirrelSecret.canReveal(pos)){squirrelSecret.touch(pos);chime();}
  else if(squirrelSecret.invite(pos))chime();
@@ -517,7 +521,7 @@ $('squirrel-view').onclick=()=>{
  toast('Het geheim van de eekhoorn. Een opvallend bescheiden monument.');
 };
 const mirrorButton=$('deer-mirror-invite');
-function acceptMirror(){if(!started||introActive||window.elyndraVisionOpen||!$('instructions').hidden||!$('travelmenu').hidden)return;if(deerMirror.accept(pos))chime();}
+function acceptMirror(){if(gathering.active)return;if(!started||introActive||window.elyndraVisionOpen||!$('instructions').hidden||!$('travelmenu').hidden)return;if(deerMirror.accept(pos))chime();}
 mirrorButton.onclick=acceptMirror;
 addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey)acceptMirror();});
 $('deer-mirror-view').onclick=()=>{
@@ -594,13 +598,13 @@ $('time').onclick=()=>{skyState=atmosphere.jumpTo(nextLightHour(atmosphere.hour)
 $('weather').value=weatherPref;
 $('weather').onchange=()=>{weatherPref=$('weather').value;try{localStorage.setItem('elyndra-weather',weatherPref);}catch{}skyState=atmosphere.setPreference(weatherPref);toast(weatherPref==='auto'?'Dit bezoek houdt zijn weer. Volgende keer kiest het woud opnieuw.':weatherPref==='clear'?'De lucht klaart op.':weatherPref==='mist'?'Mist zakt tussen de stammen.':'Regen blijft, tot jij iets anders kiest.');};
 function resetInput(){for(let k in keys)keys[k]=false;move=[0,0];vertical=0;look=null;joy=null;$('stick').style.transform='none';}
-function canPlayInput(){return started&&!introActive&&!window.elyndraVisionOpen&&$('instructions').hidden&&$('travelmenu').hidden;}
+function canPlayInput(){return !gathering.cinematic&&started&&!introActive&&!window.elyndraVisionOpen&&$('instructions').hidden&&$('travelmenu').hidden;}
 function editingControl(e){return /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName??'')||e.target?.isContentEditable;}
 $('help').onclick=()=>{resetInput();$('travelmenu').hidden=true;$('instructions').hidden=false;};$('closehelp').onclick=()=>$('instructions').hidden=true;
 $('travel').onclick=()=>{resetInput();$('instructions').hidden=true;$('travelmenu').hidden=!$('travelmenu').hidden;};$('closemap').onclick=()=>$('travelmenu').hidden=true;
 locations.forEach((p,i)=>{let b=document.createElement('button');b.textContent=`0${i+1}  ${p.name}`;b.onclick=()=>{pos=[p.x,ground(p.x,p.z+30)+6,p.z+30];yaw=0;pitch=i===2?-.08:.15;if(i===0){pos=[-37,ground(-37,-15)+2.4,-15];yaw=-.40;pitch=.10;flying=false;$('fly').textContent='Vliegen'}if(i===2){flying=true;pos[1]=48;$('fly').textContent='Landen'}$('travelmenu').hidden=true;lastPlace=-1;toast('Je reist naar '+p.name.toLowerCase())};$('destinations').appendChild(b)});
-function activate(){if(Math.hypot(pos[0]-66,pos[2]+110)>=30)return;if(window.elyndraGame&&!window.elyndraGame.unlocked(1)){window.elyndraStartPuzzle(1);return;}if(Math.hypot(pos[0]-66,pos[2]+110)<30){active=!active;portalTime=0;toast(active?'De poort ontwaakt. Loop door het licht.':'De poort rust weer.');chime()}}$('act').onclick=activate;
-addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||editingControl(e))return;if(e.code==='Escape'&&!introActive&&!window.elyndraVisionOpen){$('instructions').hidden=true;$('travelmenu').hidden=true;return;}if(!canPlayInput())return;if(e.code==='Space'&&e.target?.tagName==='BUTTON')return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.repeat)return;if(e.code==='KeyF')toggleFly();if(e.code==='KeyE')activate();});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',resetInput);
+function activate(){if(!canPlayInput())return;if(gathering.collect(pos)){chime();resetInput();return;}if(Math.hypot(pos[0]-66,pos[2]+110)>=30)return;if(window.elyndraGame&&!window.elyndraGame.unlocked(1)){window.elyndraStartPuzzle(1);return;}if(Math.hypot(pos[0]-66,pos[2]+110)<30){active=!active;portalTime=0;toast(active?'De poort ontwaakt. Loop door het licht.':'De poort rust weer.');chime()}}$('act').onclick=activate;
+addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||editingControl(e))return;if(e.code==='Escape'&&gathering.cinematic){e.preventDefault();finishGatheringFilm();return;}if(e.code==='Escape'&&!introActive&&!window.elyndraVisionOpen){$('instructions').hidden=true;$('travelmenu').hidden=true;return;}if(!canPlayInput())return;if(e.code==='Space'&&e.target?.tagName==='BUTTON')return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.repeat)return;if(e.code==='KeyF')toggleFly();if(e.code==='KeyE')activate();});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',resetInput);
 canvas.addEventListener('pointerdown',e=>{if(!canPlayInput())return;look={id:e.pointerId,x:e.clientX,y:e.clientY,touch:e.pointerType==='touch'};canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!look||look.id!==e.pointerId)return;yaw+=(e.clientX-look.x)*.004;pitch-=(e.clientY-look.y)*.003;pitch=Math.max(-1.4,Math.min(1.4,pitch));look.x=e.clientX;look.y=e.clientY});for(let type of['pointerup','pointercancel'])canvas.addEventListener(type,()=>look=null);
 $('joystick').addEventListener('pointerdown',e=>{if(!canPlayInput())return;joy=e.pointerId;$('joystick').setPointerCapture(e.pointerId);updateJoy(e)});function updateJoy(e){let r=$('joystick').getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,l=Math.hypot(x,y);if(l>40){x*=40/l;y*=40/l}move=[x/40,-y/40];$('stick').style.transform=`translate(${x}px,${y}px)`}$('joystick').addEventListener('pointermove',e=>{if(joy===e.pointerId)updateJoy(e)});for(let type of['pointerup','pointercancel'])$('joystick').addEventListener(type,()=>{joy=null;move=[0,0];$('stick').style.transform='none'});for(let [id,v]of[['up',1],['down',-1]]){$(id).onpointerdown=e=>{if(!canPlayInput())return;e.preventDefault();$(id).setPointerCapture(e.pointerId);if(!flying)toggleFly();vertical=v};$(id).onpointerup=$(id).onpointercancel=()=>vertical=0}
 let audioCtx,audioGain,cathedralGain,rustleGain,brookGain,brookPan,gardenGain,dragonGain,rainGain,dewGain,soundOn=false;function initAudio(){audioCtx=new AudioContext();audioGain=audioCtx.createGain();audioGain.gain.value=.0;audioGain.connect(audioCtx.destination);cathedralGain=audioCtx.createGain();cathedralGain.gain.value=0;cathedralGain.connect(audioGain);for(let f of[82.41,123.47,164.81]){let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=f;g.gain.value=.055;o.connect(g);g.connect(cathedralGain);o.start();}for(let f of[110,164.81,220,293.66]){let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=f;g.gain.value=.022;o.connect(g);g.connect(audioGain);o.start()}let b=audioCtx.createBuffer(1,audioCtx.sampleRate*4,audioCtx.sampleRate),d=b.getChannelData(0);let a=0;for(let i=0;i<d.length;i++){a=(a+(Math.random()*2-1)*.025)*.992;d[i]=a}let n=audioCtx.createBufferSource();n.buffer=b;n.loop=true;let g=audioCtx.createGain();g.gain.value=.23;n.connect(g);g.connect(audioGain);n.start();let rustle=audioCtx.createBufferSource();rustle.buffer=b;rustle.loop=true;let filter=audioCtx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=1200;filter.Q.value=.7;rustleGain=audioCtx.createGain();rustleGain.gain.value=0;rustle.connect(filter);filter.connect(rustleGain);rustleGain.connect(audioGain);rustle.start();
@@ -645,7 +649,7 @@ const finalePlaces = [
   [shrineX, shrineY + 2.7, shrineZ], [66, py + 12, -110],
   [ISLANDS[0][0], ISLANDS[0][1] + 3, ISLANDS[0][2]], saplingTip
 ];
-window.elyndraFinaleReady = () => started && !introActive && window.elyndraGame?.count() === 4;
+window.elyndraFinaleReady = () => started && !introActive && !gathering.active && window.elyndraGame?.count() === 4;
 addEventListener('elyndra-hear-forest', () => {
   if (!window.elyndraFinaleReady() || document.querySelector('dialog[open]')) return;
   const [x,z] = finaleWatch;
@@ -704,13 +708,62 @@ function updateFinale(dt) {
   }
 }
 
+// Dialogue hands over only after its native modal has closed.
+addEventListener('elyndra-gathering-invite',()=>{
+ if(!canPlayInput()||window.elyndraGame?.count()!==4||invitationState.active||
+    !squirrelSecret.canInvite(pos)||!gathering.start(reducedMotion))return;
+ stopFinale();
+ sceneCamera={pos:[...pos],yaw,pitch,flying};resetInput();
+ document.body.classList.add('gathering-film');
+ $('gathering-skip').hidden=false;$('gathering-skip').focus();
+ updateGatheringCamera();updateGatheringUI();
+});
+function updateGatheringCamera(){
+ const shot=gathering.camera(reducedMotion);pos=[...shot.position];
+ const [dx,dy,dz]=shot.target.map((v,i)=>v-pos[i]);
+ yaw=Math.atan2(dx,-dz);pitch=Math.atan2(dy,Math.hypot(dx,dz));
+}
+function restoreGatheringCamera(){
+ if(sceneCamera){({yaw,pitch,flying}=sceneCamera);pos=[...sceneCamera.pos];sceneCamera=null;}
+ resetInput();document.body.classList.remove('gathering-film');
+ $('gathering-skip').hidden=true;$('gathering-note').focus();
+}
+function finishGatheringFilm(){if(gathering.skip()){restoreGatheringCamera();updateGatheringUI();}}
+$('gathering-skip').onclick=finishGatheringFilm;
+$('gathering-view').onclick=()=>{
+ if(gathering.cinematic)return;
+ const target=gathering.active?gathering.position:gathering.meeting;
+ pos=[target[0]+2,ground(target[0]+2,target[2]+5)+2.4,target[2]+5];
+ const [dx,dy,dz]=[target[0]-pos[0],target[1]+1-pos[1],target[2]-pos[2]];
+ yaw=Math.atan2(dx,-dz);pitch=Math.atan2(dy,Math.hypot(dx,dz));
+ flying=false;$('fly').textContent='Vliegen';$('travelmenu').hidden=true;resetInput();
+};
+$('gathering-pickup').onclick=()=>{if(canPlayInput()&&gathering.collect(pos)){chime();resetInput();updateGatheringUI();}};
+// A modal opened through another feature must release the borrowed camera first.
+addEventListener('elyndra-vision-open',()=>{if(gathering.cinematic)finishGatheringFilm();});
+function updateGatheringUI(){
+ $('gathering-view').hidden=gathering.phase==='idle';
+ const nearbyGathering=Math.hypot(pos[0]-gathering.position[0],pos[2]-gathering.position[2])<38;
+ const visible=gathering.active&&(gathering.cinematic||nearbyGathering)&&started&&!introActive&&!window.elyndraVisionOpen&&$('instructions').hidden&&$('travelmenu').hidden;
+ $('gathering-note').hidden=!visible;
+ $('gathering-pickup').hidden=!visible||!gathering.canCollect(pos);
+ $('gathering-pickup').textContent=mobile?'Pak de noot op':'Pak de noot op · E';
+ $('gathering-skip').hidden=!gathering.cinematic;
+ if(!visible)return;
+ const words=gathering.words(pos);
+ if($('gathering-title').textContent!==words[0])$('gathering-title').textContent=words[0];
+ if($('gathering-words').textContent!==words[1])$('gathering-words').textContent=words[1];
+ $('brook-caption').hidden=true;$('discovery').hidden=true;
+ squirrelButton.hidden=true;inviteButton.hidden=true;mirrorButton.hidden=true;
+}
+
 const celebrations=[];
 addEventListener('elyndra-puzzle-solved',e=>{let p=locations[e.detail];if(p){if(e.detail===1){active=true;portalTime=0;}celebrations.push({x:p.x,z:p.z,age:0});chime();}});
 let talkSignature='';
 let prev=0,clock=0,discoveryTimer=0;function frame(ms){requestAnimationFrame(frame);const frameSeconds=Math.max(0,(ms-prev)/1000);let dt=Math.min(frameSeconds,.05);prev=ms;if(audioCtx&&cathedralGain){let distance=Math.hypot(pos[0]+48,pos[1]-13,pos[2]+59),near=Math.max(0,1-distance/52),audible=soundOn&&!window.elyndraVisionOpen&&!document.hidden?1:0;cathedralGain.gain.setTargetAtTime(near*near*audible*(.7+cathedralState.bloom*.9),audioCtx.currentTime,.6);rustleGain.gain.setTargetAtTime(near*(.3+.12*Math.sin(clock*.7))*audible,audioCtx.currentTime,.8);}if(brookGain){const audible=soundOn&&!document.hidden&&!window.elyndraVisionOpen?1:0;brookGain.gain.setTargetAtTime(wonderState.near*(.45+wonderState.bloom*.55)*audible,audioCtx.currentTime,.8);if(brookPan){const dx=BROOK.x-pos[0],dz=BROOK.z-pos[2];brookPan.pan.setTargetAtTime(Math.max(-1,Math.min(1,(Math.cos(yaw)*dx+Math.sin(yaw)*dz)/18)),audioCtx.currentTime,.3);}}
 if(dragonGain){const dp=invitationState.pose??encounterState,where=dp.position??dragonState.position;const d=Math.hypot(pos[0]-where[0],pos[2]-where[2]);const level=soundOn&&!document.hidden&&!window.elyndraVisionOpen?Math.max(0,1-d/22)*dp.settle*(.24+.1*Math.sin(clock*.8)+dp.bow*.2+invitationState.breath*.18):0;dragonGain.gain.setTargetAtTime(level,audioCtx.currentTime,.7);}if(gardenGain)gardenGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?companionState.gardenNear*companionState.bloom:0,audioCtx.currentTime,1.2);if(rainGain)rainGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?skyState.rain*.2:0,audioCtx.currentTime,.9);if(dewGain)dewGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?dewState.falls*.4:0,audioCtx.currentTime,1);if(document.hidden||window.elyndraVisionOpen){$('brook-caption').hidden=true;$('finale-caption').hidden=true;return;}clock+=dt;mirrorState=deerMirror.update(dt,pos,started&&!introActive);deerState=deerAnimator.update(dt,clock,pos,reducedMotion,mirrorState.actor);reflectedState=reflectedDeer.update(dt,clock,pos,reducedMotion,mirrorState.reflection);brookStates=brookAnimators.map(a=>a.update(document.hidden?0:dt,clock,pos,reducedMotion));dragonState=dragonPose(clock,reducedMotion);const keeperDistance=Math.hypot(pos[0]-86,pos[2]-36);if(started&&!introActive){if(keeperDistance<24&&!keeperWasNear){keeperGreeting=clock;keeperWasNear=true;}if(keeperDistance>36)keeperWasNear=false;}keeperMotion=keeperPose(clock,keeperGreeting<0?-1:clock-keeperGreeting,pos,gy,reducedMotion);
 skyState=atmosphere.update(dt,true);night=skyState.night;if(skyState.name!==$('time').textContent)syncTimeButton();if(Math.abs(skyState.hour-lastSunHour)>.35){lightMatrix=aimSun(skyState.sun);lastSunHour=skyState.hour;}if(skyState.phase!==weatherPhase){weatherPhase=skyState.phase;if(weatherPhase==='afterglow'&&started)toast('De regen trekt weg. Alles glinstert.');}
-if(introActive){updateIntro(dt);}else if(started){let mx=move[0]+(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0),mz=move[1]+(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0),l=Math.max(1,Math.hypot(mx,mz)),speed=(flying?16:6.5)*(keys.ShiftLeft?2.2:1);mx/=l;mz/=l;pos[0]+=(Math.cos(yaw)*mx+Math.sin(yaw)*mz)*speed*dt;pos[2]+=(Math.sin(yaw)*mx-Math.cos(yaw)*mz)*speed*dt;if(flying){pos[1]+=(vertical+(keys.Space?1:0)-(keys.KeyC?1:0)+mz*Math.sin(pitch)*.6)*speed*dt;pos[1]=Math.max(Math.max(ground(pos[0],pos[2]),water)+2,Math.min(160,pos[1]))}else{let h=Math.max(ground(pos[0],pos[2]),water+.15)+2.4;if(Math.abs(pos[2]-35)<4&&Math.abs(pos[0]-river(35))<23)h=Math.max(h,4.4+Math.sin((pos[0]-river(35)+22)/44*Math.PI)*4);pos[1]+=(h-pos[1])*Math.min(1,dt*4)}for(let trunk of trunkColliders){if(pos[1]>ground(trunk.x,trunk.z)+trunk.h)continue;let dx=pos[0]-trunk.x,dz=pos[2]-trunk.z,dist=Math.hypot(dx,dz),r=trunk.r+.45;if(dist<r){if(dist<.001){pos[0]=trunk.x+r}else{pos[0]=trunk.x+dx/dist*r;pos[2]=trunk.z+dz/dist*r}}}const solidDragon=invitationState.pose??encounterState;
+if(gathering.cinematic){updateGatheringCamera();}else if(introActive){updateIntro(dt);}else if(started){let mx=move[0]+(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0),mz=move[1]+(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0),l=Math.max(1,Math.hypot(mx,mz)),speed=(flying?16:6.5)*(keys.ShiftLeft?2.2:1);mx/=l;mz/=l;pos[0]+=(Math.cos(yaw)*mx+Math.sin(yaw)*mz)*speed*dt;pos[2]+=(Math.sin(yaw)*mx-Math.cos(yaw)*mz)*speed*dt;if(flying){pos[1]+=(vertical+(keys.Space?1:0)-(keys.KeyC?1:0)+mz*Math.sin(pitch)*.6)*speed*dt;pos[1]=Math.max(Math.max(ground(pos[0],pos[2]),water)+2,Math.min(160,pos[1]))}else{let h=Math.max(ground(pos[0],pos[2]),water+.15)+2.4;if(Math.abs(pos[2]-35)<4&&Math.abs(pos[0]-river(35))<23)h=Math.max(h,4.4+Math.sin((pos[0]-river(35)+22)/44*Math.PI)*4);pos[1]+=(h-pos[1])*Math.min(1,dt*4)}for(let trunk of trunkColliders){if(pos[1]>ground(trunk.x,trunk.z)+trunk.h)continue;let dx=pos[0]-trunk.x,dz=pos[2]-trunk.z,dist=Math.hypot(dx,dz),r=trunk.r+.45;if(dist<r){if(dist<.001){pos[0]=trunk.x+r}else{pos[0]=trunk.x+dx/dist*r;pos[2]=trunk.z+dz/dist*r}}}const solidDragon=invitationState.pose??encounterState;
 if(solidDragon.position&&solidDragon.settle>.95&&pos[1]<solidDragon.position[1]+2.5){
  const [x,,z]=solidDragon.position,dx=pos[0]-x,dz=pos[2]-z,d=Math.hypot(dx,dz);
  if(d<1.45){pos[0]=x+(d>.001?dx/d:1)*1.45;pos[2]=z+(d>.001?dz/d:0)*1.45;}
@@ -733,7 +786,16 @@ if(dwellerState.noticed){
  $('brook-title').textContent=words[id][0];$('brook-text').textContent=words[id][1];dwellerCaptionUntil=clock+9;
 }
 companionState=companion.update(dt,pos,wonderState,started&&!introActive,reducedMotion);
-squirrelState=squirrelSecret.update(dt,pos,started&&!introActive,reducedMotion,keeperMotion[0]);
+const gatheringEnabled=started&&!introActive&&$('instructions').hidden&&$('travelmenu').hidden;
+const wasFilm=gathering.cinematic;
+gathering.update(gathering.cinematic?Math.min(frameSeconds,.5):dt,sceneCamera?.pos??pos,gatheringEnabled);
+if(wasFilm&&!gathering.cinematic)restoreGatheringCamera();
+if(gathering.justFinished){
+ squirrelSecret.position=[...gathering.position];squirrelSecret.heading=gathering.heading;
+ squirrelSecret.startReturn();chime();
+}
+squirrelState=gathering.actor(squirrelSecret.update(dt,pos,started&&!introActive&&!gathering.active,reducedMotion,keeperMotion[0]));
+if(gathering.cinematic)updateGatheringCamera();
 if(squirrelState.justRevealed){saveSecret(squirrelStorage);$('squirrel-view').hidden=false;chime();}
 const gp=companionState.position;
 const oldGuide=[guideAnimator.x,guideAnimator.z];guideAnimator.x=gp[0];guideAnimator.z=gp[2];
@@ -878,14 +940,17 @@ if(mirrorVisible&&!['rest'].includes(mirrorState.phase)){
 }
 if(mirrorPhase!==mirrorState.phase){mirrorPhase=mirrorState.phase;if(mirrorPhase==='opening'||mirrorPhase==='farewell')chime();}
 updateFinale(Math.min(frameSeconds,.5));
+updateGatheringUI();
 if (!$('finale-caption').hidden) {
   $('brook-caption').hidden = true;
   $('discovery').hidden = true;
 }
 let heading=((yaw*180/Math.PI)%360+360)%360,dirs=['N','NO','O','ZO','Z','ZW','W','NW'];$('compass').textContent=`· · · ${dirs[Math.round(heading/45)%8]} · ${Math.round(heading)}° · · ·`;let sky=[.37*(1-night)+.025*night,.62*(1-night)+.055*night,.67*(1-night)+.11*night];gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);drawSky();gl.uniform1f(U.objectFade,1);gl.uniformMatrix4fv(U.vp,false,mul(projection,view()));gl.uniform3fv(U.eye,pos);gl.uniform1f(U.night,night);gl.uniform1f(U.time,clock);gl.uniform3fv(U.sunDir,skyState.sun);gl.uniform1f(U.warmth,skyState.warmth);gl.uniform1f(U.mistAmt,skyState.mist);gl.uniform1f(U.wet,skyState.wet);gl.uniform1f(U.wonder,wonderState.bloom);gl.uniform1f(U.gardenBloom,0);gl.uniform1f(U.cathedralBreath,cathedralState.bloom);gl.uniform1f(U.gateMirror,gateState.bloom);gl.uniform1f(U.lite,quality==='high'?0:1);gl.uniform4fv(U.keeperMotion,keeperMotion);gl.uniform1f(U.keeperBase,gy);gl.uniformMatrix4fv(U['animalBones[0]'],false,deerUniforms());draw(terrain);if(quality==='high'&&Math.hypot(pos[0]+48,pos[2]+65)<55){for(let j=0;j<22;j++){let a=j*2.399,t=reducedMotion?j*.73:clock,r=9+(j%5)*3,x=-48+Math.cos(a)*r+Math.sin(t*.3+j)*1.1,z=-65+Math.sin(a)*r+Math.cos(t*.24+j)*.8,y=ground(x,z)+1+((j*1.73-t*.38)%11+11)%11;draw(driftingLeaf,[x,y,z],a+t*.25);if(j%2===0)draw(mote,[x+1,ground(x,z)+2+Math.sin(t*.5+j)*.6,z+2]);}}for(let i=celebrations.length-1;i>=0;i--){let c=celebrations[i];c.age+=dt;if(c.age>14){celebrations.splice(i,1);continue;}for(let j=0;j<(quality==='high'?24:8);j++){let a=j*TAU/24+c.age*.6,r=3+c.age*.8;draw(mote,[c.x+Math.cos(a)*r,ground(c.x,c.z)+2+c.age*.8+Math.sin(a)*2,c.z+Math.sin(a)*r]);}}draw(riverMesh);const rich=quality==='high';for(let i=0;i<(rich?motes.length:0);i++){let m=motes[i],x=m.x+Math.sin(clock*.3+m.a)*3,z=m.z+Math.cos(clock*.25+m.a)*3;draw(mote,[x,Math.max(ground(x,z),water)+m.y+Math.sin(clock+m.a),z])}for(let i=0;i<(rich?drones.length:0);i++){let d=drones[i],a=clock*.13+d.a;draw(drone,[d.x+Math.cos(a)*12,ground(d.x,d.z)+8+Math.sin(clock+d.a)*1.3,d.z+Math.sin(a)*12],-a)}if(dewState.near>.02)for(let i=0;i<4;i++){const k=seedKeeper(i,dewState,reducedMotion);draw(drone,k.position,k.rotation)}draw(dwellerMeshes.vine);if(dwellerState.springFound&&Math.hypot(pos[0]-FOX.dig[0],pos[2]-FOX.dig[1])<75)draw(dwellerMeshes.spring);for(const id in dwellerPoses){const p=dwellerPoses[id];gl.uniform1f(U.objectFade,p.fade);gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(p.bones));draw(dwellerMeshes[id]);}gl.uniform1f(U.objectFade,1);if(Math.hypot(pos[0]-deerState.position[0],pos[2]-deerState.position[2])<80&&mirrorState.fade>.001){gl.uniform1f(U.objectFade,mirrorState.fade);draw(stagMesh);gl.uniform1f(U.objectFade,1);}if(companionState.near>.01){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(guideState.bones));draw(brookMesh);}for(let state of brookStates){if(Math.hypot(pos[0]-state.position[0],pos[2]-state.position[2])<70){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(state.bones));draw(brookMesh);}}if(Math.hypot(pos[0]-dragonState.position[0],pos[2]-dragonState.position[2])<95){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(dragonState.bones));draw(dragonMesh);}if(active){draw(portal,[66,py+12,-110],0);for(let j=0;j<(rich?24:4);j++){let a=j*TAU/(rich?24:4)+clock*.22,r=8.8-Math.sin(clock*.4+j)*.4;draw(mote,[66+Math.cos(a)*r,py+12+Math.sin(a)*r,-109.5+Math.sin(clock*.3+j)*.4]);}}
+for(const nut of gathering.nuts())draw(squirrelMeshes.acorn,nut);
+if(gathering.phase==='needNut')draw(mote,[gathering.nut[0],gathering.nut[1]+.6,gathering.nut[2]]);
 // Only one living squirrel exists; its seven joints travel with it.
 if(Math.hypot(pos[0]-squirrelState.position[0],pos[2]-squirrelState.position[2])<85){
- gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(squirrelPose(squirrelState,reducedMotion)));draw(squirrelMeshes.squirrel);
+ gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(squirrelPose(squirrelState,reducedMotion)));draw(gathering.active?squirrelMeshes.squirrelEmpty:squirrelMeshes.squirrel);
 }
 for(const [x,z]of STUMPS)if(Math.hypot(pos[0]-x,pos[2]-z)<65)draw(squirrelMeshes.stump,[x,ground(x,z),z]);
 if(Math.hypot(pos[0]-MONUMENT.x,pos[2]-MONUMENT.z)<95){
@@ -961,7 +1026,7 @@ if (completedForest) {
 }
 renderSparks(mul(projection,view()),sparks,canvas.height);
 }requestAnimationFrame(frame);
-window.elyndraLook=()=>({pos:[...pos],flying,hour:skyState.hour,active,finale:{beat:finaleElapsed===null?null:finaleBeat,elapsed:finaleElapsed,leafOpened},cathedral:cathedralState,gate:gateState,dew:dewState,dwellers:dwellerState,dragon:encounterState,invitation:invitationState,squirrel:squirrelState,mirror:mirrorState});
+window.elyndraLook=()=>({pos:[...pos],flying,hour:skyState.hour,active,finale:{beat:finaleElapsed===null?null:finaleBeat,elapsed:finaleElapsed,leafOpened},cathedral:cathedralState,gate:gateState,dew:dewState,dwellers:dwellerState,dragon:encounterState,invitation:invitationState,squirrel:squirrelState,gathering:{phase:gathering.phase,elapsed:gathering.elapsed,nut:[...gathering.nut],meeting:[...gathering.meeting],cinematic:gathering.cinematic},mirror:mirrorState});
 
 window.elyndraCanInteract=canPlayInput;
 addEventListener('elyndra-vision-open',resetInput);

@@ -140,13 +140,13 @@ export class SquirrelSecret {
 export function squirrelPose(state,reduced=false){
  const t=reduced?0:state.time,bounce=reduced?0:Math.abs(Math.sin(t*10))*.09*state.gait;
  const root=joint(IDENTITY,[state.position[0],state.position[1]+bounce,state.position[2]],state.heading);
- const body=joint(joint(root,[0,0,0],state.wobble,'z'),[0,0,0],state.gait*.2,'x');
+ const body=joint(joint(root,[0,0,0],state.wobble,'z'),[0,0,0],state.gait*.2+(state.reach??0)*.45,'x');
  const head=joint(body,[0,1.35,-.15],state.phase==='waiting'||state.phase==='ready'?.18:0);
  const tail=joint(body,[0,.35,.3],reduced?0:Math.sin(t*2)*.08,'x');
  const bones=[body,head,tail];
  for(const [i,x,z]of [[0,-.23,-.12],[1,.23,-.12],[2,-.24,.18],[3,.24,.18]]){
   const tending=state.phase==='proud'&&state.elapsed%16<3&&i<2;
-  const sway=tending?-.85:(reduced?0:Math.sin(t*10+i*Math.PI)*state.gait*.34);
+  const sway=state.carrying&&i<2?-.85:state.reach&&i<2?-state.reach*.9:tending?-.85:(reduced?0:Math.sin(t*10+i*Math.PI)*state.gait*.34);
   bones.push(joint(body,[x,i<2?.85:.25,z],sway,'x'));
  }
  return bones;
