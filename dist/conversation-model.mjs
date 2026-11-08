@@ -1,8 +1,12 @@
-export const SPEAKERS={keeper:{name:'De moswachter',tag:'Onder de jonge boom'},deer:{name:'Het witte hert',tag:'Een rustig ogenblik'},squirrel:{name:'De eekhoorn',tag:'Vanaf de hand van de moswachter'}};
+export const SPEAKERS={fox:{name:'De wortelvos',tag:'Wat het water bewaart'},keeper:{name:'De moswachter',tag:'Onder de jonge boom'},deer:{name:'Het witte hert',tag:'Een rustig ogenblik'},squirrel:{name:'De eekhoorn',tag:'Vanaf de hand van de moswachter'}};
 export function conversationNode(who,node,context={}){
  const monument=!!context.monument;
  const solved=!!context.solved,all=!!context.all,met=!!context.met,roots=!!context.roots,gate=!!context.gate,gardens=!!context.gardens;
  const trees={
+ fox:{
+  start:{text:context.foxPhase==='done'?'“Water geeft niets haast. Misschien moeten we het zaad ook eerst laten luisteren.” De vos vouwt zijn staart om zijn poten.':context.foxPhase==='offering'?'“Vraag hem naar het teken. Zijn handen herinneren zich soms meer dan zijn hoofd.”':context.foxPhase==='carry'||context.foxPhase==='arrival'?'“Jij draagt het fragment. Ik vind de weg. We zien elkaar bij de moswachter.”':context.foxPhase==='wash'||context.foxPhase==='washing'?'“Het bronwater weet hoe je aarde loslaat. Probeer het daar.”':context.foxPhase==='fragment'?'“Daar, naast mijn poot. Neem het maar. Ik denk dat het bij jullie boompje hoort.”':'“Ik hoor water onder de wortels. Maar vandaag houdt het nog iets anders verborgen.”',choices:context.foxAvailable?[['Kom je naar de samenkomst?','invitation'],['Ik luister even mee.','end']]:[['Tot zo, wortelvos.','end']]},
+  invitation:{text:'“De eekhoorn brengt eten? Dan breng ik een herinnering.” Hij legt zijn oor tegen de aarde. “Hier ligt iets ouds. Wil je helpen?”',choices:[['Ik help je. Wat heb je gevonden?','foxStart'],['Straks. Ik kom terug.','end']]}
+ },
  keeper:{
  start:{text:monument?'Zijn bescheidenheid is indrukwekkend, hè? Sinds jij zijn beeld hebt gezien, noemt hij mijn hand zijn ontvangstzaal. Ik heb besloten daar niet op in te gaan.':solved?(all?'Hoor je het? Vier hartslagen. Voor het eerst in lange tijd klinkt het woud weer als één geheel. Mijn boompje heeft vannacht een nieuw blad gemaakt.':'Daar ben je weer. Sinds jij het ritme herstelde, herken ik iets in het ruisen van de bladeren. Het klinkt… als een groet.'):(roots||gate||gardens)?'Er klinkt iets in de verte. Nog niet mijn ritme, maar het woud probeert al een zin te vormen.':met?'Je bent terug. Dat vind ik prettig. Het boompje ook, denk ik. Het heeft niets gezegd, maar kijk hoe recht het staat.':'Dag, reiziger. Voorzichtig met die kleine varen bij je voet. Hij heeft de hele ochtend aan dat nieuwe blad gewerkt.',choices:[['Wat bescherm je daar?','tree'],[solved?'Wat herinner je je nu?':'Wie heeft je gebouwd?','memory'],['Mag ik even bij je blijven?','sit']]},
  tree:{text:'Een boom. Nog een heel kleine. Mijn handen zijn gemaakt om zware dingen vast te houden. Het duurde lang voordat ik begreep dat ik ze ook voorzichtig kon gebruiken.',choices:[['Waarom is juist dit boompje zo belangrijk?','promise'],['Hij lijkt zich hier thuis te voelen.','home']]},
@@ -63,6 +67,15 @@ export function conversationNode(who,node,context={}){
    sq.gathering={text:'“Een samenkomst? Met iedereen?” Zijn staart veert overeind. “Dan neem ik de hapjes mee. Wacht, ik heb een voorraad. Deze keer weet ik wél waar.”',choices:[['Ik help je. Laat maar zien!','gatheringStart'],['Straks. Bewaar wat voor me.','end']]};
   }
  }
+ if(context.foxCanDeliver){
+  trees.keeper.start.choices[1]=['Ik heb een wortelfragment voor je.','foxClue'];
+  trees.keeper.foxClue={text:'De moswachter volgt het teken met één vinger. “Een open zaad… Dit zat om het zaadje dat ik bewaar.”\n\nHij kijkt naar de wortelvos. “Het kende deze bron al voordat het bij mij kwam.”\n\nDe vos gaat bij de hapjes zitten. “Dan weten we waar we straks kunnen luisteren.”',choices:[['Dan bewaren we het bij elkaar.','end']]};
+ }else if(context.gatheringPhase==='done'&&context.foxPhase==='idle'){
+  trees.keeper.start.text+=' “De wortelvos luistert bij zijn bron. Misschien wil hij ook komen. Je vindt hem via Ontdek plekken.”';
+ }
+ if(context.foxPhase==='done'){
+  trees.keeper.start.text+=' “Twee gasten en een herinnering. Het zaad kende de bron al.”';
+ }
  return trees[who]?.[node];
 }
-export function nearbySpeakers(position,deer,base,squirrel=null){const distance=p=>Math.hypot(...p.map((v,i)=>v-position[i]));return [{id:'keeper',p:[86,base+6,36],r:22},{id:'squirrel',p:squirrel?[squirrel[0],squirrel[1]+1,squirrel[2]]:[96,base+16,43],r:squirrel&&Math.hypot(squirrel[0]-96,squirrel[2]-43)>3?9:20},{id:'deer',p:[deer[0],deer[1]+1.8,deer[2]],r:8}].filter(x=>distance(x.p)<x.r).sort((a,b)=>distance(a.p)-distance(b.p)).map(x=>x.id);}
+export function nearbySpeakers(position,deer,base,squirrel=null,fox=null){const distance=p=>Math.hypot(...p.map((v,i)=>v-position[i]));return [...(fox&&fox.fade>.5?[{id:'fox',p:[fox.position[0],fox.position[1]+.7,fox.position[2]],r:8}]:[]),{id:'keeper',p:[86,base+6,36],r:22},{id:'squirrel',p:squirrel?[squirrel[0],squirrel[1]+1,squirrel[2]]:[96,base+16,43],r:squirrel&&Math.hypot(squirrel[0]-96,squirrel[2]-43)>3?9:20},{id:'deer',p:[deer[0],deer[1]+1.8,deer[2]],r:8}].filter(x=>distance(x.p)<x.r).sort((a,b)=>distance(a.p)-distance(b.p)).map(x=>x.id);}
