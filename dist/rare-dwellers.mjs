@@ -122,13 +122,13 @@ export class RareDwellers {
     const facing = ctx.facing ?? null;
 
     // Root fox: dawn, on foot, near the cathedral path.
-    this.advance(this.fox, dt, {
+    if(!ctx.foxReserved)this.advance(this.fox, dt, {
       window: dawn(hour),
       ready: !flying && Math.hypot(viewer[0] - FOX.dig[0], viewer[2] - FOX.dig[1]) < 46,
       duration: 22, stay: 16,
       shy: (pose) => running || Math.hypot(viewer[0] - pose.position[0], viewer[2] - pose.position[2]) < 6
     }, viewer, facing);
-    if (!this.springFound && this.fox.phase === 'present' && this.fox.time >= 12.8 && !this.fox.spooked) {
+    if (!ctx.foxReserved && !this.springFound && this.fox.phase === 'present' && this.fox.time >= 12.8 && !this.fox.spooked) {
       this.springFound = this.springNow = true;
     }
     // Silver wing: night, the ring awake, the visitor near the gate.
@@ -236,6 +236,11 @@ export function foxPose(d, route, ground, viewer, clock, reduced = false) {
   }
   if (d.time >= 11 && d.leaveAt >= 11) spring = ease((d.time - 11) / 2) * (d.phase === 'waiting' ? 0 : 1);
   position = [position[0], ground(position[0], position[2]), position[2]];
+  return poseRootFox({position,heading,gait,listen,dig,sit,gaze,fade,spring},ground,viewer,clock,reduced);
+}
+
+export function poseRootFox(state,ground,viewer,clock,reduced=false){
+  const {position,heading,gait=0,listen=0,dig=0,sit=0,gaze=0,fade=1,spring=0}=state;
   const time = reduced ? 0 : clock;
   const stride = reduced ? 0 : Math.sin(time * 9 * Math.max(1, gait)) * .55 * Math.min(1, gait);
   const bob = reduced ? 0 : Math.abs(Math.sin(time * 9)) * .035 * Math.min(1, gait);

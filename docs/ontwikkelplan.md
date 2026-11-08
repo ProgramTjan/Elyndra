@@ -8,7 +8,7 @@ Een compacte vallei waarin natuur en vriendelijke machines samenleven. Verdiepin
 
 De oorspronkelijke stappen 1 t/m 5 komen eerst. **Daarna** volgt het vergezicht: meer avontuur en verhaal, vervolgens mooiere beelden, vervolgens levendigere bewoners. Deze volgorde volgt de verduidelijking van AJ op 2 november. De eerdere ideeën over verhaal en bewoners binnen stappen 3–5 blijven dus onderdeel van de eerste reeks.
 
-Elke stap levert een afzonderlijk beoordeelbare versie op. Eerst implementatie, passende tests en visuele beoordeling, dan samen kijken. Een branch en pull request maken de wijzigingen reviewbaar; samenvoegen naar `main` publiceert automatisch via GitHub Pages en wordt apart afgestemd. Stand op 7 november 2026: stappen 1–5 zijn gepubliceerd. Stap 6 begint met de eerste uitnodiging voor een samenkomst van bosbewoners. De eekhoorn krijgt één volledige speelbare ontmoeting, inclusief een korte scène in de spelwereld. Deze versie wordt apart beoordeeld vóór publicatie.
+Elke stap levert een afzonderlijk beoordeelbare versie op. Eerst implementatie, passende tests en visuele beoordeling, dan samen kijken. Een branch en pull request maken de wijzigingen reviewbaar; samenvoegen naar `main` publiceert automatisch via GitHub Pages en wordt apart afgestemd. Stand op 8 november 2026: stappen 1–5 en de eerste uitnodiging van stap 6 zijn gepubliceerd en door AJ goedgekeurd. De wortelvos volgt als tweede gast, inclusief een korte scène bij de bron, een handeling met het bronwater en een aanwijzing over het zaad. AJ heeft voor deze ronde direct publiceren na de controles geautoriseerd.
 
 ## Eerste reeks
 
@@ -28,11 +28,12 @@ Dit is een volgorde van ontwikkelrondes, geen kalenderbelofte. Omvang en tempo w
 
 Doel: een samenhangende nieuwe reis met nieuwsgierigheid, betekenisvolle handelingen en een afronding.
 
-1. **Nu · de eerste uitnodiging:** na vier hartslagen vraag je de eekhoorn naar de samenkomst. Een scène van tien seconden laat hem afdalen en noten verzamelen. Eén noot rolt weg. De speler pakt hem op en loopt samen met hem naar de moswachter. Geen tijdslimiet; scène overslaan behoudt de opdracht; minder beweging begint direct bij de voorraad met een vaste detailcamera. Voortgang blijft bewaard en de oude monumentontmoeting blijft bestaan.
-2. **Daarna · meer gasten en een aanleiding:** werk de uitnodigingen van de wortelvos en de draak uit. Iedere bewoner brengt iets mee vanuit zijn eigen activiteit. Verbind dit aan het zaad van de moswachter; een aankomst van de uil kan de aanleiding vormen. Dit zijn vervolgrichtingen, nog geen gebouwde scènes.
-3. **Samenkomst en keuze:** laat de genodigden echt samenkomen. Bespreek waar het zaad mag groeien, bijvoorbeeld bij de bron of in de slapende tuin, en maak het gevolg zichtbaar. Een antwoord vanuit het andere bos kan het volgende hoofdstuk openen. Een nieuw gebied achter de poort blijft een afzonderlijke ontwerpbeslissing.
+1. **Gereed · de eerste uitnodiging:** na vier hartslagen vraag je de eekhoorn naar de samenkomst. Een scène van tien seconden laat hem afdalen en noten verzamelen. Eén noot rolt weg. De speler pakt hem op en loopt samen met hem naar de moswachter. Geen tijdslimiet; scène overslaan behoudt de opdracht; minder beweging begint direct bij de voorraad met een vaste detailcamera. Voortgang blijft bewaard en de oude monumentontmoeting blijft bestaan.
+2. **Nu · de wortelvos:** nodig hem na de eekhoorn uit bij zijn bron. Hij graaft een wortelfragment op. De speler spoelt het schoon en brengt het naar de moswachter, die het teken van zijn zaad herkent. De vos komt als tweede gast aan; voortgang en de aanwijzing blijven bewaard.
+3. **Daarna · de draak:** werk zijn uitnodiging uit vanuit zijn eigen activiteit. Een aankomst van de uil kan later het grotere verhaal over het zaad verbinden. Dit zijn vervolgrichtingen, nog geen gebouwde scènes.
+4. **Samenkomst en keuze:** laat de genodigden echt samenkomen. Bespreek waar het zaad mag groeien, bijvoorbeeld bij de bron of in de slapende tuin, en maak het gevolg zichtbaar. Een antwoord vanuit het andere bos kan het volgende hoofdstuk openen. Een nieuw gebied achter de poort blijft een afzonderlijke ontwerpbeslissing.
 
-De eerste ronde bouwt uitsluitend de eekhoornontmoeting. Korte filmische momenten tonen activiteiten in dezelfde 3D-wereld en geven daarna de besturing terug; ze vervangen de handelingen van de speler niet.
+De eerste ronde bouwde de eekhoornontmoeting; deze ronde voegt uitsluitend de wortelvos toe. Korte filmische momenten tonen activiteiten in dezelfde 3D-wereld en geven daarna de besturing terug; ze vervangen de handelingen van de speler niet.
 
 Gereed wanneer een nieuwe speler de verhaallijn zonder externe uitleg kan volgen, de belangrijkste keuze begrijpt en de afloop in de wereld herkent. Vrij verkennen blijft mogelijk.
 
@@ -56,6 +57,6 @@ Doel: bewoners laten voelen alsof zij ook zonder de speler een leven hebben.
 
 Gereed wanneer gedrag leesbaar en gevarieerd is, routes niet vastlopen en bewoners consequent reageren op de speler, elkaar en de omgeving. Begin met geschreven gedrag en dialoog; vrije AI-chat is geen vereiste.
 
-## Eerstvolgende beoordelmoment
+## Eerstvolgende speelronde
 
-Stap 6, eerste ontmoeting: herstel de vier hartslagen, reis naar de moswachter en spreek de eekhoorn te voet aan. Kies **Kom je naar een samenkomst bij de moswachter?** en vervolgens **Ik help je. Laat maar zien!** Bekijk of het verzamelen en wegrollen leesbaar zijn. Pak de noot op via de knop of E en volg hem naar de moswachter. Via **Ontdek plekken → De samenkomst** kun je terugkeren na vertrek. Beoordeel ook de vaste camera bij minder beweging, overslaan en de hervatting na herladen.
+Na de eekhoorn: **Ontdek plekken → Wortelvos uitnodigen · bij de bron**. Nodig hem uit, neem het fragment en spoel het schoon. Breng het naar de moswachter en kies in het gesprek **Ik heb een wortelfragment voor je.** Zie [de speelroute en controles](stap-6-wortelvos.md). Hierna volgt de draak als derde gast.

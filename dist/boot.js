@@ -1,9 +1,9 @@
 const status=document.getElementById('start-status');
 try {
   await import('./quests.js?v=finale41');
-  await import('./world.js?v=gathering42');
+  await import('./world.js?v=fox43');
   await import('./visions.js?v=dweller40');
-  await import('./conversations.js?v=gathering42');
+  await import('./conversations.js?v=fox43');
   const enter=document.getElementById('enter'),direct=document.getElementById('start-direct');
   enter.disabled=false;direct.disabled=false;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;

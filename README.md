@@ -122,3 +122,7 @@ Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8
 ## De eerste uitnodiging
 
 Na de vier hartslagen kun je de eekhoorn uitnodigen voor een samenkomst bij de moswachter. Spreek hem te voet aan en kies **Ik help je. Laat maar zien!** Je ziet hem zijn noten verzamelen; daarna pak je de weggerolde noot op met **E** of de knop en loop je samen terug. De scène is over te slaan en ondersteunt minder beweging. Via **Ontdek plekken → De samenkomst** hervat je de opdracht. Zie [de controle van deze eerste ontmoeting](docs/stap-6-eerste-uitnodiging.md).
+
+## De wortelvos komt ook
+
+Na de eerste gast verschijnt **Wortelvos uitnodigen · bij de bron** onder **Ontdek plekken**. Nodig hem uit, bekijk zijn vondst en spoel het wortelfragment schoon in de bron. Breng het naar de moswachter en laat hem in het gesprek het fragment zien. De vos komt als tweede gast; zijn geschenk geeft een aanwijzing over het zaad. Zie [de speelroute en controles](docs/stap-6-wortelvos.md).
