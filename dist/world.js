@@ -17,11 +17,12 @@ import {Atmosphere,createWeatherAtmosphere,hourName,nextLightHour,pickVisitHour,
 import {CathedralWonder,createCathedralAtmosphere} from './cathedral-wonder.mjs?v=breath28';
 import {GATE,GateWonder,createGateAtmosphere} from './gate-wonder.mjs?v=breath29';
 import {GardenDew,HOVER,ISLANDS,seedKeeper,createDewAtmosphere} from './garden-dew.mjs?v=dew36';
-import {QualityGovernor,tierSettings,readRemembered,saveRemembered} from './quality-governor.mjs?v=light46';
-import {glide,HeadBob} from './gait.mjs?v=light46';
-import {createPost,sunOnScreen,rayStrength} from './post.mjs?v=light46';
-import {Footsteps,Stillness,BirdChorus,chorusProfile,surfaceAt,riverPresence,createVoices} from './soundscape.mjs?v=light46';
-import {CalmInterface,readCalmEnabled,saveCalmEnabled,isTap,inReach} from './calm-interface.mjs?v=light46';
+import {QualityGovernor,tierSettings,readRemembered,saveRemembered} from './quality-governor.mjs?v=found47';
+import {WONDERS,WonderJournal,readJournal,saveJournal,revealAll} from './wonder-journal.mjs?v=found47';
+import {glide,HeadBob} from './gait.mjs?v=found47';
+import {createPost,sunOnScreen,rayStrength} from './post.mjs?v=found47';
+import {Footsteps,Stillness,BirdChorus,chorusProfile,surfaceAt,riverPresence,createVoices} from './soundscape.mjs?v=found47';
+import {CalmInterface,readCalmEnabled,saveCalmEnabled,isTap,inReach} from './calm-interface.mjs?v=found47';
 import {DWELLERS,FOX_WATCH,FOX,RareDwellers,readMet,saveMet,readSpring,saveSpring,createDwellerMeshes,sparkPositions,createSparkRenderer} from './rare-dwellers.mjs?v=fox43';
 const $=id=>document.getElementById(id),canvas=$('world');
 let keeperMotion=[0,.65,.35,0],keeperGreeting=-1,keeperWasNear=false,lastKeeperShadow=-1;
@@ -60,7 +61,7 @@ float path(vec2 p){float d=lineDist(p,vec2(-5,76),vec2(-20,30));d=min(d,lineDist
 float shadow(vec3 normal){if(lite>.5)return mix(.62,1.,max(dot(normal,normalize(sunDir)),0.));vec4 q=lightVP*vec4(P,1.);vec3 c=q.xyz/q.w*.5+.5;if(c.x<0.||c.x>1.||c.y<0.||c.y>1.||c.z>1.)return 1.;float bias=max(.00055,.0018*(1.-dot(normal,normalize(sunDir))));if(softShadows<.25)return c.z-bias<=texture(shadowMap,c.xy).r?1.:0.;float a=0.;float weight=0.;for(int x=-2;x<=2;x++)for(int y=-2;y<=2;y++){if(softShadows<.5&&(abs(x)>1||abs(y)>1))continue;float w=float(3-abs(x))*float(3-abs(y));a+=(c.z-bias<=texture(shadowMap,c.xy+vec2(float(x),float(y))*shadowTexel).r?1.:0.)*w;weight+=w;}return a/weight;}
 vec3 sky(vec3 dir){float h=clamp(dir.y*.7+.35,0.,1.);vec3 dayH=mix(vec3(.70,.76,.68),vec3(.94,.60,.34),warmth);vec3 dayZ=mix(vec3(.25,.48,.61),vec3(.58,.30,.20),warmth*.65);return mix(mix(dayH,dayZ,h),mix(vec3(.045,.085,.12),vec3(.015,.028,.07),h),night);}
 void main(){if(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)>objectFade)discard;vec3 normal=normalize(N);vec3 sun=normalize(sunDir);vec3 v=normalize(eye-P);vec3 base=C;float glow=step(1.01,max(C.r,max(C.g,C.b)));float emit=0.;float tex=lite>.5?noise(P.xz*.35):detail(P.xz*3.5+P.y*.4);float surfaceHeight=0.;float wetness=0.;float roughness=.95;float closeDetail=lite>.5?0.:1.-smoothstep(24.,80.,length(P-eye));
-if(M>.5&&M<1.5){if(lite>.5){base=mix(vec3(.07,.13,.04),vec3(.18,.22,.07),noise(P.xz*.2));wetness=wet*.5;}else{float broad=detail(P.xz*.18);float trail=1.-smoothstep(1.1,2.6,path(P.xz)+(tex-.5)*.85);float soil=noise(P.xz*8.);float humus=detail(P.xz*.9);base=mix(vec3(.065,.12,.035),vec3(.19,.23,.075),broad);base=mix(base,mix(vec3(.115,.078,.042),vec3(.28,.22,.13),humus),trail);float grains=smoothstep(.64,.83,soil)*closeDetail;base=mix(base,vec3(.36,.32,.22),grains*.22*trail);wetness=smoothstep(.55,.78,detail(P.xz*.23))*(.25+trail*.5);base*=1.-wetness*.24;surfaceHeight=(soil*.028+humus*.11)*closeDetail;roughness=mix(.96,.48,wetness);}}
+if(M>.5&&M<1.5){if(lite>.5){float patches=noise(P.xz*.2),broad=noise(P.xz*.045+7.);base=mix(vec3(.07,.13,.04),vec3(.18,.22,.07),patches);base=mix(base,vec3(.21,.21,.085),smoothstep(.58,.82,broad)*.55);base=mix(base,vec3(.045,.10,.045),smoothstep(.62,.86,noise(P.xz*.11+19.))*.6);float trail=1.-smoothstep(1.1,2.6,path(P.xz)+(patches-.5)*.8);base=mix(base,vec3(.19,.145,.085),trail*.85);float shore=1.-smoothstep(-2.2,-.9,P.y);base=mix(base,vec3(.22,.21,.15)*(.75+.5*noise(P.xz*2.6)),shore*.8);wetness=max(wet*.5,shore*.4);}else{float broad=detail(P.xz*.18);float trail=1.-smoothstep(1.1,2.6,path(P.xz)+(tex-.5)*.85);float soil=noise(P.xz*8.);float humus=detail(P.xz*.9);base=mix(vec3(.065,.12,.035),vec3(.19,.23,.075),broad);base=mix(base,mix(vec3(.115,.078,.042),vec3(.28,.22,.13),humus),trail);float grains=smoothstep(.64,.83,soil)*closeDetail;base=mix(base,vec3(.36,.32,.22),grains*.22*trail);float dry=smoothstep(.58,.82,noise(P.xz*.045+7.))*(1.-trail);base=mix(base,vec3(.22,.22,.085),dry*.5);float mossy=smoothstep(.60,.84,noise(P.xz*.11+19.))*(1.-trail);base=mix(base,vec3(.05,.115,.045)*(.8+.5*noise(P.xz*6.)),mossy*.65);float bloom=step(.988,hash(floor(P.xz*7.)))*closeDetail*(1.-trail)*(1.-mossy);base=mix(base,hash(floor(P.xz*7.)+3.)>.5?vec3(.78,.74,.42):vec3(.62,.58,.80),bloom*.8);float shore=1.-smoothstep(-2.2,-.9,P.y);float pebble=noise(P.xz*5.5);base=mix(base,mix(vec3(.15,.15,.11),vec3(.34,.32,.25),pebble),shore*.85);wetness=max(smoothstep(.55,.78,detail(P.xz*.23))*(.25+trail*.5),shore*.75);base*=1.-wetness*.24;surfaceHeight=(soil*.028+humus*.11)*closeDetail;roughness=mix(.96,.48,wetness);}}
 else if(M>1.5&&M<2.5){base*=.72+tex*.48;normal=faceforward(normal,-v,normal);}
 else if(M>2.5&&M<3.5){if(lite>.5){base=C*(.72+noise(P.xz*.45)*.4);}else{vec3 blend=pow(abs(normal),vec3(4.));blend/=max(dot(blend,vec3(1.)),.001);float rock=dot(vec3(detail(P.yz*2.1),detail(P.xz*2.1),detail(P.xy*2.1)),blend);float layers=noise(vec2(P.x*.55+P.z*.37,P.y*5.5+rock*2.));float fissure=1.-smoothstep(.025,.09,abs(layers-.5));float lichen=smoothstep(.65,.79,noise(P.xz*3.+P.y*.7))*smoothstep(.25,.55,rock);float moss=smoothstep(.25,.85,normal.y)*smoothstep(.42,.70,detail(P.xz*.8));base=C*(.66+rock*.65);base*=1.-fissure*.24*closeDetail;base=mix(base,vec3(.40,.43,.23),lichen*.32);base=mix(base,vec3(.10,.18,.045),moss*.80);wetness=(1.-moss)*smoothstep(.55,.80,rock)*.6;roughness=mix(.90,.38,wetness);surfaceHeight=(rock*.10-fissure*.035+noise(P.xz*17.+P.y)*.012)*closeDetail;base*=1.-wetness*.12;}}
 else if(M>4.5&&M<5.5){if(lite>.5){base=mix(C*.7,C,noise(P.xz*.3));}else{vec2 grainUV=vec2((P.x+P.z*.73)*7.,P.y*.68);float warp=noise(vec2(grainUV.x*.17,grainUV.y*.35));float grain=noise(grainUV+vec2(warp*2.,0.));float furrow=1.-smoothstep(.22,.47,grain);float fine=noise(vec2(grainUV.x*3.3,grainUV.y*1.6));base=mix(C*.48,C*1.24,smoothstep(.24,.70,grain));base*=.87+fine*.23*closeDetail;float moss=smoothstep(.42,.73,detail(P.xz*.55+P.y*.12))*smoothstep(-.05,.8,normal.y);base=mix(base,vec3(.095,.18,.045),moss*.87);surfaceHeight=(grain*.10-furrow*.045+fine*.009)*closeDetail;wetness=smoothstep(.60,.85,warp)*.35;roughness=.92-wetness*.3;}}
@@ -107,10 +108,32 @@ const water=-2.3;function river(z){return 15+Math.sin(z*.012)*16}function ground
 material=1;
 for(let x=-270;x<270;x+=3)for(let z=-285;z<240;z+=3){let col=[.1,.24,.12],a=[x,ground(x,z),z],b=[x+3,ground(x+3,z),z],c=[x+3,ground(x+3,z+3),z+3],d=[x,ground(x,z+3),z+3],first=verts.length;tri(a,c,b,col);tri(a,d,c,col);for(let i=first;i<verts.length;i+=10){let px=verts[i],pz=verts[i+2],nx=ground(px-.2,pz)-ground(px+.2,pz),nz=ground(px,pz-.2)-ground(px,pz+.2),l=Math.hypot(nx,.4,nz);verts[i+3]=nx/l;verts[i+4]=.4/l;verts[i+5]=nz/l;}}
 material=0;
-// Eroded ridges with offset summits and broken snowfields beyond the valley.
-for(let i=0;i<65;i++){let a=i*TAU/65,r=275+rand()*65,x=Math.cos(a)*r,z=Math.sin(a)*r,h=55+rand()*100,width=35+rand()*40,sections=24,levels=9;
- const point=(k,j)=>{let t=k/levels,angle=j*TAU/sections,flute=1+.15*Math.sin(angle*5+i)+.10*Math.cos(angle*9+i*.7),radius=width*Math.pow(1-t,1.25)*flute;return[x+Math.cos(angle)*radius+Math.sin(i*2.1)*t*width*.27,-8+h*t+Math.sin(angle*3+i)*h*.045*Math.sin(t*Math.PI),z+Math.sin(angle)*radius+Math.cos(i*1.7)*t*width*.22];};
- for(let k=0;k<levels;k++)for(let j=0;j<sections;j++){let p=point(k,j),q=point(k,j+1),u=point(k+1,j+1),v=point(k+1,j),t=(k+.5)/levels,snow=t>.72+.11*Math.sin(j*1.9+i),tone=.86+.14*Math.sin(j*2.3+k*.7+i);material=snow?0:3;let col=(snow?[.70,.77,.74]:[.23,.29,.30]).map(c=>c*tone);tri(p,u,q,col);if(k<levels-1)tri(p,v,u,col);}
+// Bergen: massieven met scherpe graten, schouders en een sneeuwgrens die de helling volgt.
+// De drie rand()-trekkingen per berg blijven gelijk, zodat bomen en struiken op hun plek blijven.
+{let own=48271;const roll=()=>(own=(own*16807)%2147483647)/2147483647;
+ const sections=mobile?26:40,levels=mobile?11:16;
+ const massif=(x,z,h,width,i,sharp)=>{
+  const phase=[roll()*TAU,roll()*TAU,roll()*TAU],lean=[(roll()-.5)*.5,(roll()-.5)*.5],power=.85+roll()*.5,snowLine=.60+roll()*.14,shoulder=.25+roll()*.3,shoulderAt=roll()*TAU;
+  const ridge=a=>{let r=0;for(const [k,f,w] of [[0,3,.5],[1,5,.3],[2,8,.2]])r+=w*Math.pow(1-Math.abs(Math.sin(a*f*.5+phase[k])),sharp);return r;};
+  const point=(k,j)=>{const t=k/levels,a=j*TAU/sections,rg=ridge(a),bulge=Math.exp(-Math.pow((t-shoulder)/.13,2))*Math.max(0,Math.cos(a-shoulderAt))*.42;
+   const radius=width*(Math.pow(1-t,power)*(.72+.42*rg)+bulge*(1-t))*(1+.07*Math.sin(t*9+a*4+i));
+   return [x+Math.cos(a)*radius+lean[0]*t*width,-8+h*t*(.93+.07*rg)+Math.sin(a*3+i)*h*.03*Math.sin(t*Math.PI),z+Math.sin(a)*radius+lean[1]*t*width];};
+  const grid=[];for(let k=0;k<=levels;k++){const row=[];for(let j=0;j<sections;j++)row.push(point(k,j));grid.push(row);}
+  const at=(k,j)=>grid[Math.max(0,Math.min(levels,k))][((j%sections)+sections)%sections];
+  const normal=(k,j)=>{const a=at(k,j-1),b=at(k,j+1),c=at(k-1,j),d=at(k+1,j),u=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],v=[d[0]-c[0],d[1]-c[1],d[2]-c[2]];let n=[u[2]*v[1]-u[1]*v[2],u[0]*v[2]-u[2]*v[0],u[1]*v[0]-u[0]*v[1]];if(n[1]<0)n=n.map(q=>-q);const l=Math.hypot(...n)||1;return k>=levels?[0,1,0]:n.map(q=>q/l);};
+  const snowy=(k,j)=>{const t=k/levels,a=j*TAU/sections,flat=normal(k,j)[1];return t>snowLine+Math.cos(a-2.2)*.06+.08*Math.sin(a*7+i)-(flat-.45)*.22;};
+  const colour=(k,j,snow)=>{const t=k/levels,a=j*TAU/sections,flat=normal(k,j)[1];if(snow)return [.74,.80,.80].map(q=>q*(.9+.1*flat));
+   const forest=Math.max(0,1-t/.24)*Math.min(1,flat*1.6),shade=.82+.18*Math.sin(a*5+k*.9+i);
+   return [.23+(.085-.23)*forest,.29+(.165-.29)*forest,.30+(.085-.30)*forest].map(q=>q*shade);};
+  // Eén materiaal per driehoek: het materiaal wordt niet tussen hoekpunten gemengd.
+  const face=(...corners)=>{const snow=corners.filter(([k,j])=>snowy(k,j)).length>=2;for(const [k,j] of corners)verts.push(...at(k,j),...normal(k,j),...colour(k,j,snow),snow?0:3);};
+  for(let k=0;k<levels;k++)for(let j=0;j<sections;j++){face([k,j],[k+1,j+1],[k,j+1]);if(k<levels-1)face([k,j],[k+1,j],[k+1,j+1]);}
+ };
+ for(let i=0;i<65;i++){let a=i*TAU/65,r=275+rand()*65,x=Math.cos(a)*r,z=Math.sin(a)*r,h=55+rand()*100,width=35+rand()*40;
+  massif(x,z,h*1.08,width*1.12,i,1+roll()*.8);
+  // Een lagere buurtop of voorheuvel breekt het silhouet en geeft diepte.
+  if(i%3!==1){const side=a+(roll()-.5)*.09,near=r-18-roll()*30;massif(Math.cos(side)*near,Math.sin(side)*near,h*(.32+roll()*.26),width*(.62+roll()*.3),i+100,.9+roll()*.7);}
+ }
 }material=0;
 const locations=[{name:'De wortelkathedraal',x:-48,z:-65,r:30,text:'Hier bewaart het woud zijn geheugen. In deze wortels begint de eerste letter van de oude taal.'},{name:'De lichtpoort',x:66,z:-110,r:24,text:'De drempel tussen twee bossen. Als haar hartslag terugkeert, zoeken beide kanten hetzelfde ritme.'},{name:'De zwevende tuinen',x:-96,z:-180,r:36,text:'Drie eilanden, één evenwicht. Zonder deze letter valt de zin uit elkaar.'},{name:'De moswachter',x:86,z:36,r:25,text:'Hij bewaart de laatste letter: een stem. Ooit hielpen vier hartslagen hem de anderen te verstaan.'},{name:'Het sterrenmeer',x:12,z:135,r:30,text:'Lichtwezens dansen boven het water. Ze volgen een ritme dat de vier hartslagen ooit droegen.'}];
 const trunkColliders=[{x:-48,z:-65,r:6.8,h:47},{x:83,z:36,r:1.9,h:10},{x:89,z:36,r:1.9,h:10}];
@@ -322,6 +345,16 @@ for(let j=0;j<24;j++){
  material=2;tri([x,y+.3,z],[x+.5,y+h*.7,z+.1],[x+.06,y+.7,z],[.13,.30,.11]);
 }
 material=0;
+// Bodembegroeiing waar je loopt: graspollen langs de paden en bemoste keien met varens.
+{const coverSeed=seed;seed=271828;
+ const clear=(x,z)=>ground(x,z)>water+.4&&trailDistance(x,z)>1.7&&!locations.some(q=>Math.hypot(x-q.x,z-q.z)<7)&&Math.hypot(x-86,z-36)>12&&!inDragonGlade(x,z);
+ const tuft=(x,z,size)=>{const y=ground(x,z),blades=5+Math.floor(rand()*3);material=2;for(let j=0;j<blades;j++){const a=rand()*TAU,h=size*(.45+rand()*.75),bx=x+Math.cos(a)*.16*size,bz=z+Math.sin(a)*.16*size,lean=.18+rand()*.3,tip=[bx+Math.cos(a)*lean*h,y+h,bz+Math.sin(a)*lean*h],w=.035+rand()*.03,dry=rand()<.14;tri([bx-Math.sin(a)*w,y,bz+Math.cos(a)*w],tip,[bx+Math.sin(a)*w,y,bz-Math.cos(a)*w],dry?[.30,.31,.11]:[.11+rand()*.06,.24+rand()*.13,.06]);}};
+ for(const [a,b] of trailSegments){const length=Math.hypot(b[0]-a[0],b[1]-a[1]),count=Math.floor(length*(mobile?2.2:5));for(let i=0;i<count;i++){const t=rand(),side=rand()<.5?-1:1,off=1.9+Math.pow(rand(),1.7)*7.5,nx=-(b[1]-a[1])/length,nz=(b[0]-a[0])/length,x=a[0]+(b[0]-a[0])*t+nx*off*side,z=a[1]+(b[1]-a[1])*t+nz*off*side;if(clear(x,z))tuft(x,z,.5+rand()*.7);}}
+ for(const q of locations)for(let i=0;i<(mobile?70:150);i++){const a=rand()*TAU,r=8+rand()*(q.r+6),x=q.x+Math.cos(a)*r,z=q.z+Math.sin(a)*r;if(clear(x,z))tuft(x,z,.45+rand()*.65);}
+ for(let i=0;i<(mobile?46:95);i++){const x=(rand()-.5)*250,z=rand()*350-205,y=ground(x,z);if(!clear(x,z)||trailDistance(x,z)>26||Math.abs(x-river(z))<11)continue;const size=.4+Math.pow(rand(),2)*1.5;
+  material=3;orb(x,y-size*.22,z,size*(1+rand()*.4),size*(.55+rand()*.25),size*(.8+rand()*.4),[.27,.29,.23].map(q=>q*(.85+rand()*.3)),11,6);
+  material=0;if(size>.7&&rand()<.7)fern(x+Math.cos(i)*size*1.2,z+Math.sin(i)*size*1.2,.5+rand()*.6);if(rand()<.6){tuft(x-size,z+size*.4,.6);}}
+ material=0;seed=coverSeed;}
 const terrain=upload();
 // Animated river surface, particles, drones, and portal use compact shared meshes.
 material=4;
@@ -629,7 +662,12 @@ function resetInput(){for(let k in keys)keys[k]=false;move=[0,0];vertical=0;look
 function canPlayInput(){return !storyCinematic()&&started&&!introActive&&!window.elyndraVisionOpen&&$('instructions').hidden&&$('travelmenu').hidden;}
 function editingControl(e){return /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName??'')||e.target?.isContentEditable;}
 $('help').onclick=()=>{resetInput();$('travelmenu').hidden=true;$('instructions').hidden=false;};$('closehelp').onclick=()=>$('instructions').hidden=true;
-$('travel').onclick=()=>{resetInput();$('instructions').hidden=true;$('travelmenu').hidden=!$('travelmenu').hidden;};$('closemap').onclick=()=>$('travelmenu').hidden=true;
+// Wonderen staan pas in het menu als je ze zelf hebt gevonden; tot dan fluistert het woud één aanwijzing.
+let journalStorage;try{journalStorage=localStorage;}catch{}
+const journal=new WonderJournal(journalStorage?readJournal(journalStorage):[],{all:revealAll(globalThis.location?.search??'')});
+function syncJournal(){for(const w of WONDERS)$(w.button).hidden=!journal.knows(w.id);const next=journal.nearest(pos);$('whisper').hidden=!next;if(next)$('whisper').textContent='Het woud fluistert: '+next.whisper.charAt(0).toLowerCase()+next.whisper.slice(1);}
+function noteWonders(){const fresh=journal.observe({brook:wonderState.phase,cathedral:cathedralState.phase,gate:gateState.phase,dew:dewState.phase,deer:mirrorState.phase});if(!fresh.length)return;if(journalStorage)saveJournal(journalStorage,journal);syncJournal();toast(fresh[0].name+' staat voortaan bij Ontdek plekken.');}
+$('travel').onclick=()=>{resetInput();$('instructions').hidden=true;syncJournal();$('travelmenu').hidden=!$('travelmenu').hidden;};$('closemap').onclick=()=>$('travelmenu').hidden=true;
 locations.forEach((p,i)=>{let b=document.createElement('button');b.textContent=`0${i+1}  ${p.name}`;b.onclick=()=>{pos=[p.x,ground(p.x,p.z+30)+6,p.z+30];yaw=0;pitch=i===2?-.08:.15;if(i===0){pos=[-37,ground(-37,-15)+2.4,-15];yaw=-.40;pitch=.10;flying=false;$('fly').textContent='Vliegen'}if(i===2){flying=true;pos[1]=48;$('fly').textContent='Landen'}if(i===4){pos=[6,ground(6,153)+2.4,153];yaw=Math.atan2(26-pos[0],-(127-pos[2]));pitch=-.05;flying=false;$('fly').textContent='Vliegen'}$('travelmenu').hidden=true;lastPlace=-1;toast('Je reist naar '+p.name.toLowerCase())};$('destinations').appendChild(b)});
 function activate(){if(!canPlayInput())return;if(storyAction())return;if(Math.hypot(pos[0]-66,pos[2]+110)>=30)return;if(window.elyndraGame&&!window.elyndraGame.unlocked(1)){window.elyndraStartPuzzle(1);return;}if(Math.hypot(pos[0]-66,pos[2]+110)<30){active=!active;portalTime=0;toast(active?'De poort ontwaakt. Loop door het licht.':'De poort rust weer.');chime()}}$('act').onclick=activate;
 addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||editingControl(e))return;if(e.code==='Escape'&&storyCinematic()){e.preventDefault();finishGatheringFilm();return;}if(e.code==='Escape'&&!introActive&&!window.elyndraVisionOpen){$('instructions').hidden=true;$('travelmenu').hidden=true;return;}if(!canPlayInput())return;if(e.code==='Space'&&e.target?.tagName==='BUTTON')return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.repeat)return;if(e.code==='KeyF')toggleFly();if(e.code==='KeyE')activate();});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',resetInput);
@@ -883,6 +921,7 @@ if(invitationState.released){
 const encounterPose=invitationState.pose??encounterState;
 if(encounterPose.position)dragonState=dragonPose(clock,reducedMotion,{...encounterPose,ground});
 if((squirrelState.near||companionState.gardenNear>.01||companionState.near>.01||wonderState.near>.01||Math.hypot(pos[0]+96,pos[2]+180)<85||Math.hypot(pos[0]-66,pos[2]+90)<55||keeperDistance<90||Math.hypot(pos[0]-deerState.position[0],pos[2]-deerState.position[2])<65)&&clock-lastKeeperShadow>(mobile?.5:.25)){renderShadows();lastKeeperShadow=clock;}
+noteWonders();
 if(wonderState.phase!==wonderPhase){
  wonderPhase=wonderState.phase;
  const captions={invitation:['De adem van Elyndra',wonderState.visits>1?'Je bent terug. De beek lijkt je te herkennen.':'Kom dichter bij de lichtjes. Blijf daar even rustig staan.'],awakening:['Het woud luistert','Boven het water komt iets samen.'],constellation:['Een hemel onder de wortels','Sommige wonderen vinden jou wanneer je even blijft.'],afterglow:['Je bent niet alleen','Kijk omhoog, voorbij de wortelbogen.']};

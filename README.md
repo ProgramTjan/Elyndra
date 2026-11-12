@@ -35,9 +35,15 @@ node --test tests/*.test.mjs
 
 De afgesproken volgorde en het vergezicht staan in [het ontwikkelplan](docs/ontwikkelplan.md). De bevindingen, gerichte fixes en open apparaatcontroles van stap 1 staan in [de controle van de speelervaring](docs/stap-1-controle.md).
 
+## Wonderen vind je zelf
+
+**Ontdek plekken** toont de vijf plekken van de vallei. Een wonder komt er pas bij te staan nadat je het zelf hebt gevonden; daarna kun je er altijd naar terug. Zolang er nog iets te vinden is, fluistert het menu één aanwijzing: die van het dichtstbijzijnde geheim. Wat je vond, blijft op dit apparaat bewaard.
+
+Om te testen of iets te laten zien opent `?alles` achter het adres het hele menu: https://programtjan.github.io/Elyndra/?alles
+
 ## De adem van Elyndra
 
-Kies **Ontdek plekken → De adem van Elyndra · aan de beek**. Blijf ongeveer zes seconden rustig staan bij de lichtjes. Rondkijken mag: boven de beek vormt zich langzaam een sterrengewelf. Even later maakt de draak een omweg over de wortelbogen. Geluid zet je zelf aan. Met minder beweging blijven de lichtjes op hun plek en verschijnt het gewelf door geleidelijk oplichten.
+Loop naar de beek onder de wortelbogen, ten oosten van het pad tussen de wortelkathedraal en de moswachter. Blijf ongeveer zes seconden rustig staan bij de lichtjes. Rondkijken mag: boven de beek vormt zich langzaam een sterrengewelf. Even later maakt de draak een omweg over de wortelbogen. Geluid zet je zelf aan. Met minder beweging blijven de lichtjes op hun plek en verschijnt het gewelf door geleidelijk oplichten.
 
 De ervaring werkt ook als je de beek vanuit de wereld te voet bereikt.
 
@@ -77,7 +83,7 @@ De ontdekking blijft lokaal bewaard en ontgrendelt **Het geheim van de eekhoorn*
 
 ## Het hert en zijn spiegelbeeld
 
-Kies **Ontdek plekken → Het hert aan het sterrenmeer**. Blijf even bij hem staan en kijk in het water: alleen zijn weerspiegelde gewei krijgt bloesem. Met **Ik pas op je schaduw** (toets **H**) begint de ontmoeting.
+Reis naar **05 Het sterrenmeer** en loop naar het hert op de westoever. Blijf even bij hem staan en kijk in het water: alleen zijn weerspiegelde gewei krijgt bloesem. Met **Ik pas op je schaduw** (toets **H**) begint de ontmoeting.
 
 Het hert verdwijnt in het meer, zijn spiegelbeeld blijft. Wandel langs de westelijke oever en breng de maan tussen de weerspiegelde bloesemtakken. De korte aanwijzing helpt je dichterbij. Als je even op de juiste plek blijft, opent een onderwaterbos met sterren en grote, rustige gestalten. Daarna keert het hert uit de oeverbegroeiing terug en valt er één blaadje van zijn kale gewei.
 
@@ -85,7 +91,7 @@ Geen timer, vereist geluid of automatische camerabeweging. Weglopen beëindigt d
 
 ## Dauw van de tuinen
 
-Kies **Ontdek plekken → Dauw van de tuinen · na regen**. Je hangt vliegend tussen de zwevende eilanden, net na een bui. Blijf ongeveer zes seconden stil hangen: de eilanden laten hun water los en de watervallen worden vol. Daarna steken de zaadbewaarders over, kleine drones die stuifmeel van eiland naar eiland dragen, vlak langs je blik. 's Nachts dragen ze lantaarns. Kom je later terug, dan blijft er één even bij je hangen.
+Vlieg na regen tussen de zwevende eilanden (zet onder **?** het weer op regen als je niet wilt wachten). Blijf ongeveer zes seconden stil hangen: de eilanden laten hun water los en de watervallen worden vol. Daarna steken de zaadbewaarders over, kleine drones die stuifmeel van eiland naar eiland dragen, vlak langs je blik. 's Nachts dragen ze lantaarns. Kom je later terug, dan blijft er één even bij je hangen.
 
 Zonder regen blijven de tuinen droog. Heb je onder **?** zelf helder weer of mist vastgezet, dan respecteert het reismenu dat en wachten de tuinen. Geluid is optioneel; minder beweging houdt de druppels als stille parels.
 
@@ -134,6 +140,10 @@ Alles wat licht geeft heeft nu een zachte gloed. Kijk je richting een lage zon o
 **05 Het sterrenmeer** brengt je nu te voet naar de zuidwestoever, met zicht over het water. 's Nachts is de maan koel van kleur, ligt er een glinsterpad op het water en weerspiegelen de sterren.
 
 Lopen heeft een korte aanloop en uitloop, vliegen zweeft iets door, en je blik deint licht mee met je voetstappen. Met minder beweging blijft de blik stil.
+
+## Bergen en ondergrond
+
+De bergen rond de vallei zijn massieven met graten, schouders, voorheuvels en een sneeuwgrens die de helling volgt. De grond toont de paden, droge en bemoste plekken, kleine bloemen en een kiezelrand langs het water, ook in de stand **Soepel**. Langs de paden en rond de vijf plekken staan graspollen; verspreid liggen bemoste keien met varens.
 
 ## Herkomst
 
