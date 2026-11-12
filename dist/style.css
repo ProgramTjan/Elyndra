@@ -59,3 +59,6 @@ body.calm header,body.calm #compass,body.calm #discovery,body.calm #crosshair,bo
 body.calm header>*,body.calm #fly,body.calm #time,body.calm #travel{pointer-events:none}
 body.calm #touch{opacity:.28;transition:opacity 1.8s ease}
 .calm-label{display:flex;gap:10px;align-items:center;margin:14px 0 4px;font-size:16px}.calm-label input{width:20px;height:20px;accent-color:#dcebaa}
+
+/* Eén gefluisterde aanwijzing in het reismenu, zolang er nog iets te vinden is. */
+#travelmenu .whisper{font-family:Georgia,serif;font-style:italic;font-size:15px;line-height:1.5;opacity:.92;color:#e3edb1;margin:4px 2px 14px;padding-left:12px;border-left:1px solid #e3edb18a}
