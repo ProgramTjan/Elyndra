@@ -121,6 +121,12 @@ De scène duurt ongeveer achttien seconden in speeltijd. Je kunt om je heen kijk
 
 Sta je ongeveer vijf seconden stil, dan vervagen logo, kompas, locatiekaart en de vaste knoppen. Rondkijken mag. Lopen, een toets, een tik op het beeld of de muis naar de boven- of onderrand brengt alles terug. Uitnodigingen en verhaaltekst blijven zichtbaar. Uitzetten kan onder **?** met **Rustige interface**.
 
+## Het geluid van de vallei
+
+Zet **Geluid** aan. Je hoort je voetstappen op gras, natte grond, de houten brug en in ondiep water. De rivier hoor je al voor je haar ziet, aan de kant waar ze ligt. Elk dagdeel heeft eigen zangers: een druk koor bij dageraad, een merel in de schemering, een uil en krekels in de nacht. In de regen houden de vogels zich stil.
+
+Blijf je stilstaan, dan komt er meer zang; rennen jaagt de vogels even weg. Alles is gesynthetiseerd in de browser, er worden geen geluidsbestanden geladen.
+
 ## Herkomst
 
 Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. De live site is GitHub Pages op `dist/`; een push naar `main` werkt de website bij.
