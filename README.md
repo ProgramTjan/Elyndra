@@ -115,6 +115,12 @@ Bij de moswachter komen vier kleuren bij elkaar. Een zaaddrone daalt uit de tuin
 
 De scène duurt ongeveer achttien seconden in speeltijd. Je kunt om je heen kijken, wegwandelen en opnieuw luisteren via **Avontuur**. Geluid volgt de geluidsknop. Met minder beweging verschijnen de vier lichten op vaste plekken. Als opslaan op het apparaat lukt, blijft het nieuwe blad ook na herladen zichtbaar.
 
+## Beeldkwaliteit en rustige interface
+
+**Automatisch** (onder **?**) begint op een computer met het mooie beeld en op een telefoon met het soepele beeld op volle resolutie. Het woud meet daarna zelf de framerate: hapert het, dan gaat het een stap terug; loopt een telefoon ruim soepel, dan schakelt hij op. Een stap terug wordt een week op dit apparaat onthouden. **Soepel** en **Mooi** blijven vaste keuzes.
+
+Sta je ongeveer vijf seconden stil, dan vervagen logo, kompas, locatiekaart en de vaste knoppen. Rondkijken mag. Lopen, een toets, een tik op het beeld of de muis naar de boven- of onderrand brengt alles terug. Uitnodigingen en verhaaltekst blijven zichtbaar. Uitzetten kan onder **?** met **Rustige interface**.
+
 ## Herkomst
 
 Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. De live site is GitHub Pages op `dist/`; een push naar `main` werkt de website bij.

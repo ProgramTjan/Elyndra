@@ -52,3 +52,10 @@ body.gathering-film>header,body.gathering-film>#bottom,body.gathering-film>#touc
 body.gathering-film::before,body.gathering-film::after{content:"";position:fixed;left:0;right:0;height:8vh;background:#040e11;z-index:5;pointer-events:none}body.gathering-film::before{top:0}body.gathering-film::after{bottom:0}body.gathering-film #gathering-note{top:auto;left:50%;transform:translateX(-50%);bottom:9vh;width:min(540px,calc(100vw - 36px));text-align:center;background:#071c24df;border:0}
 @media(max-width:700px){#gathering-note{left:14px;top:110px;bottom:auto;width:calc(100vw - 28px);padding:13px 16px}#gathering-title{font-size:21px}#gathering-words{font-size:13px}#gathering-skip{top:12px;right:12px;font-size:12px}}
 @media(max-height:500px){#gathering-note{top:auto;bottom:90px;max-width:340px;padding:10px 14px}body.gathering-film #gathering-note{bottom:8px;max-width:440px}#gathering-title{font-size:18px;margin:5px 0}#gathering-words{font-size:12px}}
+
+/* Rustige interface: bij stilstaan vervagen de vaste knoppen; uitnodigingen en verhaaltekst blijven. */
+header,#compass,#discovery,#crosshair,#bottom .hint,#fly,#time,#travel,#touch{transition:opacity .3s ease}
+body.calm header,body.calm #compass,body.calm #discovery,body.calm #crosshair,body.calm #bottom .hint,body.calm #fly,body.calm #time,body.calm #travel{opacity:0;transition:opacity 1.8s ease}
+body.calm header>*,body.calm #fly,body.calm #time,body.calm #travel{pointer-events:none}
+body.calm #touch{opacity:.28;transition:opacity 1.8s ease}
+.calm-label{display:flex;gap:10px;align-items:center;margin:14px 0 4px;font-size:16px}.calm-label input{width:20px;height:20px;accent-color:#dcebaa}
