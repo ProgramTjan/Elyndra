@@ -127,6 +127,14 @@ Zet **Geluid** aan. Je hoort je voetstappen op gras, natte grond, de houten brug
 
 Blijf je stilstaan, dan komt er meer zang; rennen jaagt de vogels even weg. Alles is gesynthetiseerd in de browser, er worden geen geluidsbestanden geladen.
 
+## Licht, sterrenmeer en loopgevoel
+
+Alles wat licht geeft heeft nu een zachte gloed. Kijk je richting een lage zon of de maan, dan vallen er lichtstralen langs takken en wortelbogen; in nevel zijn ze sterker. De kleur van het beeld volgt het uur: warm bij dageraad en gouden uur, koel en iets opgelicht in de nacht. In de stand **Soepel** blijft de gloed, zonder stralen.
+
+**05 Het sterrenmeer** brengt je nu te voet naar de zuidwestoever, met zicht over het water. 's Nachts is de maan koel van kleur, ligt er een glinsterpad op het water en weerspiegelen de sterren.
+
+Lopen heeft een korte aanloop en uitloop, vliegen zweeft iets door, en je blik deint licht mee met je voetstappen. Met minder beweging blijft de blik stil.
+
 ## Herkomst
 
 Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8538c1ef`. De live site is GitHub Pages op `dist/`; een push naar `main` werkt de website bij.
