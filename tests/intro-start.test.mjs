@@ -470,6 +470,12 @@ assert.equal(realm().answered,true,'Standing still under the crown is answered')
 assert(realm().lit>=4,'The four heartbeats burn in the tree');
 key('KeyD');for(let i=0;i<4000;i++)frame(time+=50);release('KeyD');
 assert(Math.hypot(window.elyndraLook().pos[0],window.elyndraLook().pos[2]-2000)<=104.5,'The mist keeps the visitor on the island');
+// The starcoats at the pool: wary of a walker, then one of them greets whoever stands still.
+walkTo(15,1996,400);release('KeyW');
+assert(window.elyndraLook().starcoats.animals.some(a=>a.alert>.4),'Walking up makes the starcoats raise their heads');
+assert.equal(window.elyndraLook().starcoats.greeted,false);for(let i=0;i<170;i++)frame(time+=50);
+assert.equal(window.elyndraLook().starcoats.greeted,true,'Standing still by the pool is greeted');
+assert(window.elyndraLook().starcoats.trust>.8);
 for(let k=0;k<150&&Math.hypot(window.elyndraLook().pos[0]-27,window.elyndraLook().pos[2]-1985)>1.5;k++)walkTo(27,1985,4);release('KeyW');for(let i=0;i<80&&realm().inside;i++)frame(time+=50);
 assert.equal(realm().inside,false,'The light well in the pool lifts the visitor out of the land');
 assert(window.elyndraLook().flying&&window.elyndraLook().pos[1]>30,'It carries you to the floating gardens, as the gate used to');

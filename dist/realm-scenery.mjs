@@ -1,4 +1,4 @@
-import {REALM,FRUITS,realmGround} from './realm.mjs?v=realm50';
+import {REALM,FRUITS,realmGround} from './realm.mjs?v=stars51';
 
 // Het landschap achter de poort. Eigen toevalsreeks: de vallei verschuift er niet door.
 export function createRealm({orb,cone,beam,curveTube,tri,upload,material},{mobile=false,water=-2.3}={}){
@@ -57,7 +57,7 @@ export function createRealm({orb,cone,beam,curveTube,tri,upload,material},{mobil
   const crown=upload();
 
   // Het bleke woud eromheen: slanke stammen met donker turkoois loof en hier en daar een lichtje.
-  const count=mobile?44:82;
+  const count=mobile?58:128;
   for(let i=0,placed=0;i<400&&placed<count;i++){const a=rand()*TAU,r=28+Math.sqrt(rand())*84,lx=Math.cos(a)*r,lz=Math.sin(a)*r;if(!clear(lx,lz))continue;placed++;
     const y=g(lx,lz),h=13+rand()*12,w=.32+rand()*.22,x=X+lx,z=Z+lz;colliders.push({x,z,r:w+.25,h});
     material(5);cone(x,y-.3,z,w,w*.4,h,[.60,.66,.63].map(v=>v*(.85+rand()*.25)),8);
@@ -66,6 +66,16 @@ export function createRealm({orb,cone,beam,curveTube,tri,upload,material},{mobil
       two([c[0]-Math.cos(ang)*len,c[1],c[2]-Math.sin(ang)*len],[c[0]+Math.cos(ang)*len,c[1]+.12,c[2]+Math.sin(ang)*len],[c[0]-Math.sin(ang)*len*.35,c[1]+.35,c[2]+Math.cos(ang)*len*.35],lit?[.4,1.2,1.05]:[.08+rand()*.05,.27+rand()*.1,.25+rand()*.09]);}
     if(rand()<.4){material(0);orb(x+(rand()-.5)*2,y+h*.62,z+(rand()-.5)*2,.1,.14,.1,[.5,1.4,1.2],6,4);}
   }
+  // Reuzen aan de rand: hoge bleke stammen die in de mist verdwijnen en de horizon vullen.
+  for(let i=0;i<(mobile?20:38);i++){const a=i*TAU/(mobile?20:38)+rand()*.12,r=108+rand()*20,lx=Math.cos(a)*r,lz=Math.sin(a)*r,y=g(lx,lz),h=34+rand()*20,w=1.1+rand()*.8,x=X+lx,z=Z+lz;
+    material(5);cone(x,y-1,z,w,w*.45,h,[.50,.57,.55].map(v=>v*(.8+rand()*.3)),9);
+    material(2);for(let k=0;k<(mobile?26:46);k++){const q=rand()*TAU,b=rand()*2-1,d=Math.cbrt(rand())*8,c=[x+Math.cos(q)*d*Math.sqrt(1-b*b),y+h*.86+b*d*.6,z+Math.sin(q)*d*Math.sqrt(1-b*b)],ang=rand()*TAU,len=1.5+rand()*1.6;
+      two([c[0]-Math.cos(ang)*len,c[1],c[2]-Math.sin(ang)*len],[c[0]+Math.cos(ang)*len,c[1]+.2,c[2]+Math.sin(ang)*len],[c[0]-Math.sin(ang)*len*.35,c[1]+.6,c[2]+Math.cos(ang)*len*.35],rand()<.05?[.4,1.2,1.05]:[.07+rand()*.04,.24+rand()*.08,.23+rand()*.07]);}}
+  // Ondergroei: lage struiken van breed blad, met hier en daar een lichtend blad.
+  for(let i=0,placed=0;i<500&&placed<(mobile?50:120);i++){const a=rand()*TAU,r=20+Math.sqrt(rand())*86,lx=Math.cos(a)*r,lz=Math.sin(a)*r;if(!clear(lx,lz))continue;placed++;
+    const y=g(lx,lz),x=X+lx,z=Z+lz,size=.7+rand()*1.1;material(2);
+    for(let k=0;k<9;k++){const q=k*TAU/9+rand()*.5,reach=size*(.6+rand()*.6),lift=size*(.35+rand()*.5),side=q+Math.PI/2;
+      two([x,y+.05,z],[x+Math.cos(q)*reach+Math.cos(side)*.18*size,y+lift,z+Math.sin(q)*reach+Math.sin(side)*.18*size],[x+Math.cos(q)*reach-Math.cos(side)*.18*size,y+lift*.9,z+Math.sin(q)*reach-Math.sin(side)*.18*size],rand()<.08?[.36,1.15,1.0]:[.06+rand()*.05,.22+rand()*.1,.2+rand()*.08]);}}
   // Lichtgras: kleine lichtende sprieten in plukken, vooral langs het pad en de poel.
   material(0);
   for(let i=0;i<(mobile?90:220);i++){const a=rand()*TAU,r=6+Math.sqrt(rand())*88,lx=Math.cos(a)*r,lz=Math.sin(a)*r,y=g(lx,lz);if(y<water+.3)continue;

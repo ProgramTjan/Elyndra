@@ -44,6 +44,9 @@ In de visie van de lichtpoort zie je door de boog een turkoois woud. Dat land be
 - Midden in de **poel** ligt een lichtbron. Blijf erin staan en ze tilt je naar de zwevende tuinen, zoals de poort dat vroeger zelf deed.
 - De **boog** aan de zuidkant brengt je terug naar de vallei, vlak voor de poort.
 
+- Aan de poel drinken drie **sterrenvachten**: nachtblauwe dieren met lichtende hoorntjes en sterren in hun vacht. Kom je aanlopen, dan gaan hun koppen omhoog; ren je, dan schrikt de hele groep. Blijf zes seconden stilstaan en ze drinken verder, terwijl de dichtstbijzijnde haar kop heft en je aankijkt.
+- Het gebied heeft een **eigen klank**: geen vogels en geen rivier, maar een zwevend akkoord, glazen klokjes en druppels bij de poel. Wie stilstaat, hoort meer klokjes.
+
 Na je eerste bezoek staat **Het land achter de poort** onder **Ontdek plekken**. Het landschap wordt alleen getekend als je er bent.
 
 ## Wonderen vind je zelf
