@@ -61,6 +61,10 @@ Gereed wanneer gedrag leesbaar en gevarieerd is, routes niet vastlopen en bewone
 
 Na de wortelvos: **Ontdek plekken → Draak uitnodigen · bij zijn rustplek**. Wacht tot hij landt, nodig hem uit, neem de gloedlantaarn en blijf even stilstaan. Draag haar naar de moswachter en kies **Ik breng warmte van de draak.** Zie [de speelroute en controles](stap-6-draak.md). Hierna volgt de samenkomst met de keuze waar het zaad mag groeien.
 
+## Uitbreiding: het land achter de poort
+
+Gebouwd op 13 november 2026 naar de visie van de lichtpoort. De wakkere poort leidt naar een schemerwoud met de Herinneringsboom, die laat zien wat de speler in de vallei heeft gevonden en gewekt. De poort bracht je eerder rechtstreeks naar de zwevende tuinen; die route loopt nu via de lichtbron in de poel. Logica in `dist/realm.mjs`, landschap in `dist/realm-scenery.mjs`. Open voor een volgende ronde: bewoners (de sterrenvachten uit de visie), eigen geluid en de ruïnes op de kliffen.
+
 ## Techniek: world.js opsplitsen
 
 `world.js` wordt in stappen kleiner gemaakt zonder gedrag te veranderen. Gedaan: de GLSL-bronnen staan in `shaders.mjs`. Nieuwe onderdelen sinds november 2026 staan elk in een eigen module met tests (`quality-governor`, `calm-interface`, `soundscape`, `post`, `gait`, `wonder-journal`, `dragon-guest`).

@@ -35,6 +35,17 @@ node --test tests/*.test.mjs
 
 De afgesproken volgorde en het vergezicht staan in [het ontwikkelplan](docs/ontwikkelplan.md). De bevindingen, gerichte fixes en open apparaatcontroles van stap 1 staan in [de controle van de speelervaring](docs/stap-1-controle.md).
 
+## Het land achter de poort
+
+In de visie van de lichtpoort zie je door de boog een turkoois woud. Dat land bestaat nu. Wek de poort en **loop erdoorheen**: je komt uit in een woud waar het altijd schemert.
+
+- In het midden staat de **Herinneringsboom**. Hij draagt negen vruchten: één voor elk van de vijf wonderen en één voor elke hartslag. Wat je in de vallei hebt gevonden of gewekt, brandt; de rest is nog een dichte knop.
+- Blijf ongeveer vijf seconden **stil onder de kroon** staan. De boom antwoordt: hoeveel vruchten branden en waar een knop nog op wacht.
+- Midden in de **poel** ligt een lichtbron. Blijf erin staan en ze tilt je naar de zwevende tuinen, zoals de poort dat vroeger zelf deed.
+- De **boog** aan de zuidkant brengt je terug naar de vallei, vlak voor de poort.
+
+Na je eerste bezoek staat **Het land achter de poort** onder **Ontdek plekken**. Het landschap wordt alleen getekend als je er bent.
+
 ## Wonderen vind je zelf
 
 **Ontdek plekken** toont de vijf plekken van de vallei. Een wonder komt er pas bij te staan nadat je het zelf hebt gevonden; daarna kun je er altijd naar terug. Zolang er nog iets te vinden is, fluistert het menu één aanwijzing: die van het dichtstbijzijnde geheim. Wat je vond, blijft op dit apparaat bewaard.
