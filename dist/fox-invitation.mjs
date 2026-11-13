@@ -1,4 +1,4 @@
-import {FOX, springPosition, poseRootFox} from './rare-dwellers.mjs?v=fox43';
+import {FOX, springPosition, poseRootFox} from './rare-dwellers.mjs?v=fur49';
 
 export const FOX_INVITATION_KEY='elyndra-gathering-fox-v1';
 export const FOX_FILM_SECONDS=9;

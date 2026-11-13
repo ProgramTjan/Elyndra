@@ -160,3 +160,7 @@ Na de eerste gast verschijnt **Wortelvos uitnodigen · bij de bron** onder **Ont
 ## De draak brengt warmte
 
 Na de wortelvos verschijnt **Draak uitnodigen · bij zijn rustplek** onder **Ontdek plekken**. Wacht tot hij landt, spreek hem aan en help hem: hij ademt een koude zaadlantaarn aan. Neem de gloedlantaarn en blijf even stilstaan tot de gloed tot rust komt. Draag haar naar de moswachter; de draak vliegt zijn eigen weg en landt als derde gast. Zie [de speelroute en controles](docs/stap-6-draak.md).
+
+## Vacht en veren
+
+De bewoners hebben een vacht gekregen. Alle dieren met een skelet krijgen in de shader een lichtere buik en donkerdere rug, haarstructuur die met het lichaam meebeweegt, een zachte lichtrand tegen laag zonlicht of maanlicht, en glanzende ogen en neuzen. Daarbovenop hebben het hert, de wortelvos, de eekhoorn, de zilvervleugel en de draak vachtplukken en veren die hun silhouet breken: een borstkraag en spiegel voor het hert, bef, wangkragen, snorharen en pluimstaart voor de vos, oorpluimen en een borstelstaart voor de eekhoorn, borstveren voor de uil en dekveren voor de draak. Op telefoons zijn er minder plukken.

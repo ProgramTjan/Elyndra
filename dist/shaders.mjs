@@ -6,8 +6,8 @@ export const WORLD_VERTEX=`#version 300 es
 precision highp float;
 layout(location=0) in vec3 a;layout(location=1) in vec3 n;layout(location=2) in vec3 c;layout(location=3) in float material;
 uniform mat4 vp;uniform vec3 offset;uniform float rot;uniform float time;uniform float lite;uniform vec4 keeperMotion;uniform float keeperBase;uniform mat4 animalBones[18];uniform float gardenBloom;
-out vec3 P;out vec3 N;out vec3 C;out float M;
-void main(){mat3 r=mat3(cos(rot),0.,-sin(rot),0.,1.,0.,sin(rot),0.,cos(rot));float bone=floor(material/10.)-5.;vec3 local=a,localNormal=n;if(bone>=0.){int index=int(clamp(bone,0.,17.));local=(animalBones[index]*vec4(a,1.)).xyz;localNormal=mat3(animalBones[index])*n;}if(mod(material,10.)>5.5&&mod(material,10.)<6.5){float spread=mix(.20,1.,gardenBloom);local.xz*=spread;local.y+=(1.-gardenBloom)*length(a.xz)*1.15;localNormal=normalize(vec3(localNormal.x/spread,localNormal.y,localNormal.z/spread));}P=r*local+offset;N=r*localNormal;C=c;M=mod(material,10.);
+out vec3 P;out vec3 N;out vec3 C;out float M;out float F;out vec3 L;
+void main(){mat3 r=mat3(cos(rot),0.,-sin(rot),0.,1.,0.,sin(rot),0.,cos(rot));float bone=floor(material/10.)-5.;vec3 local=a,localNormal=n;if(bone>=0.){int index=int(clamp(bone,0.,17.));local=(animalBones[index]*vec4(a,1.)).xyz;localNormal=mat3(animalBones[index])*n;}if(mod(material,10.)>5.5&&mod(material,10.)<6.5){float spread=mix(.20,1.,gardenBloom);local.xz*=spread;local.y+=(1.-gardenBloom)*length(a.xz)*1.15;localNormal=normalize(vec3(localNormal.x/spread,localNormal.y,localNormal.z/spread));}P=r*local+offset;N=r*localNormal;C=c;M=mod(material,10.);F=bone>=0.?1.:0.;L=a;
 float part=floor(material/10.);if(part>.5&&part<4.5){P.y+=keeperMotion.x*smoothstep(keeperBase+8.,keeperBase+12.,P.y);
 if(part>1.5&&part<2.5){vec3 pivot=vec3(86.,keeperBase+19.+keeperMotion.x,36.);float a=keeperMotion.y,b=keeperMotion.z;mat3 ry=mat3(cos(a),0.,-sin(a),0.,1.,0.,sin(a),0.,cos(a));mat3 rx=mat3(1.,0.,0.,0.,cos(b),sin(b),0.,-sin(b),cos(b));P=pivot+ry*rx*(P-pivot);N=ry*rx*N;}
 if(part>3.5){float b=keeperMotion.w;vec3 pivot=vec3(P.x,keeperBase+15.+keeperMotion.x,43.7);mat3 rx=mat3(1.,0.,0.,0.,cos(b),sin(b),0.,-sin(b),cos(b));P=pivot+rx*(P-pivot);N=rx*N;}}
@@ -16,7 +16,7 @@ if(lite<.5&&M>1.5&&M<2.5){P.x+=sin(time*.85+P.x*.38+P.z*.2)*.065;P.z+=cos(time*.
 gl_Position=vp*vec4(P,1.);}`;
 export const WORLD_FRAGMENT=`#version 300 es
 precision highp float;
-in vec3 P;in vec3 N;in vec3 C;in float M;
+in vec3 P;in vec3 N;in vec3 C;in float M;in float F;in vec3 L;
 uniform vec3 eye;uniform float night;uniform float time;uniform vec3 sunDir;uniform float warmth;uniform float mistAmt;uniform float wet;uniform mat4 lightVP;uniform sampler2D shadowMap;uniform float shadowTexel;uniform float softShadows;uniform float wonder;uniform float gardenBloom;uniform float returnLight;uniform float cathedralBreath;uniform float gateMirror;uniform float lite;uniform float objectFade;
 out vec4 outColor;
 float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
@@ -31,15 +31,23 @@ if(M>.5&&M<1.5){if(lite>.5){float patches=noise(P.xz*.2),broad=noise(P.xz*.045+7
 else if(M>1.5&&M<2.5){base*=.72+tex*.48;normal=faceforward(normal,-v,normal);}
 else if(M>2.5&&M<3.5){if(lite>.5){base=C*(.72+noise(P.xz*.45)*.4);}else{vec3 blend=pow(abs(normal),vec3(4.));blend/=max(dot(blend,vec3(1.)),.001);float rock=dot(vec3(detail(P.yz*2.1),detail(P.xz*2.1),detail(P.xy*2.1)),blend);float layers=noise(vec2(P.x*.55+P.z*.37,P.y*5.5+rock*2.));float fissure=1.-smoothstep(.025,.09,abs(layers-.5));float lichen=smoothstep(.65,.79,noise(P.xz*3.+P.y*.7))*smoothstep(.25,.55,rock);float moss=smoothstep(.25,.85,normal.y)*smoothstep(.42,.70,detail(P.xz*.8));base=C*(.66+rock*.65);base*=1.-fissure*.24*closeDetail;base=mix(base,vec3(.40,.43,.23),lichen*.32);base=mix(base,vec3(.10,.18,.045),moss*.80);wetness=(1.-moss)*smoothstep(.55,.80,rock)*.6;roughness=mix(.90,.38,wetness);surfaceHeight=(rock*.10-fissure*.035+noise(P.xz*17.+P.y)*.012)*closeDetail;base*=1.-wetness*.12;}}
 else if(M>4.5&&M<5.5){if(lite>.5){base=mix(C*.7,C,noise(P.xz*.3));}else{vec2 grainUV=vec2((P.x+P.z*.73)*7.,P.y*.68);float warp=noise(vec2(grainUV.x*.17,grainUV.y*.35));float grain=noise(grainUV+vec2(warp*2.,0.));float furrow=1.-smoothstep(.22,.47,grain);float fine=noise(vec2(grainUV.x*3.3,grainUV.y*1.6));base=mix(C*.48,C*1.24,smoothstep(.24,.70,grain));base*=.87+fine*.23*closeDetail;float moss=smoothstep(.42,.73,detail(P.xz*.55+P.y*.12))*smoothstep(-.05,.8,normal.y);base=mix(base,vec3(.095,.18,.045),moss*.87);surfaceHeight=(grain*.10-furrow*.045+fine*.009)*closeDetail;wetness=smoothstep(.60,.85,warp)*.35;roughness=.92-wetness*.3;}}
-else if(lite<.5&&glow<.5&&C.r>C.g*1.12&&C.g>C.b*1.15){float grooves=noise(vec2(P.x*16.+P.z*13.,P.y*.8));base*=.65+grooves*.6;}
+else if(F<.5&&lite<.5&&glow<.5&&C.r>C.g*1.12&&C.g>C.b*1.15){float grooves=noise(vec2(P.x*16.+P.z*13.,P.y*.8));base*=.65+grooves*.6;}
+// Vacht en veren van de bewoners: lichtere buik, donkerdere rug, haarstructuur die met het lichaam meebeweegt,
+// en natte ogen en neuzen (herkenbaar aan hun bijna zwarte kleur).
+float pelt=F*(1.-glow);float eyeGloss=0.;
+if(pelt>.5){eyeGloss=1.-smoothstep(.055,.075,dot(C,vec3(.2126,.7152,.0722)));float topside=smoothstep(-.6,.8,normal.y);base*=mix(1.10,.90,topside);
+if(lite<.5){float strand=noise(vec2(L.x*46.+L.y*31.,L.z*11.));float fleck=noise(L.xy*120.+L.z*40.);float coat=closeDetail*(1.-eyeGloss);base*=1.+coat*(.46*(strand-.5)+.18*(fleck-.5));surfaceHeight=strand*.014*coat;roughness=.9;}}
 wetness=max(wetness,wet*.78);
 if(lite<.5){vec3 dpdx=dFdx(P),dpdy=dFdy(P);vec3 r1=cross(dpdy,normal),r2=cross(normal,dpdx);float det=dot(dpdx,r1);vec3 gradient=sign(det)*(dFdx(surfaceHeight)*r1+dFdy(surfaceHeight)*r2)/max(abs(det),.000001);normal=normalize(normal-gradient*.65);}
-float diffuse=max(dot(normal,sun),0.);float shade=shadow(normal);float hemisphere=normal.y*.5+.5;vec3 ambient=mix(vec3(.12,.15,.075),vec3(.24,.32,.38),hemisphere);
+float diffuse=max(dot(normal,sun),0.);if(pelt>.5)diffuse=mix(diffuse,max((dot(normal,sun)+.42)/1.42,0.),.75);float shade=shadow(normal);float hemisphere=normal.y*.5+.5;vec3 ambient=mix(vec3(.12,.15,.075),vec3(.24,.32,.38),hemisphere);
 // Approximate canopy shelter and a warm bounce from the forest floor.
 float cathedral=exp(-dot(P.xz-vec2(-48.,-65.),P.xz-vec2(-48.,-65.))/900.);float shelter=cathedral*(1.-smoothstep(5.,30.,P.y))*.24;
 ambient*=1.-shelter;ambient+=vec3(.10,.075,.035)*(1.-max(normal.y,0.))*(1.-shade)*.7;
 vec3 sunCol=mix(vec3(1.,.86,.67),vec3(1.,.56,.26),warmth);vec3 col=base*(ambient+sunCol*diffuse*shade*1.48)*(1.-night*.68);
 if(lite<.5&&wetness>0.){vec3 halfway=normalize(sun+v);float exponent=mix(12.,90.,1.-roughness);float fresnel=.035+.20*pow(1.-max(dot(normal,v),0.),5.);col+=vec3(1.,.88,.70)*pow(max(dot(normal,halfway),0.),exponent)*wetness*fresnel*shade*(1.-night);}
+if(pelt>.5){float fuzz=pow(1.-max(dot(normal,v),0.),2.4);float behind=pow(max(dot(-sun,v),0.),3.);
+col+=base*sunCol*fuzz*(.30+1.25*behind)*(.25+.75*shade)*(1.-night)*(1.-eyeGloss);col+=vec3(.30,.40,.56)*base*fuzz*night*.9;
+if(eyeGloss>.01){vec3 glint=normalize(sun+v);col+=(vec3(1.,.95,.85)*pow(max(dot(normal,glint),0.),90.)*1.6*(1.-night*.5)+vec3(.25,.30,.35)*pow(1.-max(dot(normal,v),0.),3.)*.5)*eyeGloss;}}
 vec3 heart=vec3(-48.,13.,-59.);float heartFalloff=1./(1.+dot(P-heart,P-heart)*.09);col+=base*vec3(.17,.55,.32)*heartFalloff*(.35+night*.65+cathedralBreath*1.35);col+=vec3(.95,.72,.28)*cathedralBreath*heartFalloff*.45;
 if(gateMirror>.01){float gateWell=exp(-dot(P.xz-vec2(66.,-110.),P.xz-vec2(66.,-110.))/280.);col+=vec3(.08,.46,.56)*gateWell*gateMirror*(.5+night*.7);col+=vec3(.42,.28,.12)*gateWell*gateMirror*.22;}
 if(M>1.5&&M<2.5)col+=base*vec3(.9,1.,.45)*pow(max(dot(-sun,v),0.),4.)*.40*(.35+.65*shade)*(1.-night);

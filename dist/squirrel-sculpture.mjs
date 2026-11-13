@@ -2,7 +2,7 @@ import {MONUMENT,STUMPS} from './squirrel-secret.mjs?v=gathering42';
 
 // The same sculpture in warm fur and weathered stone. Seven joints keep the
 // living squirrel's head, curled tail and paws attached during the journey.
-export function createSquirrelSculptures({orb,cone,beam,curveTube,tri,upload,material}){
+export function createSquirrelSculptures({orb,cone,beam,curveTube,tri,ruff=()=>{},upload,material}){
  const origins=[[0,0,0],[0,1.35,-.15],[0,.35,.3],[-.23,.85,-.12],[.23,.85,-.12],[-.24,.25,.18],[.24,.25,.18]];
  function sculpt(stone=false,holdingNut=true){
   const scale=stone?MONUMENT.scale:1;
@@ -16,17 +16,19 @@ export function createSquirrelSculptures({orb,cone,beam,curveTube,tri,upload,mat
   bone(0);ball([0,.65,.08],[.37,.62,.32],fur,20,12);ball([0,.82,-.18],[.27,.39,.13],light,18,10);
   ball([-.23,.25,.2],[.24,.25,.27],fur);ball([.23,.25,.2],[.24,.25,.27],fur);
   for(let j=0;j<6;j++)line([-.12+j*.05,.96,-.307],[-.10+j*.04,1.13,-.28],.012,light);
-  bone(1);ball([0,0,0],[.34,.32,.31],fur,20,12);ball([0,-.12,-.24],[.23,.16,.21],light,16,10);
+  if(!stone){ruff(0,.82,-.18,.27,.39,.13,60,.10,light,{arc:[.5,2.6],turn:[3.5,5.9],sweep:[0,-.7,-.1]});ruff(0,.65,.08,.37,.62,.32,110,.10,fur,{arc:[.4,2.6],turn:[-.3,3.4],sweep:[0,-.5,.5],width:.4});}
+  bone(1);ball([0,0,0],[.34,.32,.31],fur,20,12);if(!stone){ruff(0,0,0,.34,.32,.31,70,.09,fur,{arc:[.2,1.7],turn:[-.4,3.5],sweep:[0,.2,.7],width:.4});for(const side of[-1,1])ruff(side*.2,-.1,-.16,.14,.13,.14,26,.12,light,{arc:[.9,2.4],turn:side>0?[-1,1]:[2.1,4.1],sweep:[side*.6,-.4,.2]});}ball([0,-.12,-.24],[.23,.16,.21],light,16,10);
   ball([0,-.09,-.42],[.075,.055,.055],dark);line([-.08,-.2,-.395],[.08,-.2,-.395],.012,dark);
   for(const side of[-1,1]){
    ball([side*.22,.33,.015],[.12,.32,.09],fur);ball([side*.22,.35,-.053],[.055,.20,.032],light);
-   line([side*.20,.5,.012],[side*.27,.71,.015],.024,fur);
+   line([side*.20,.5,.012],[side*.27,.71,.015],.024,fur);if(!stone)ruff(side*.235,.6,.012,.035,.10,.03,12,.16,fur,{arc:[0,1.1],sweep:[side*.25,.9,.1],width:.3,tip:dark.map(v=>v*4)});
    ball([side*.272,.055,-.18],[.085,.105,.061],dark,14,9);
    ball([side*.29,.087,-.229],[.023,.026,.016],stone?[.57,.61,.49]:[1.06,.97,.70],8,5);
    for(let j=0;j<3;j++)line([side*.14,-.13,-.31],[side*(.37+j*.025),-.14+j*.045,-.36],.006,light);
   }
   bone(2);const tail=[[0,0,0],[0,.25,.47],[0,.9,.77],[0,1.42,.54],[0,1.50,.16],[0,1.25,.05]];
   tube(tail,[.18,.30,.36,.30,.21,.075],fur,18);
+  if(!stone)for(let j=0;j<tail.length-1;j++){const a=tail[j],b=tail[j+1],r=[.18,.30,.36,.30,.21,.075];for(let k=0;k<3;k++){const t=k/3,c=a.map((v,i)=>v+(b[i]-v)*t),rad=r[j]+(r[j+1]-r[j])*t;ruff(c[0],c[1],c[2],rad,rad,rad,34,.22,fur,{sweep:[0,.25,.35],tip:light,width:.38});}}
   for(let side of[-1,1])for(let j=0;j<8;j++){
    const t=j/7;line([side*.16,.25+t*1.14,.5+Math.sin(t*Math.PI)*.2],[side*(.31-Math.abs(t-.5)*.12),.38+t*1.10,.59+Math.sin(t*Math.PI)*.18],.018,light);
   }

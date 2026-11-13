@@ -1,9 +1,9 @@
 import {MIRROR,DeerMirror,lakeGround,createMirrorRenderer,surfacePoint} from './deer-mirror.mjs?v=mirror35';
-import {FoxInvitation,createFoxOffering} from './fox-invitation.mjs?v=fox43';
+import {FoxInvitation,createFoxOffering} from './fox-invitation.mjs?v=fur49';
 import {DragonGuest,createDragonOffering,heldPosition} from './dragon-guest.mjs?v=guest48';
 import {SquirrelGathering} from './squirrel-gathering.mjs?v=gathering42';
 import {SquirrelSecret,MONUMENT,STUMPS,readSecret,saveSecret,inSquirrelPath,squirrelPose} from './squirrel-secret.mjs?v=gathering42';
-import {createSquirrelSculptures} from './squirrel-sculpture.mjs?v=gathering42';
+import {createSquirrelSculptures} from './squirrel-sculpture.mjs?v=fur49';
 import {DragonInvitation,createInvitationGlow,inDragonGlade} from './dragon-invitation.mjs?v=invite33';
 import {DRAGON_REST,DragonEncounter} from './dragon-encounter.mjs?v=dragon22';
 import {GARDEN,ForestCompanion,gardenFlower,companionTrail} from './forest-companion.mjs?v=memory39';
@@ -19,13 +19,13 @@ import {CathedralWonder,createCathedralAtmosphere} from './cathedral-wonder.mjs?
 import {GATE,GateWonder,createGateAtmosphere} from './gate-wonder.mjs?v=breath29';
 import {GardenDew,HOVER,ISLANDS,seedKeeper,createDewAtmosphere} from './garden-dew.mjs?v=dew36';
 import {QualityGovernor,tierSettings,readRemembered,saveRemembered} from './quality-governor.mjs?v=guest48';
-import {WORLD_VERTEX,WORLD_FRAGMENT,DEPTH_FRAGMENT,SKY_VERTEX,SKY_FRAGMENT} from './shaders.mjs?v=guest48';
+import {WORLD_VERTEX,WORLD_FRAGMENT,DEPTH_FRAGMENT,SKY_VERTEX,SKY_FRAGMENT} from './shaders.mjs?v=fur49';
 import {WONDERS,WonderJournal,readJournal,saveJournal,revealAll} from './wonder-journal.mjs?v=guest48';
 import {glide,HeadBob} from './gait.mjs?v=guest48';
 import {createPost,sunOnScreen,rayStrength} from './post.mjs?v=guest48';
 import {Footsteps,Stillness,BirdChorus,chorusProfile,surfaceAt,riverPresence,createVoices} from './soundscape.mjs?v=guest48';
 import {CalmInterface,readCalmEnabled,saveCalmEnabled,isTap,inReach} from './calm-interface.mjs?v=guest48';
-import {DWELLERS,FOX_WATCH,FOX,RareDwellers,readMet,saveMet,readSpring,saveSpring,createDwellerMeshes,sparkPositions,createSparkRenderer} from './rare-dwellers.mjs?v=fox43';
+import {DWELLERS,FOX_WATCH,FOX,RareDwellers,readMet,saveMet,readSpring,saveSpring,createDwellerMeshes,sparkPositions,createSparkRenderer} from './rare-dwellers.mjs?v=fur49';
 const $=id=>document.getElementById(id),canvas=$('world');
 let keeperMotion=[0,.65,.35,0],keeperGreeting=-1,keeperWasNear=false,lastKeeperShadow=-1;
 const mobile=matchMedia('(pointer:coarse)').matches;
@@ -316,18 +316,40 @@ orb(0,0,0,.75,.45,.75,[.65,.72,.64]);orb(0,0,.62,.22,.18,.15,[.3,1.7,1.3]);ring(
 // Receding filaments give the awakened portal depth without hiding its surroundings.
 for(let k=0;k<5;k++){let r=9.3-k*1.5;ring(0,0,-k*.7,r,k===0?.10:.038,[.18,1.05+k*.07,1.18+k*.05]);}
 for(let i=0;i<12;i++){let a=i*TAU/12,points=Array.from({length:25},(_,j)=>{let t=j/24,r=9.25-t*7.4,angle=a+t*1.5;return[Math.cos(angle)*r,Math.sin(angle)*r,-t*3.2]});curveTube(points,points.map(()=>.024),[.25,1.13,1.3],5)}const portal=upload();
+// Vachtplukken: dunne puntjes op een ellipsoïde die het gladde silhouet breken.
+// Eigen toevalsreeks, zodat de wereld (bomen, struiken) er niet door verschuift.
+let furSeed=97531;const furRand=()=>(furSeed=(furSeed*16807)%2147483647)/2147483647;
+function ruff(x,y,z,rx,ry,rz,count,length,col,{sweep=[0,-.15,.8],arc=[0,Math.PI],turn=[0,TAU],tip=null,width=.5}={}){
+ if(mobile)count=Math.ceil(count*.6);
+ for(let i=0;i<count;i++){
+  const a=arc[0]+(arc[1]-arc[0])*furRand(),b=turn[0]+(turn[1]-turn[0])*furRand(),n=[Math.sin(a)*Math.cos(b),Math.cos(a),Math.sin(a)*Math.sin(b)];
+  const root=[x+n[0]*rx*.96,y+n[1]*ry*.96,z+n[2]*rz*.96],len=length*(.6+furRand()*.8);
+  let d=[n[0]*.55+sweep[0],n[1]*.55+sweep[1],n[2]*.55+sweep[2]];const dl=Math.hypot(...d)||1;d=d.map(q=>q/dl);
+  let w=[d[1]*n[2]-d[2]*n[1],d[2]*n[0]-d[0]*n[2],d[0]*n[1]-d[1]*n[0]];const wl=Math.hypot(...w)||1;w=w.map(q=>q/wl*len*width*.36);
+  const shade=.84+furRand()*.3,c=(tip&&furRand()<.45?tip:col).map(q=>q*shade),point=[root[0]+d[0]*len,root[1]+d[1]*len,root[2]+d[2]*len],first=verts.length;
+  const left=[root[0]-w[0],root[1]-w[1],root[2]-w[2]],right=[root[0]+w[0],root[1]+w[1],root[2]+w[2]];
+  tri(left,point,right,c);tri(left,right,point,c);
+  // De pluk krijgt de normaal van het lichaam eronder, zodat hij meekleurt met de vacht.
+  for(let k=first;k<verts.length;k+=10){verts[k+3]=n[0];verts[k+4]=n[1];verts[k+5]=n[2];}
+ }
+}
 // The inhabitants of the visions also leave living silhouettes in the valley.
 // Articulated deer: fuller shoulders, tapered neck, muzzle and split hooves.
 const ivory=[.76,.77,.65],bark=[.30,.23,.12];
 const deerPart=bone=>{material=(bone+5)*10;};
 deerPart(0);orb(0,1.91,0,.48,.53,1.05,ivory,24,14);orb(0,1.93,-.62,.44,.61,.51,ivory,20,12);orb(0,1.94,.70,.46,.53,.50,[.70,.72,.59],20,12);orb(0,1.66,-.68,.30,.32,.38,[.83,.82,.70],16,9);
 for(let j=0;j<26;j++){let z=-.65+j*.053;beam([-.025,2.38,z],[.015,2.45,z+.075],.012,[.84,.83,.71]);}
-deerPart(1);let deerNeck=bezier([0,0,0],[0,.36,-.12],[0,.70,-.33],[0,.90,-.44],16);curveTube(deerNeck,deerNeck.map((_,j)=>.29-j*.008),ivory,16);
+// Borstkraag, donkere aalstreep over de rug en een lichte spiegel op de achterhand.
+ruff(0,1.70,-.62,.34,.40,.42,90,.20,[.86,.85,.74],{arc:[1.5,2.9],turn:[3.5,5.9],sweep:[0,-.75,.25]});
+ruff(0,1.91,0,.46,.50,1.02,70,.12,[.50,.47,.36],{arc:[0,.42],sweep:[0,.1,.9],width:.4});
+ruff(0,1.91,0,.47,.52,1.03,150,.10,ivory,{arc:[.5,2.3],sweep:[0,-.25,.9],width:.4});
+orb(0,1.98,.98,.30,.34,.16,[.90,.89,.80],14,8);ruff(0,1.98,.98,.30,.34,.16,34,.11,[.92,.91,.82],{arc:[.3,2.6],turn:[.3,2.8],sweep:[0,-.3,.6]});
+deerPart(1);ruff(0,.42,-.20,.25,.46,.27,80,.17,[.84,.83,.71],{arc:[.4,2.6],turn:[3.4,6.0],sweep:[0,-.8,.1],tip:[.72,.70,.58]});let deerNeck=bezier([0,0,0],[0,.36,-.12],[0,.70,-.33],[0,.90,-.44],16);curveTube(deerNeck,deerNeck.map((_,j)=>.29-j*.008),ivory,16);
 deerPart(2);orb(0,.03,-.15,.25,.28,.38,ivory,20,12);orb(0,-.12,-.42,.18,.17,.31,[.79,.78,.65],18,10);orb(0,-.13,-.66,.145,.105,.09,[.12,.145,.11],14,8);beam([-.12,-.23,-.57],[.12,-.23,-.57],.014,[.32,.30,.23]);
 for(let side of[-1,1]){orb(side*.225,.065,-.29,.054,.064,.071,[.06,.065,.035],14,8);orb(side*.258,.085,-.30,.018,.021,.018,[.95,.92,.78],8,5);let antler=bezier([side*.17,.22,.015],[side*.31,.65,.04],[side*.65,1.1,.12],[side*.83,1.55,-.20],18);curveTube(antler,antler.map((_,j)=>.075*(1-j/19)+.009),bark,9);for(let j=0;j<4;j++){let root=antler[4+j*3],tip=[root[0]+side*(.15+j*.04),root[1]+.35+j*.06,root[2]-.30],tine=bezier(root,[root[0]+side*.1,root[1]+.15,root[2]-.1],[tip[0],tip[1]-.1,tip[2]],tip,8);curveTube(tine,tine.map((_,k)=>.033*(1-k/9)+.004),bark,6);}}
-for(let i=0;i<2;i++){deerPart(3+i);orb(0,.19,0,.115,.29,.063,ivory,14,9);orb(0,.19,-.046,.075,.22,.025,[.46,.40,.30],12,8);}
-deerPart(5);orb(0,-.045,.16,.12,.13,.29,[.84,.82,.68],14,8);
-for(let i=0;i<4;i++){deerPart(6+i*3);curveTube([[0,0,0],[0,-.23,0],[0,-.55,0],[0,-.86,0]],[i<2?.18:.22,.15,.095,.085],ivory,12);orb(0,-.86,0,.105,.105,.105,[.69,.70,.56],12,7);deerPart(7+i*3);curveTube([[0,0,0],[0,-.44,0],[0,-.90,0]],[.077,.058,.065],ivory,10);deerPart(8+i*3);for(let side of[-1,1])orb(side*.052,-.015,-.035,.046,.085,.12,[.19,.20,.15],10,7);}
+for(let i=0;i<2;i++){deerPart(3+i);orb(0,.19,0,.115,.29,.063,ivory,14,9);orb(0,.19,-.046,.075,.22,.025,[.46,.40,.30],12,8);ruff(0,.19,-.05,.07,.21,.03,14,.07,[.90,.88,.78],{arc:[.5,2.6],turn:[3.6,5.8],sweep:[0,.5,-.5],width:.35});}
+deerPart(5);orb(0,-.045,.16,.12,.13,.29,[.84,.82,.68],14,8);ruff(0,-.045,.16,.12,.13,.29,46,.13,[.93,.92,.84],{arc:[.4,2.7],sweep:[0,-.5,.7]});
+for(let i=0;i<4;i++){deerPart(6+i*3);curveTube([[0,0,0],[0,-.23,0],[0,-.55,0],[0,-.86,0]],[i<2?.18:.22,.15,.095,.085],ivory,12);orb(0,-.86,0,.105,.105,.105,[.69,.70,.56],12,7);deerPart(7+i*3);curveTube([[0,0,0],[0,-.44,0],[0,-.90,0]],[.077,.058,.065],ivory,10);deerPart(8+i*3);for(let side of[-1,1])orb(side*.052,-.015,-.035,.046,.085,.12,[.19,.20,.15],10,7);ruff(0,.09,.02,.07,.07,.07,12,.07,[.80,.79,.67],{arc:[1.2,2.4],sweep:[0,-.8,.2],width:.4});}
 const stagMesh=upload();material=0;
 const deerMirror=new DeerMirror(ground);let mirrorState=deerMirror.snapshot(),mirrorPhase='drinking';
 const deerAnimator=new DeerMotion(ground),reflectedDeer=new DeerMotion(()=>ground(11,135));
@@ -365,8 +387,12 @@ const brookAnimators=[new BrookMotion(58,-90,-.5,0,ground),new BrookMotion(71,-9
 const feather=[.20,.36,.25],featherLight=[.36,.48,.30],dragonBone=i=>{material=(i+5)*10;};
 dragonBone(0);orb(0,0,0,.59,.48,1.55,feather,24,14);orb(0,-.23,-.30,.43,.25,1.12,featherLight,20,10);
 for(let side of[-1,1])orb(side*.48,.07,-.6,.27,.33,.61,feather,16,9);
-dragonBone(1);let neck=bezier([0,0,0],[0,.12,-.55],[0,.28,-1.10],[0,.28,-1.50],18);curveTube(neck,neck.map((_,j)=>.30-j*.007),feather,14);
-dragonBone(2);orb(0,0,-.20,.32,.28,.49,feather,22,12);orb(0,-.13,-.54,.24,.14,.31,featherLight,18,10);orb(0,-.12,-.77,.16,.09,.08,[.28,.31,.17],14,8);
+// Een verenkleed in lagen: donkere dekveren op de rug, lichte borstveren en een kraag in de nek.
+ruff(0,0,0,.59,.48,1.55,240,.22,feather,{arc:[.15,1.9],sweep:[0,.05,.95],tip:featherLight,width:.6});
+ruff(0,-.23,-.30,.43,.25,1.12,110,.16,featherLight,{arc:[1.7,2.9],sweep:[0,-.45,.8],tip:[.52,.60,.38],width:.6});
+ruff(0,.02,1.2,.34,.30,.36,60,.26,feather,{arc:[.3,2.4],turn:[-.2,3.3],sweep:[0,.05,.95],tip:featherLight,width:.5});
+dragonBone(1);ruff(0,.06,-.22,.31,.31,.30,90,.24,feather,{arc:[.1,2.3],sweep:[0,.15,.9],tip:featherLight,width:.55});ruff(0,.2,-.85,.26,.26,.4,70,.16,feather,{arc:[0,1.6],sweep:[0,.25,.85],tip:featherLight,width:.5});let neck=bezier([0,0,0],[0,.12,-.55],[0,.28,-1.10],[0,.28,-1.50],18);curveTube(neck,neck.map((_,j)=>.30-j*.007),feather,14);
+dragonBone(2);orb(0,0,-.20,.32,.28,.49,feather,22,12);ruff(0,0,-.20,.32,.28,.49,70,.12,feather,{arc:[.1,1.5],turn:[-.2,3.3],sweep:[0,.2,.9],tip:featherLight,width:.5});for(let side of[-1,1])ruff(side*.2,-.05,-.1,.16,.16,.2,26,.16,featherLight,{arc:[.8,2.3],turn:side>0?[-1,1]:[2.1,4.2],sweep:[side*.5,-.2,.7],width:.5});orb(0,-.13,-.54,.24,.14,.31,featherLight,18,10);orb(0,-.12,-.77,.16,.09,.08,[.28,.31,.17],14,8);
 for(let side of[-1,1]){orb(side*.275,.10,-.35,.068,.075,.06,[.92,.68,.22],14,8);orb(side*.30,.11,-.38,.026,.043,.025,[.02,.065,.04],10,6);orb(side*.31,.13,-.40,.011,.013,.010,[.93,.93,.72],8,5);let horn=bezier([side*.20,.17,.04],[side*.32,.45,.18],[side*.40,.58,.40],[side*.42,.61,.61],12);curveTube(horn,horn.map((_,j)=>.085*(1-j/13)+.008),[.50,.52,.31],8);}
 function flightFeather(x,y,z,side,len,width,col){let a=[x,y,z],tip=[x+side*.28,y-.09,z+len],mid=[x+side*.08,y+.06,z+len*.5],left=[mid[0]-width,y-.015,mid[2]],right=[mid[0]+width,y-.015,mid[2]];tri(a,left,mid,col);tri(left,tip,mid,col);tri(a,mid,right,col);tri(mid,tip,right,col);tri(a,mid,left,col);tri(mid,tip,left,col);tri(a,right,mid,col);tri(mid,right,tip,col);beam(a,tip,.012,[.40,.50,.31]);}
 for(let side of[-1,1]){dragonBone(side<0?3:5);curveTube([[0,0,0],[side*1.15,.10,.02],[side*2.4,.05,.35]],[.22,.15,.10],feather,12);for(let j=0;j<9;j++)flightFeather(side*(.15+j*.26),0,j*.035,side,1.3+j*.06,.20,[.23+j*.008,.39+j*.006,.25+j*.004]);
@@ -385,8 +411,8 @@ for(let side of[-1,1]){
 const dragonMesh=upload();material=0;let dragonState=dragonPose(0,true);
 const foxOffering=createFoxOffering({orb,curveTube,beam,upload,material:v=>{material=v;}});
 const dragonOffering=createDragonOffering({orb,curveTube,upload,material:v=>{material=v;}});material=0;
-const squirrelMeshes=createSquirrelSculptures({orb,cone,beam,curveTube,tri,upload,material:v=>{material=v;}});
-const dwellerMeshes=createDwellerMeshes({orb,cone,beam,curveTube,tri,upload,material:v=>{material=v;}},ground);material=0;
+const squirrelMeshes=createSquirrelSculptures({orb,cone,beam,curveTube,tri,ruff,upload,material:v=>{material=v;}});
+const dwellerMeshes=createDwellerMeshes({orb,cone,beam,curveTube,tri,ruff,upload,material:v=>{material=v;}},ground);material=0;
 for(const [x,z]of STUMPS)trunkColliders.push({x,z,r:.62,h:.85});
 trunkColliders.push({x:MONUMENT.x,z:MONUMENT.z,r:4.4,h:13});
 material=5;curveTube([[0,-.6,0],[.03,-.25,.04],[0,0,0]],[.065,.047,.028],[.14,.29,.17],7);
