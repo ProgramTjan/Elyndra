@@ -1,8 +1,14 @@
-export const SPEAKERS={fox:{name:'De wortelvos',tag:'Wat het water bewaart'},keeper:{name:'De moswachter',tag:'Onder de jonge boom'},deer:{name:'Het witte hert',tag:'Een rustig ogenblik'},squirrel:{name:'De eekhoorn',tag:'Vanaf de hand van de moswachter'}};
+export const SPEAKERS={fox:{name:'De wortelvos',tag:'Wat het water bewaart'},keeper:{name:'De moswachter',tag:'Onder de jonge boom'},deer:{name:'Het witte hert',tag:'Een rustig ogenblik'},squirrel:{name:'De eekhoorn',tag:'Vanaf de hand van de moswachter'},dragon:{name:'De draak',tag:'Warmte onder oude veren'}};
 export function conversationNode(who,node,context={}){
  const monument=!!context.monument;
  const solved=!!context.solved,all=!!context.all,met=!!context.met,roots=!!context.roots,gate=!!context.gate,gardens=!!context.gardens;
+ const guest=context.dragonGuestPhase??'idle';
  const trees={
+ // De draak spreekt niet in woorden. Wat hij bedoelt, lees je aan hem af.
+ dragon:{
+  start:{text:guest==='done'?'De draak ligt met zijn kop op zijn voorpoten, één oog op de lantaarn. Zijn flanken gaan langzaam op en neer. Zolang hij hier ligt, wordt de gloed niet koud.':guest==='offering'?'Hij duwt met zijn snuit in de richting van de moswachter en blaast een pluisje van je schouder. Ga maar.':guest==='kindle'?'Hij houdt zijn adem in en kijkt naar je handen. De gloed flakkert nog. Sta stil, lijkt hij te zeggen.':guest==='ember'?'De draak schuift de lantaarn met één klauw een eindje naar je toe en trekt zijn poot dan terug.':'De draak ruikt aan je mouw. Hij ruikt de bron, de noten, de moswachter. Zijn staartpunt tikt één keer op de grond.',choices:context.dragonGuestAvailable?[['Kom je ook naar de samenkomst?','guestInvitation'],['Ik blijf even bij je staan.','end']]:[['Tot zo, oude draak.','end']]},
+  guestInvitation:{text:'Hij kijkt lang naar het oosten, waar de moswachter staat. Dan draait hij zijn kop naar iets tussen de wortels: een zaadlantaarn, dof en koud.\n\nGeen hapjes. Geen herinnering. Hij ademt warm over je hand, alsof hij vraagt of je begrijpt wat hij wil meebrengen.',choices:[['Ik help je. Laat maar zien.','dragonGuestStart'],['Straks. Ik kom terug.','end']]}
+ },
  fox:{
   start:{text:context.foxPhase==='done'?'“Water geeft niets haast. Misschien moeten we het zaad ook eerst laten luisteren.” De vos vouwt zijn staart om zijn poten.':context.foxPhase==='offering'?'“Vraag hem naar het teken. Zijn handen herinneren zich soms meer dan zijn hoofd.”':context.foxPhase==='carry'||context.foxPhase==='arrival'?'“Jij draagt het fragment. Ik vind de weg. We zien elkaar bij de moswachter.”':context.foxPhase==='wash'||context.foxPhase==='washing'?'“Het bronwater weet hoe je aarde loslaat. Probeer het daar.”':context.foxPhase==='fragment'?'“Daar, naast mijn poot. Neem het maar. Ik denk dat het bij jullie boompje hoort.”':'“Ik hoor water onder de wortels. Maar vandaag houdt het nog iets anders verborgen.”',choices:context.foxAvailable?[['Kom je naar de samenkomst?','invitation'],['Ik luister even mee.','end']]:[['Tot zo, wortelvos.','end']]},
   invitation:{text:'“De eekhoorn brengt eten? Dan breng ik een herinnering.” Hij legt zijn oor tegen de aarde. “Hier ligt iets ouds. Wil je helpen?”',choices:[['Ik help je. Wat heb je gevonden?','foxStart'],['Straks. Ik kom terug.','end']]}
@@ -73,9 +79,15 @@ export function conversationNode(who,node,context={}){
  }else if(context.gatheringPhase==='done'&&context.foxPhase==='idle'){
   trees.keeper.start.text+=' “De wortelvos luistert bij zijn bron. Misschien wil hij ook komen. Je vindt hem via Ontdek plekken.”';
  }
- if(context.foxPhase==='done'){
-  trees.keeper.start.text+=' “Twee gasten en een herinnering. Het zaad kende de bron al.”';
+ if(context.dragonCanDeliver){
+  trees.keeper.start.choices[1]=['Ik breng warmte van de draak.','dragonWarmth'];
+  trees.keeper.dragonWarmth={text:'De moswachter neemt de lantaarn in zijn hand, zoals hij vroeger een kleine draak vasthield. Het licht kruipt tussen zijn vingers door.\n\n“Hij weet het nog.” Zijn stem kraakt. “Het zaad heeft de hele winter in mijn hand gelegen, en mijn handen zijn van steen. Het had het koud.”\n\nAchter hem laat de draak zijn kop zakken. De vos kijkt naar de bron, de eekhoorn naar de hapjes.\n\n“Water, een teken en warmte. Nu hoeven we alleen nog te bedenken waar het mag groeien.”',choices:[['Daar denken we samen over na.','end']]};
+ }
+ if(guest==='done'){
+  trees.keeper.start.text+=' “Drie gasten. Water, een teken en warmte. Het zaad wacht alleen nog op een plek.”';
+ }else if(context.foxPhase==='done'){
+  trees.keeper.start.text+=' “Twee gasten en een herinnering. Het zaad kende de bron al.”'+(guest==='idle'?' Hij kijkt naar de lucht. “Mijn oude vriend rust vaak niet ver van de wortelkathedraal. Hij komt niet voor hapjes. Vraag hem toch maar.”':'');
  }
  return trees[who]?.[node];
 }
-export function nearbySpeakers(position,deer,base,squirrel=null,fox=null){const distance=p=>Math.hypot(...p.map((v,i)=>v-position[i]));return [...(fox&&fox.fade>.5?[{id:'fox',p:[fox.position[0],fox.position[1]+.7,fox.position[2]],r:8}]:[]),{id:'keeper',p:[86,base+6,36],r:22},{id:'squirrel',p:squirrel?[squirrel[0],squirrel[1]+1,squirrel[2]]:[96,base+16,43],r:squirrel&&Math.hypot(squirrel[0]-96,squirrel[2]-43)>3?9:20},{id:'deer',p:[deer[0],deer[1]+1.8,deer[2]],r:8}].filter(x=>distance(x.p)<x.r).sort((a,b)=>distance(a.p)-distance(b.p)).map(x=>x.id);}
+export function nearbySpeakers(position,deer,base,squirrel=null,fox=null,dragon=null){const distance=p=>Math.hypot(...p.map((v,i)=>v-position[i]));return [...(dragon?[{id:'dragon',p:[dragon[0],dragon[1]+.6,dragon[2]],r:12}]:[]),...(fox&&fox.fade>.5?[{id:'fox',p:[fox.position[0],fox.position[1]+.7,fox.position[2]],r:8}]:[]),{id:'keeper',p:[86,base+6,36],r:22},{id:'squirrel',p:squirrel?[squirrel[0],squirrel[1]+1,squirrel[2]]:[96,base+16,43],r:squirrel&&Math.hypot(squirrel[0]-96,squirrel[2]-43)>3?9:20},{id:'deer',p:[deer[0],deer[1]+1.8,deer[2]],r:8}].filter(x=>distance(x.p)<x.r).sort((a,b)=>distance(a.p)-distance(b.p)).map(x=>x.id);}

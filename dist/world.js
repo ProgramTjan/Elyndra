@@ -1,5 +1,6 @@
 import {MIRROR,DeerMirror,lakeGround,createMirrorRenderer,surfacePoint} from './deer-mirror.mjs?v=mirror35';
 import {FoxInvitation,createFoxOffering} from './fox-invitation.mjs?v=fox43';
+import {DragonGuest,createDragonOffering,heldPosition} from './dragon-guest.mjs?v=guest48';
 import {SquirrelGathering} from './squirrel-gathering.mjs?v=gathering42';
 import {SquirrelSecret,MONUMENT,STUMPS,readSecret,saveSecret,inSquirrelPath,squirrelPose} from './squirrel-secret.mjs?v=gathering42';
 import {createSquirrelSculptures} from './squirrel-sculpture.mjs?v=gathering42';
@@ -7,7 +8,7 @@ import {DragonInvitation,createInvitationGlow,inDragonGlade} from './dragon-invi
 import {DRAGON_REST,DragonEncounter} from './dragon-encounter.mjs?v=dragon22';
 import {GARDEN,ForestCompanion,gardenFlower,companionTrail} from './forest-companion.mjs?v=memory39';
 import {BROOK,BrookWonder,guidePosition,visitingFlight,createBrookAtmosphere} from './brook-wonder.mjs?v=dragon22';
-import {nearbySpeakers} from './conversation-model.mjs?v=fox43';
+import {nearbySpeakers} from './conversation-model.mjs?v=guest48';
 import {BrookMotion,dragonPose,packBones} from './wildlife-motion.mjs?v=dragon22';
 import {DeerMotion} from './deer-motion.mjs?v=mirror35';
 import {HEARTBEATS, BEAT_SECONDS, FINALE_SECONDS, addHeartbeatLights} from './heartbeat-finale.mjs?v=finale41';
@@ -17,12 +18,13 @@ import {Atmosphere,createWeatherAtmosphere,hourName,nextLightHour,pickVisitHour,
 import {CathedralWonder,createCathedralAtmosphere} from './cathedral-wonder.mjs?v=breath28';
 import {GATE,GateWonder,createGateAtmosphere} from './gate-wonder.mjs?v=breath29';
 import {GardenDew,HOVER,ISLANDS,seedKeeper,createDewAtmosphere} from './garden-dew.mjs?v=dew36';
-import {QualityGovernor,tierSettings,readRemembered,saveRemembered} from './quality-governor.mjs?v=found47';
-import {WONDERS,WonderJournal,readJournal,saveJournal,revealAll} from './wonder-journal.mjs?v=found47';
-import {glide,HeadBob} from './gait.mjs?v=found47';
-import {createPost,sunOnScreen,rayStrength} from './post.mjs?v=found47';
-import {Footsteps,Stillness,BirdChorus,chorusProfile,surfaceAt,riverPresence,createVoices} from './soundscape.mjs?v=found47';
-import {CalmInterface,readCalmEnabled,saveCalmEnabled,isTap,inReach} from './calm-interface.mjs?v=found47';
+import {QualityGovernor,tierSettings,readRemembered,saveRemembered} from './quality-governor.mjs?v=guest48';
+import {WORLD_VERTEX,WORLD_FRAGMENT,DEPTH_FRAGMENT,SKY_VERTEX,SKY_FRAGMENT} from './shaders.mjs?v=guest48';
+import {WONDERS,WonderJournal,readJournal,saveJournal,revealAll} from './wonder-journal.mjs?v=guest48';
+import {glide,HeadBob} from './gait.mjs?v=guest48';
+import {createPost,sunOnScreen,rayStrength} from './post.mjs?v=guest48';
+import {Footsteps,Stillness,BirdChorus,chorusProfile,surfaceAt,riverPresence,createVoices} from './soundscape.mjs?v=guest48';
+import {CalmInterface,readCalmEnabled,saveCalmEnabled,isTap,inReach} from './calm-interface.mjs?v=guest48';
 import {DWELLERS,FOX_WATCH,FOX,RareDwellers,readMet,saveMet,readSpring,saveSpring,createDwellerMeshes,sparkPositions,createSparkRenderer} from './rare-dwellers.mjs?v=fox43';
 const $=id=>document.getElementById(id),canvas=$('world');
 let keeperMotion=[0,.65,.35,0],keeperGreeting=-1,keeperWasNear=false,lastKeeperShadow=-1;
@@ -36,62 +38,9 @@ let tier=quality==='auto'?governor.tier:quality;
 function qualitySettings(){return tierSettings(tier,quality==='auto'?governor.scale:1,devicePixelRatio||1);}
 const gl=canvas.getContext('webgl2',{antialias:tier==='high',alpha:false,powerPreference:'high-performance'});
 if(!gl){$('welcome').innerHTML='<h1>Je browser kan dit woud<br>nog niet openen.</h1><p>Open deze link in een browser met WebGL 2, bijvoorbeeld Chrome of Safari.</p>';throw Error('WebGL2 unavailable')}
-const vs=`#version 300 es
-precision highp float;
-layout(location=0) in vec3 a;layout(location=1) in vec3 n;layout(location=2) in vec3 c;layout(location=3) in float material;
-uniform mat4 vp;uniform vec3 offset;uniform float rot;uniform float time;uniform float lite;uniform vec4 keeperMotion;uniform float keeperBase;uniform mat4 animalBones[18];uniform float gardenBloom;
-out vec3 P;out vec3 N;out vec3 C;out float M;
-void main(){mat3 r=mat3(cos(rot),0.,-sin(rot),0.,1.,0.,sin(rot),0.,cos(rot));float bone=floor(material/10.)-5.;vec3 local=a,localNormal=n;if(bone>=0.){int index=int(clamp(bone,0.,17.));local=(animalBones[index]*vec4(a,1.)).xyz;localNormal=mat3(animalBones[index])*n;}if(mod(material,10.)>5.5&&mod(material,10.)<6.5){float spread=mix(.20,1.,gardenBloom);local.xz*=spread;local.y+=(1.-gardenBloom)*length(a.xz)*1.15;localNormal=normalize(vec3(localNormal.x/spread,localNormal.y,localNormal.z/spread));}P=r*local+offset;N=r*localNormal;C=c;M=mod(material,10.);
-float part=floor(material/10.);if(part>.5&&part<4.5){P.y+=keeperMotion.x*smoothstep(keeperBase+8.,keeperBase+12.,P.y);
-if(part>1.5&&part<2.5){vec3 pivot=vec3(86.,keeperBase+19.+keeperMotion.x,36.);float a=keeperMotion.y,b=keeperMotion.z;mat3 ry=mat3(cos(a),0.,-sin(a),0.,1.,0.,sin(a),0.,cos(a));mat3 rx=mat3(1.,0.,0.,0.,cos(b),sin(b),0.,-sin(b),cos(b));P=pivot+ry*rx*(P-pivot);N=ry*rx*N;}
-if(part>3.5){float b=keeperMotion.w;vec3 pivot=vec3(P.x,keeperBase+15.+keeperMotion.x,43.7);mat3 rx=mat3(1.,0.,0.,0.,cos(b),sin(b),0.,-sin(b),cos(b));P=pivot+rx*(P-pivot);N=rx*N;}}
 
-if(lite<.5&&M>1.5&&M<2.5){P.x+=sin(time*.85+P.x*.38+P.z*.2)*.065;P.z+=cos(time*.6+P.z*.4)*.035;}
-gl_Position=vp*vec4(P,1.);}`;
-const fs=`#version 300 es
-precision highp float;
-in vec3 P;in vec3 N;in vec3 C;in float M;
-uniform vec3 eye;uniform float night;uniform float time;uniform vec3 sunDir;uniform float warmth;uniform float mistAmt;uniform float wet;uniform mat4 lightVP;uniform sampler2D shadowMap;uniform float shadowTexel;uniform float softShadows;uniform float wonder;uniform float gardenBloom;uniform float returnLight;uniform float cathedralBreath;uniform float gateMirror;uniform float lite;uniform float objectFade;
-out vec4 outColor;
-float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
-float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
-float detail(vec2 p){if(lite>.5)return noise(p);return noise(p)*.58+noise(p*2.07)*.28+noise(p*4.1)*.14;}
-float lineDist(vec2 p,vec2 a,vec2 b){vec2 v=b-a;return length(p-a-v*clamp(dot(p-a,v)/dot(v,v),0.,1.));}
-float path(vec2 p){float d=lineDist(p,vec2(-5,76),vec2(-20,30));d=min(d,lineDist(p,vec2(-20,30),vec2(-48,-40)));d=min(d,lineDist(p,vec2(-48,-40),vec2(-48,-65)));d=min(d,lineDist(p,vec2(-20,30),vec2(86,35)));d=min(d,lineDist(p,vec2(66,35),vec2(66,-110)));return min(d,lineDist(p,vec2(-48,-65),vec2(-96,-150)));}
-float shadow(vec3 normal){if(lite>.5)return mix(.62,1.,max(dot(normal,normalize(sunDir)),0.));vec4 q=lightVP*vec4(P,1.);vec3 c=q.xyz/q.w*.5+.5;if(c.x<0.||c.x>1.||c.y<0.||c.y>1.||c.z>1.)return 1.;float bias=max(.00055,.0018*(1.-dot(normal,normalize(sunDir))));if(softShadows<.25)return c.z-bias<=texture(shadowMap,c.xy).r?1.:0.;float a=0.;float weight=0.;for(int x=-2;x<=2;x++)for(int y=-2;y<=2;y++){if(softShadows<.5&&(abs(x)>1||abs(y)>1))continue;float w=float(3-abs(x))*float(3-abs(y));a+=(c.z-bias<=texture(shadowMap,c.xy+vec2(float(x),float(y))*shadowTexel).r?1.:0.)*w;weight+=w;}return a/weight;}
-vec3 sky(vec3 dir){float h=clamp(dir.y*.7+.35,0.,1.);vec3 dayH=mix(vec3(.70,.76,.68),vec3(.94,.60,.34),warmth);vec3 dayZ=mix(vec3(.25,.48,.61),vec3(.58,.30,.20),warmth*.65);return mix(mix(dayH,dayZ,h),mix(vec3(.045,.085,.12),vec3(.015,.028,.07),h),night);}
-void main(){if(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)>objectFade)discard;vec3 normal=normalize(N);vec3 sun=normalize(sunDir);vec3 v=normalize(eye-P);vec3 base=C;float glow=step(1.01,max(C.r,max(C.g,C.b)));float emit=0.;float tex=lite>.5?noise(P.xz*.35):detail(P.xz*3.5+P.y*.4);float surfaceHeight=0.;float wetness=0.;float roughness=.95;float closeDetail=lite>.5?0.:1.-smoothstep(24.,80.,length(P-eye));
-if(M>.5&&M<1.5){if(lite>.5){float patches=noise(P.xz*.2),broad=noise(P.xz*.045+7.);base=mix(vec3(.07,.13,.04),vec3(.18,.22,.07),patches);base=mix(base,vec3(.21,.21,.085),smoothstep(.58,.82,broad)*.55);base=mix(base,vec3(.045,.10,.045),smoothstep(.62,.86,noise(P.xz*.11+19.))*.6);float trail=1.-smoothstep(1.1,2.6,path(P.xz)+(patches-.5)*.8);base=mix(base,vec3(.19,.145,.085),trail*.85);float shore=1.-smoothstep(-2.2,-.9,P.y);base=mix(base,vec3(.22,.21,.15)*(.75+.5*noise(P.xz*2.6)),shore*.8);wetness=max(wet*.5,shore*.4);}else{float broad=detail(P.xz*.18);float trail=1.-smoothstep(1.1,2.6,path(P.xz)+(tex-.5)*.85);float soil=noise(P.xz*8.);float humus=detail(P.xz*.9);base=mix(vec3(.065,.12,.035),vec3(.19,.23,.075),broad);base=mix(base,mix(vec3(.115,.078,.042),vec3(.28,.22,.13),humus),trail);float grains=smoothstep(.64,.83,soil)*closeDetail;base=mix(base,vec3(.36,.32,.22),grains*.22*trail);float dry=smoothstep(.58,.82,noise(P.xz*.045+7.))*(1.-trail);base=mix(base,vec3(.22,.22,.085),dry*.5);float mossy=smoothstep(.60,.84,noise(P.xz*.11+19.))*(1.-trail);base=mix(base,vec3(.05,.115,.045)*(.8+.5*noise(P.xz*6.)),mossy*.65);float bloom=step(.988,hash(floor(P.xz*7.)))*closeDetail*(1.-trail)*(1.-mossy);base=mix(base,hash(floor(P.xz*7.)+3.)>.5?vec3(.78,.74,.42):vec3(.62,.58,.80),bloom*.8);float shore=1.-smoothstep(-2.2,-.9,P.y);float pebble=noise(P.xz*5.5);base=mix(base,mix(vec3(.15,.15,.11),vec3(.34,.32,.25),pebble),shore*.85);wetness=max(smoothstep(.55,.78,detail(P.xz*.23))*(.25+trail*.5),shore*.75);base*=1.-wetness*.24;surfaceHeight=(soil*.028+humus*.11)*closeDetail;roughness=mix(.96,.48,wetness);}}
-else if(M>1.5&&M<2.5){base*=.72+tex*.48;normal=faceforward(normal,-v,normal);}
-else if(M>2.5&&M<3.5){if(lite>.5){base=C*(.72+noise(P.xz*.45)*.4);}else{vec3 blend=pow(abs(normal),vec3(4.));blend/=max(dot(blend,vec3(1.)),.001);float rock=dot(vec3(detail(P.yz*2.1),detail(P.xz*2.1),detail(P.xy*2.1)),blend);float layers=noise(vec2(P.x*.55+P.z*.37,P.y*5.5+rock*2.));float fissure=1.-smoothstep(.025,.09,abs(layers-.5));float lichen=smoothstep(.65,.79,noise(P.xz*3.+P.y*.7))*smoothstep(.25,.55,rock);float moss=smoothstep(.25,.85,normal.y)*smoothstep(.42,.70,detail(P.xz*.8));base=C*(.66+rock*.65);base*=1.-fissure*.24*closeDetail;base=mix(base,vec3(.40,.43,.23),lichen*.32);base=mix(base,vec3(.10,.18,.045),moss*.80);wetness=(1.-moss)*smoothstep(.55,.80,rock)*.6;roughness=mix(.90,.38,wetness);surfaceHeight=(rock*.10-fissure*.035+noise(P.xz*17.+P.y)*.012)*closeDetail;base*=1.-wetness*.12;}}
-else if(M>4.5&&M<5.5){if(lite>.5){base=mix(C*.7,C,noise(P.xz*.3));}else{vec2 grainUV=vec2((P.x+P.z*.73)*7.,P.y*.68);float warp=noise(vec2(grainUV.x*.17,grainUV.y*.35));float grain=noise(grainUV+vec2(warp*2.,0.));float furrow=1.-smoothstep(.22,.47,grain);float fine=noise(vec2(grainUV.x*3.3,grainUV.y*1.6));base=mix(C*.48,C*1.24,smoothstep(.24,.70,grain));base*=.87+fine*.23*closeDetail;float moss=smoothstep(.42,.73,detail(P.xz*.55+P.y*.12))*smoothstep(-.05,.8,normal.y);base=mix(base,vec3(.095,.18,.045),moss*.87);surfaceHeight=(grain*.10-furrow*.045+fine*.009)*closeDetail;wetness=smoothstep(.60,.85,warp)*.35;roughness=.92-wetness*.3;}}
-else if(lite<.5&&glow<.5&&C.r>C.g*1.12&&C.g>C.b*1.15){float grooves=noise(vec2(P.x*16.+P.z*13.,P.y*.8));base*=.65+grooves*.6;}
-wetness=max(wetness,wet*.78);
-if(lite<.5){vec3 dpdx=dFdx(P),dpdy=dFdy(P);vec3 r1=cross(dpdy,normal),r2=cross(normal,dpdx);float det=dot(dpdx,r1);vec3 gradient=sign(det)*(dFdx(surfaceHeight)*r1+dFdy(surfaceHeight)*r2)/max(abs(det),.000001);normal=normalize(normal-gradient*.65);}
-float diffuse=max(dot(normal,sun),0.);float shade=shadow(normal);float hemisphere=normal.y*.5+.5;vec3 ambient=mix(vec3(.12,.15,.075),vec3(.24,.32,.38),hemisphere);
-// Approximate canopy shelter and a warm bounce from the forest floor.
-float cathedral=exp(-dot(P.xz-vec2(-48.,-65.),P.xz-vec2(-48.,-65.))/900.);float shelter=cathedral*(1.-smoothstep(5.,30.,P.y))*.24;
-ambient*=1.-shelter;ambient+=vec3(.10,.075,.035)*(1.-max(normal.y,0.))*(1.-shade)*.7;
-vec3 sunCol=mix(vec3(1.,.86,.67),vec3(1.,.56,.26),warmth);vec3 col=base*(ambient+sunCol*diffuse*shade*1.48)*(1.-night*.68);
-if(lite<.5&&wetness>0.){vec3 halfway=normalize(sun+v);float exponent=mix(12.,90.,1.-roughness);float fresnel=.035+.20*pow(1.-max(dot(normal,v),0.),5.);col+=vec3(1.,.88,.70)*pow(max(dot(normal,halfway),0.),exponent)*wetness*fresnel*shade*(1.-night);}
-vec3 heart=vec3(-48.,13.,-59.);float heartFalloff=1./(1.+dot(P-heart,P-heart)*.09);col+=base*vec3(.17,.55,.32)*heartFalloff*(.35+night*.65+cathedralBreath*1.35);col+=vec3(.95,.72,.28)*cathedralBreath*heartFalloff*.45;
-if(gateMirror>.01){float gateWell=exp(-dot(P.xz-vec2(66.,-110.),P.xz-vec2(66.,-110.))/280.);col+=vec3(.08,.46,.56)*gateWell*gateMirror*(.5+night*.7);col+=vec3(.42,.28,.12)*gateWell*gateMirror*.22;}
-if(M>1.5&&M<2.5)col+=base*vec3(.9,1.,.45)*pow(max(dot(-sun,v),0.),4.)*.40*(.35+.65*shade)*(1.-night);
-if(M>3.5&&M<4.5){vec2 w=P.xz;float depth=max(0.,C.r*8.);if(lite>.5){float fresnel=.06+.5*pow(1.-max(dot(normal,v),0.),3.);col=mix(vec3(.03,.10,.11)*(1.-night*.55),sky(v),fresnel);}else{float shallow=exp(-depth*.85);float riffle=0.;for(int k=0;k<3;k++){float zz=k==0?-75.:k==1?25.:110.;riffle=max(riffle,exp(-pow((w.y-zz)/5.,2.)));}
-normal=normalize(vec3(sin(w.x*1.8+w.y*.7+time*1.2)*.075+sin(w.y*4.-time*1.6)*(.025+riffle*.09),1.,cos(w.y*1.6+w.x*.5-time*.8)*(.08+riffle*.12)));
-float fresnel=.035+.65*pow(1.-max(dot(normal,v),0.),4.);vec3 mirrored=reflect(-v,normal);vec3 reflection=sky(mirrored);float sparkle=pow(max(dot(reflect(-sun,normal),v),0.),180.);if(night>.05&&mirrored.y>.04){float star=step(.9975,hash(floor(mirrored.xz/(mirrored.y+.4)*240.)))*night*smoothstep(.04,.3,mirrored.y);reflection+=star*.6;emit+=star*.45;}float flow=detail(w*1.5+vec2(time*.10,-time*.24));float pebbles=detail(w*5.+normal.xz*.3);vec3 bed=mix(vec3(.105,.14,.09),vec3(.26,.25,.14),pebbles);vec3 tint=mix(vec3(.018,.095,.105),bed,shallow*.78);float caustic=pow(1.-abs(sin(w.x*3.+sin(w.y*2.-time*.65))*cos(w.y*3.2+time*.45)),12.);tint+=vec3(.12,.18,.10)*caustic*shallow*.38*(1.-night);
-col=mix(tint*(flow*.22+.80)*(1.-night*.62),reflection,fresnel)+vec3(1.,.88,.62)*sparkle*shade*(1.-night)*1.1+vec3(.62,.74,1.)*sparkle*night*.6;emit+=sparkle*(shade*(1.-night)+night*.5)*.8;
-float foam=(1.-smoothstep(.025,.20,depth))*smoothstep(.45,.7,flow)*.22;
-if(lite<.5&&riffle>.001)for(int k=0;k<3;k++){float zz=k==0?-75.:k==1?25.:110.;for(int j=-1;j<=1;j++){vec2 rock=vec2(15.+sin(zz*.012)*16.+float(j)*2.1,zz+float(j)*.7);vec2 d=w-rock;float wake=exp(-abs(d.x)*2.2)*smoothstep(.3,1.,d.y)*(1.-smoothstep(1.,5.,d.y));float ring=1.-smoothstep(.10,.27,abs(length(d)-.72));foam+=max(wake*.20,ring*.32)*smoothstep(.42,.64,flow);}}
-col=mix(col,vec3(.60,.70,.61)*(1.-night*.75),clamp(foam,0.,.45));}}
 
-// Local mist catches the low light beneath the brook's root canopy.
-if(lite<.5||wonder>.02){float hollow=exp(-dot(P.xz-vec2(13.467,-8.),P.xz-vec2(13.467,-8.))/260.);float breath=.85+.15*sin(time*.37);col+=base*vec3(.08,.36,.43)*hollow*wonder*breath;if(lite<.5&&M>3.5&&M<4.5){float lace=pow(.5+.5*sin(P.x*2.1+sin(P.z*.6-time*.3)),14.)*pow(.5+.5*cos(P.z*1.3+time*.23),8.);col+=vec3(.12,.64,.76)*lace*hollow*(.12+wonder*.7);}col=mix(col,vec3(.16,.29,.30),hollow*exp(-max(0.,P.y+2.3)*.8)*min(.18,length(P-eye)*.006));}
-if(M>5.5&&M<6.5)col+=C*gardenBloom*(.35+night*.75);
-if(M>6.5&&M<7.5)col+=C*(.12+gardenBloom*1.4);
-if(M>5.5&&M<7.5){col+=vec3(1.1,.55,.12)*returnLight;emit+=gardenBloom*.5+returnLight*.8;}
-col+=C*glow*(.8+night*.7);emit+=glow*(.5+night*.5);float dist=length(P-eye);float mist=1.-exp(-dist*(.0021+.004*exp(-max(P.y,0.)*.12))*(1.+mistAmt*2.4));col=mix(col,sky(normalize(P-eye)),min(.94,mist));col*=1.-wet*.07;col=col/(col+vec3(.55));col=pow(col,vec3(.92));outColor=vec4(col,clamp(emit*(1.-min(.94,mist)),0.,1.));}`;
-function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}let prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(prog));gl.useProgram(prog);const U={};for(let k of ['vp','offset','rot','eye','night','time','sunDir','warmth','mistAmt','wet','lightVP','shadowMap','shadowTexel','softShadows','keeperMotion','keeperBase','animalBones[0]','wonder','gardenBloom','returnLight','cathedralBreath','gateMirror','lite','objectFade'])U[k]=gl.getUniformLocation(prog,k);gl.enable(gl.DEPTH_TEST);
+function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}let prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,WORLD_VERTEX));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,WORLD_FRAGMENT));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(prog));gl.useProgram(prog);const U={};for(let k of ['vp','offset','rot','eye','night','time','sunDir','warmth','mistAmt','wet','lightVP','shadowMap','shadowTexel','softShadows','keeperMotion','keeperBase','animalBones[0]','wonder','gardenBloom','returnLight','cathedralBreath','gateMirror','lite','objectFade'])U[k]=gl.getUniformLocation(prog,k);gl.enable(gl.DEPTH_TEST);
 let seed=8912;function rand(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}const TAU=Math.PI*2;let verts=[],material=0;
 function tri(a,b,c,col){let u=b.map((v,i)=>v-a[i]),v=c.map((v,i)=>v-a[i]),n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],l=Math.hypot(...n)||1;n=n.map(x=>x/l);for(let p of[a,b,c])verts.push(...p,...n,...col,material)}
 function cone(x,y,z,r1,r2,h,col,s=8){for(let i=0;i<s;i++){let t=i*TAU/s,t2=(i+1)*TAU/s,a=[x+Math.cos(t)*r1,y,z+Math.sin(t)*r1],b=[x+Math.cos(t2)*r1,y,z+Math.sin(t2)*r1],c=[x+Math.cos(t2)*r2,y+h,z+Math.sin(t2)*r2],d=[x+Math.cos(t)*r2,y+h,z+Math.sin(t)*r2];tri(a,c,b,col);tri(a,d,c,col);tri([x,y+h,z],c,d,col)}}
@@ -435,6 +384,7 @@ for(let side of[-1,1]){
 }
 const dragonMesh=upload();material=0;let dragonState=dragonPose(0,true);
 const foxOffering=createFoxOffering({orb,curveTube,beam,upload,material:v=>{material=v;}});
+const dragonOffering=createDragonOffering({orb,curveTube,upload,material:v=>{material=v;}});material=0;
 const squirrelMeshes=createSquirrelSculptures({orb,cone,beam,curveTube,tri,upload,material:v=>{material=v;}});
 const dwellerMeshes=createDwellerMeshes({orb,cone,beam,curveTube,tri,upload,material:v=>{material=v;}},ground);material=0;
 for(const [x,z]of STUMPS)trunkColliders.push({x,z,r:.62,h:.85});
@@ -480,9 +430,8 @@ let lightMatrix=aimSun(skyState.sun),lastSunHour=skyState.hour;
 let shadowSize=qualitySettings().shadow;const shadowTexture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,shadowTexture);gl.texImage2D(gl.TEXTURE_2D,0,gl.DEPTH_COMPONENT24,shadowSize,shadowSize,0,gl.DEPTH_COMPONENT,gl.UNSIGNED_INT,null);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
 const shadowFB=gl.createFramebuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,shadowFB);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.TEXTURE_2D,shadowTexture,0);gl.drawBuffers([gl.NONE]);gl.readBuffer(gl.NONE);let shadowAvailable=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 function program(v,f){let p=gl.createProgram();gl.attachShader(p,shader(gl.VERTEX_SHADER,v));gl.attachShader(p,shader(gl.FRAGMENT_SHADER,f));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p}
-const depthFragment=`#version 300 es
-precision highp float;void main(){}`;
-const depthProgram=program(vs,depthFragment);
+
+const depthProgram=program(WORLD_VERTEX,DEPTH_FRAGMENT);
 function renderShadows(){if(tier!=='high'||!shadowAvailable)return;gl.useProgram(depthProgram);gl.bindTexture(gl.TEXTURE_2D,null);gl.bindFramebuffer(gl.FRAMEBUFFER,shadowFB);gl.viewport(0,0,shadowSize,shadowSize);gl.clear(gl.DEPTH_BUFFER_BIT);gl.uniformMatrix4fv(gl.getUniformLocation(depthProgram,'vp'),false,lightMatrix);gl.uniform3fv(gl.getUniformLocation(depthProgram,'offset'),[0,0,0]);gl.uniform1f(gl.getUniformLocation(depthProgram,'rot'),0);gl.uniform1f(gl.getUniformLocation(depthProgram,'time'),0);gl.uniform4fv(gl.getUniformLocation(depthProgram,'keeperMotion'),keeperMotion);gl.uniform1f(gl.getUniformLocation(depthProgram,'keeperBase'),gy);gl.uniformMatrix4fv(gl.getUniformLocation(depthProgram,'animalBones[0]'),false,deerUniforms());gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(1,1);gl.bindVertexArray(terrain.vao);gl.drawArrays(gl.TRIANGLES,0,terrain.count);if(mirrorState.fade>.45){gl.bindVertexArray(stagMesh.vao);gl.drawArrays(gl.TRIANGLES,0,stagMesh.count);}for(let [mesh,state]of [[brookMesh,brookStates[0]],[brookMesh,brookStates[1]],[dragonMesh,dragonState]]){gl.uniformMatrix4fv(gl.getUniformLocation(depthProgram,'animalBones[0]'),false,packBones(state.bones));gl.bindVertexArray(mesh.vao);gl.drawArrays(gl.TRIANGLES,0,mesh.count);}if(typeof guideShadow!=='undefined'&&guideShadow){gl.uniformMatrix4fv(gl.getUniformLocation(depthProgram,'animalBones[0]'),false,packBones(guideShadow.bones));gl.bindVertexArray(brookMesh.vao);gl.drawArrays(gl.TRIANGLES,0,brookMesh.count);}const shadowMesh=(mesh,offset,rot=0)=>{gl.uniform3fv(gl.getUniformLocation(depthProgram,'offset'),offset);gl.uniform1f(gl.getUniformLocation(depthProgram,'rot'),rot);gl.bindVertexArray(mesh.vao);gl.drawArrays(gl.TRIANGLES,0,mesh.count);};
 gl.uniformMatrix4fv(gl.getUniformLocation(depthProgram,'animalBones[0]'),false,packBones(squirrelPose(squirrelState,reducedMotion)));shadowMesh(gathering.active?squirrelMeshes.squirrelEmpty:squirrelMeshes.squirrel,[0,0,0]);
 const sy=ground(MONUMENT.x,MONUMENT.z),sr=squirrelState.reveal;
@@ -490,24 +439,22 @@ if(sr>.001){shadowMesh(squirrelMeshes.pedestal,[MONUMENT.x,sy-(1-sr)*2,MONUMENT.
 for(let i=0;i<2;i++){const side=i?1:-1;shadowMesh(squirrelMeshes.covers[i],[MONUMENT.x+side*sr*5,sy-sr*3.2,MONUMENT.z+sr*2],side*sr*.24);}
 gl.disable(gl.POLYGON_OFFSET_FILL);gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,canvas.width,canvas.height);gl.useProgram(prog);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,shadowTexture);}
 var guideShadow=null;
-const skyVertex=`#version 300 es
-precision highp float;out vec2 uv;void main(){vec2 p=vec2(float((gl_VertexID<<1)&2),float(gl_VertexID&2));uv=p*2.-1.;gl_Position=vec4(uv,1.,1.);}`;
-const skyFragment=`#version 300 es
-precision highp float;in vec2 uv;uniform float aspect;uniform float yaw;uniform float pitch;uniform float night;uniform float time;uniform vec3 sunDir;uniform float warmth;uniform float mistAmt;uniform float lite;out vec4 color;
-float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
-float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
-void main(){vec3 ray=normalize(vec3(uv.x*aspect*.602,uv.y*.602,-1.));vec3 r=vec3(cos(yaw),0.,sin(yaw)),u=vec3(-sin(yaw)*sin(pitch),cos(pitch),cos(yaw)*sin(pitch)),b=vec3(-sin(yaw)*cos(pitch),-sin(pitch),cos(yaw)*cos(pitch));vec3 d=r*ray.x+u*ray.y+b*ray.z;float h=clamp(d.y*.7+.35,0.,1.);vec3 dayH=mix(vec3(.70,.76,.68),vec3(.94,.60,.34),warmth);vec3 dayZ=mix(vec3(.25,.48,.61),vec3(.58,.30,.20),warmth*.65);vec3 sky=mix(mix(dayH,dayZ,h),mix(vec3(.045,.085,.12),vec3(.015,.028,.07),h),night);float sun=max(dot(d,normalize(sunDir)),0.);float up=smoothstep(-.04,.14,sunDir.y);sky+=mix(mix(vec3(1.,.70,.35),vec3(1.,.45,.16),warmth),vec3(.70,.80,1.),night)*(pow(sun,400.)*2.+pow(sun,16.)*.14)*up;float lum=pow(sun,400.)*up;if(d.y>.02){if(lite<.5){vec2 p=d.xz/(d.y+.25)*2.+vec2(time*.004,0.);float n=noise(p)*.55+noise(p*2.1)*.3+noise(p*4.2)*.15;float cloud=smoothstep(.53,.76,n)*smoothstep(.02,.2,d.y);sky=mix(sky,mix(vec3(.91,.89,.79),vec3(.08,.12,.16),night),cloud*.65);float star=step(.9985,hash(floor(d.xz/(d.y+.4)*650.)))*night*smoothstep(.04,.3,d.y);sky+=star*.75;lum+=star*.7;}sky=mix(sky,vec3(.58,.60,.58),mistAmt*.28*(1.-night*.45));}sky=sky/(sky+vec3(.55));color=vec4(pow(sky,vec3(.92)),clamp(lum,0.,1.));}`;
-const skyProgram=program(skyVertex,skyFragment),skyVAO=gl.createVertexArray(),SU={};for(let k of['aspect','yaw','pitch','night','time','sunDir','warmth','mistAmt','lite'])SU[k]=gl.getUniformLocation(skyProgram,k);
+
+
+const skyProgram=program(SKY_VERTEX,SKY_FRAGMENT),skyVAO=gl.createVertexArray(),SU={};for(let k of['aspect','yaw','pitch','night','time','sunDir','warmth','mistAmt','lite'])SU[k]=gl.getUniformLocation(skyProgram,k);
 function drawSky(){gl.disable(gl.DEPTH_TEST);gl.useProgram(skyProgram);gl.bindVertexArray(skyVAO);gl.uniform1f(SU.aspect,innerWidth/innerHeight);gl.uniform1f(SU.yaw,yaw);gl.uniform1f(SU.pitch,pitch);gl.uniform1f(SU.night,night);gl.uniform1f(SU.time,clock);gl.uniform3fv(SU.sunDir,skyState.sun);gl.uniform1f(SU.warmth,skyState.warmth);gl.uniform1f(SU.mistAmt,skyState.mist);gl.uniform1f(SU.lite,tier==='high'?0:1);gl.drawArrays(gl.TRIANGLES,0,3);gl.enable(gl.DEPTH_TEST);gl.useProgram(prog);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,shadowTexture);gl.uniform1i(U.shadowMap,0);gl.uniform1f(U.shadowTexel,1/shadowSize);gl.uniform1f(U.softShadows,qualitySettings().soft);gl.uniformMatrix4fv(U.lightVP,false,shadowAvailable?lightMatrix:new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,10000,10000,0,1]));gl.uniform3fv(U.sunDir,skyState.sun);gl.uniform1f(U.warmth,skyState.warmth);gl.uniform1f(U.mistAmt,skyState.mist);gl.uniform1f(U.wet,skyState.wet);}
 let squirrelStorage;try{squirrelStorage=localStorage;}catch{}
 const squirrelSecret=new SquirrelSecret(ground,readSecret(squirrelStorage));
 const gathering=new SquirrelGathering(ground,squirrelStorage);
 const foxInvitation=new FoxInvitation(ground,squirrelStorage);
-const storyCinematic=()=>gathering.cinematic||foxInvitation.cinematic;
+// De draak als derde gast; guestBusy houdt andere uitnodigingen tegen zolang een gast onderweg is.
+const dragonGuest=new DragonGuest(ground,squirrelStorage);
+const guestBusy=()=>foxInvitation.active||dragonGuest.active;
+const storyCinematic=()=>gathering.cinematic||foxInvitation.cinematic||dragonGuest.cinematic;
 let sceneCamera=null;
 let squirrelState=gathering.actor(squirrelSecret.snapshot(pos));
 $('squirrel-view').hidden=!squirrelState.revealed;
-window.elyndraSquirrelContext=()=>({monument:squirrelState.revealed,squirrelAway:squirrelState.phase!=='home',gatheringPhase:gathering.phase,gatheringAvailable:!foxInvitation.active&&!gathering.active&&squirrelSecret.canInvite(pos)&&!invitationState.active});
+window.elyndraSquirrelContext=()=>({monument:squirrelState.revealed,squirrelAway:squirrelState.phase!=='home',gatheringPhase:gathering.phase,gatheringAvailable:!guestBusy()&&!gathering.active&&squirrelSecret.canInvite(pos)&&!invitationState.active});
 const post=createPost(gl);gl.useProgram(prog);
 let projection;function resize(){let d=Math.min(devicePixelRatio,qualitySettings().pixel);canvas.width=Math.round(innerWidth*d);canvas.height=Math.round(innerHeight*d);post.resize(canvas.width,canvas.height,tier==='high'?4:0);gl.viewport(0,0,canvas.width,canvas.height);projection=perspective(Math.PI/2.9,innerWidth/innerHeight,.12,tier==='high'?1100:720)}addEventListener('resize',resize);resize();if(tier==='high')renderShadows();
 const wonder=new BrookWonder();let wonderState=wonder.snapshot(pos),wonderPhase='far',wonderCaptionUntil=0,previousFlight=null;
@@ -524,7 +471,7 @@ let rememberedDragon=false;try{rememberedDragon=localStorage.getItem('elyndra-dr
 let keeperLight=false;
 try { keeperLight=localStorage.getItem('elyndra-keeper-light-v1')==='sent'; } catch {}
 const dragonEncounter=new DragonEncounter(ground,rememberedDragon);let encounterState=dragonEncounter.snapshot(),dragonPhase='orbit',dragonCaptionUntil=0;
-window.elyndraForestMemory=()=>({dragonKnown:dragonEncounter.known,keeperLight,foxPhase:foxInvitation.phase,foxAvailable:foxInvitation.canInvite(pos)&&!invitationState.active&&!squirrelState.active,foxCanDeliver:foxInvitation.canDeliver(pos)});
+window.elyndraForestMemory=()=>({dragonGuestPhase:dragonGuest.phase,dragonGuestAvailable:dragonGuest.canInvite(pos,encounterState)&&!invitationState.active&&!squirrelState.active&&!foxInvitation.active,dragonCanDeliver:dragonGuest.canDeliver(pos),dragonKnown:dragonEncounter.known,keeperLight,foxPhase:foxInvitation.phase,foxAvailable:foxInvitation.canInvite(pos)&&!invitationState.active&&!squirrelState.active,foxCanDeliver:foxInvitation.canDeliver(pos)});
 addEventListener('elyndra-keeper-sends-light',()=>{
   if(!dragonEncounter.known || keeperLight)return;
   keeperLight=true;
@@ -545,7 +492,7 @@ const guideAnimator=new BrookMotion(BROOK.x-4,BROOK.z+5,0,1.5,(x,z)=>Math.max(BR
 let guideState=guideAnimator.update(0,0,pos,true);
 const inviteButton=$('dragon-invite');
 function inviteDragon(){
- if(!started||introActive||window.elyndraVisionOpen||!$('instructions').hidden||!$('travelmenu').hidden||squirrelState.active||foxInvitation.active)return;
+ if(!started||introActive||window.elyndraVisionOpen||!$('instructions').hidden||!$('travelmenu').hidden||squirrelState.active||guestBusy())return;
  if(invitationState.canFinish){invitation.finish();return;}
  if(invitation.invite(encounterState,pos))chime();
 }
@@ -555,7 +502,7 @@ addEventListener('keydown',e=>{
 });
 const squirrelButton=$('squirrel-invite');
 function followSquirrel(){
- if(gathering.active||foxInvitation.active)return;
+ if(gathering.active||guestBusy())return;
  if(!started||introActive||window.elyndraVisionOpen||!$('instructions').hidden||!$('travelmenu').hidden||invitationState.active)return;
  if(squirrelSecret.canReveal(pos)){squirrelSecret.touch(pos);chime();}
  else if(squirrelSecret.invite(pos))chime();
@@ -569,7 +516,7 @@ $('squirrel-view').onclick=()=>{
  toast('Het geheim van de eekhoorn. Een opvallend bescheiden monument.');
 };
 const mirrorButton=$('deer-mirror-invite');
-function acceptMirror(){if(gathering.active||foxInvitation.active)return;if(!started||introActive||window.elyndraVisionOpen||!$('instructions').hidden||!$('travelmenu').hidden)return;if(deerMirror.accept(pos))chime();}
+function acceptMirror(){if(gathering.active||guestBusy())return;if(!started||introActive||window.elyndraVisionOpen||!$('instructions').hidden||!$('travelmenu').hidden)return;if(deerMirror.accept(pos))chime();}
 mirrorButton.onclick=acceptMirror;
 addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey)acceptMirror();});
 $('deer-mirror-view').onclick=()=>{
@@ -722,7 +669,7 @@ const finalePlaces = [
   [shrineX, shrineY + 2.7, shrineZ], [66, py + 12, -110],
   [ISLANDS[0][0], ISLANDS[0][1] + 3, ISLANDS[0][2]], saplingTip
 ];
-window.elyndraFinaleReady = () => started && !introActive && !gathering.active && !foxInvitation.active && window.elyndraGame?.count() === 4;
+window.elyndraFinaleReady = () => started && !introActive && !gathering.active && !guestBusy() && window.elyndraGame?.count() === 4;
 addEventListener('elyndra-hear-forest', () => {
   if (!window.elyndraFinaleReady() || document.querySelector('dialog[open]')) return;
   const [x,z] = finaleWatch;
@@ -783,7 +730,7 @@ function updateFinale(dt) {
 
 // Dialogue hands over only after its native modal has closed.
 addEventListener('elyndra-gathering-invite',()=>{
- if(!canPlayInput()||foxInvitation.active||window.elyndraGame?.count()!==4||invitationState.active||
+ if(!canPlayInput()||guestBusy()||window.elyndraGame?.count()!==4||invitationState.active||
     !squirrelSecret.canInvite(pos)||!gathering.start(reducedMotion))return;
  beginStoryFilm();
 });
@@ -795,13 +742,18 @@ function beginStoryFilm(){
  updateGatheringCamera();updateGatheringUI();
 }
 addEventListener('elyndra-fox-invite',()=>{
- if(!canPlayInput()||gathering.active||invitationState.active||squirrelState.active||!foxInvitation.start(pos,reducedMotion))return;
+ if(!canPlayInput()||gathering.active||dragonGuest.active||invitationState.active||squirrelState.active||!foxInvitation.start(pos,reducedMotion))return;
  dwellers.metSet.add('fox');window.elyndraMet=new Set(dwellers.metSet);saveMet(dwellerStorage,dwellers.metSet);
  beginStoryFilm();
 });
 addEventListener('elyndra-fox-deliver',()=>{if(foxInvitation.deliver(pos))chime();});
+addEventListener('elyndra-dragon-guest-invite',()=>{
+ if(!canPlayInput()||gathering.active||foxInvitation.active||invitationState.active||squirrelState.active||!dragonGuest.start(pos,encounterState,reducedMotion))return;
+ beginStoryFilm();
+});
+addEventListener('elyndra-dragon-guest-deliver',()=>{if(dragonGuest.deliver(pos)){chime();updateGatheringUI();}});
 function updateGatheringCamera(){
- const shot=(foxInvitation.cinematic?foxInvitation:gathering).camera(reducedMotion);pos=[...shot.position];
+ const shot=(dragonGuest.cinematic?dragonGuest:foxInvitation.cinematic?foxInvitation:gathering).camera(reducedMotion);pos=[...shot.position];
  const [dx,dy,dz]=shot.target.map((v,i)=>v-pos[i]);
  yaw=Math.atan2(dx,-dz);pitch=Math.atan2(dy,Math.hypot(dx,dz));
 }
@@ -810,7 +762,7 @@ function restoreGatheringCamera(){
  resetInput();document.body.classList.remove('gathering-film');
  $('gathering-skip').hidden=true;$('gathering-note').focus();
 }
-function finishGatheringFilm(){if(gathering.skip()||foxInvitation.skip()){restoreGatheringCamera();updateGatheringUI();}}
+function finishGatheringFilm(){if(gathering.skip()||foxInvitation.skip()||dragonGuest.skip()){restoreGatheringCamera();updateGatheringUI();}}
 $('gathering-skip').onclick=finishGatheringFilm;
 $('gathering-view').onclick=()=>{
  if(storyCinematic())return;
@@ -822,10 +774,18 @@ $('gathering-view').onclick=()=>{
 };
 function storyAction(){
  if(!canPlayInput())return false;
- if(!gathering.collect(pos)&&!foxInvitation.interact(pos))return false;
+ if(!gathering.collect(pos)&&!foxInvitation.interact(pos)&&!dragonGuest.interact(pos))return false;
  chime();resetInput();updateGatheringUI();return true;
 }
 $('gathering-pickup').onclick=storyAction;
+$('dragon-guest-view').onclick=()=>{
+ if(storyCinematic()||!started||introActive||window.elyndraVisionOpen)return;
+ const beside=dragonGuest.phase==='ember',target=beside?dragonGuest.lantern:dragonGuest.travelTarget(),stand=dragonGuest.standpoint(),x=beside?stand[0]:target[0]+5,z=beside?stand[2]:target[2]+7;
+ pos=[x,ground(x,z)+2.4,z];const aim=beside?dragonGuest.along(4.4,.4):target,[dx,dy,dz]=[aim[0]-x,aim[1]+.6-pos[1],aim[2]-z];
+ yaw=Math.atan2(dx,-dz);pitch=Math.atan2(dy,Math.hypot(dx,dz));flying=false;
+ $('fly').textContent='Vliegen';$('travelmenu').hidden=true;$('instructions').hidden=true;resetInput();
+ if(dragonGuest.phase==='idle')toast('De draak komt uit zichzelf. Blijf hier rustig wachten tot hij landt.');
+};
 $('fox-invitation-view').onclick=()=>{
  if(storyCinematic()||!started||introActive||window.elyndraVisionOpen)return;
  if(!dwellers.springFound&&!foxInvitation.active&&foxInvitation.phase!=='done'){visitFox(true);return;}
@@ -844,16 +804,19 @@ function updateGatheringUI(){
  const foxNear=foxInvitation.cinematic||foxInvitation.phase==='carry'||Math.hypot(pos[0]-foxInvitation.travelTarget()[0],pos[2]-foxInvitation.travelTarget()[2])<38;
  const squirrelNear=gathering.cinematic||Math.hypot(pos[0]-gathering.position[0],pos[2]-gathering.position[2])<38;
  const foxHere=foxInvitation.active&&foxNear;
- const visible=(foxHere||gathering.active&&squirrelNear)&&started&&!introActive&&!window.elyndraVisionOpen&&$('instructions').hidden&&$('travelmenu').hidden;
+ $('dragon-guest-view').hidden=!dragonGuest.available&&!dragonGuest.reserved;
+ $('dragon-guest-view').textContent=dragonGuest.carried||dragonGuest.phase==='done'?'De gloedlantaarn · naar de moswachter':'Draak uitnodigen · bij zijn rustplek';
+ const dragonHere=dragonGuest.active&&(dragonGuest.cinematic||dragonGuest.carried||Math.hypot(pos[0]-dragonGuest.travelTarget()[0],pos[2]-dragonGuest.travelTarget()[2])<38);
+ const visible=(dragonHere||foxHere||gathering.active&&squirrelNear)&&started&&!introActive&&!window.elyndraVisionOpen&&$('instructions').hidden&&$('travelmenu').hidden;
  $('gathering-note').hidden=!visible;
- const action=foxHere?foxInvitation.action(pos):gathering.canCollect(pos)?'Pak de noot op':null;
+ const action=dragonHere?dragonGuest.action(pos):foxHere?foxInvitation.action(pos):gathering.canCollect(pos)?'Pak de noot op':null;
  $('gathering-pickup').hidden=!visible||!action;
  $('gathering-pickup').textContent=(action??'Pak de noot op')+(mobile?'':' · E');
  $('gathering-skip').hidden=!storyCinematic();
  if(!visible)return;
- $('gathering-note').setAttribute('aria-label',foxHere?'De tweede uitnodiging':'De eerste uitnodiging');
- $('gathering-eyebrow').textContent=foxHere?'DE SAMENKOMST · TWEEDE UITNODIGING':'DE SAMENKOMST · EERSTE UITNODIGING';
- const words=foxHere?foxInvitation.words():gathering.words(pos);
+ $('gathering-note').setAttribute('aria-label',dragonHere?'De derde uitnodiging':foxHere?'De tweede uitnodiging':'De eerste uitnodiging');
+ $('gathering-eyebrow').textContent=dragonHere?'DE SAMENKOMST · DERDE UITNODIGING':foxHere?'DE SAMENKOMST · TWEEDE UITNODIGING':'DE SAMENKOMST · EERSTE UITNODIGING';
+ const words=dragonHere?dragonGuest.words():foxHere?foxInvitation.words():gathering.words(pos);
  if($('gathering-title').textContent!==words[0])$('gathering-title').textContent=words[0];
  if($('gathering-words').textContent!==words[1])$('gathering-words').textContent=words[1];
  $('brook-caption').hidden=true;$('discovery').hidden=true;
@@ -864,7 +827,7 @@ const celebrations=[];
 addEventListener('elyndra-puzzle-solved',e=>{let p=locations[e.detail];if(p){if(e.detail===1){active=true;portalTime=0;}celebrations.push({x:p.x,z:p.z,age:0});chime();}});
 let talkSignature='';
 let prev=0,clock=0,discoveryTimer=0;function frame(ms){requestAnimationFrame(frame);const frameSeconds=Math.max(0,(ms-prev)/1000);let dt=Math.min(frameSeconds,.05);prev=ms;governQuality(frameSeconds);if(audioCtx&&cathedralGain){let distance=Math.hypot(pos[0]+48,pos[1]-13,pos[2]+59),near=Math.max(0,1-distance/52),audible=soundOn&&!window.elyndraVisionOpen&&!document.hidden?1:0;cathedralGain.gain.setTargetAtTime(near*near*audible*(.7+cathedralState.bloom*.9),audioCtx.currentTime,.6);rustleGain.gain.setTargetAtTime(near*(.3+.12*Math.sin(clock*.7))*audible,audioCtx.currentTime,.8);}if(brookGain){const audible=soundOn&&!document.hidden&&!window.elyndraVisionOpen?1:0;brookGain.gain.setTargetAtTime(wonderState.near*(.45+wonderState.bloom*.55)*audible,audioCtx.currentTime,.8);if(brookPan){const dx=BROOK.x-pos[0],dz=BROOK.z-pos[2];brookPan.pan.setTargetAtTime(Math.max(-1,Math.min(1,(Math.cos(yaw)*dx+Math.sin(yaw)*dz)/18)),audioCtx.currentTime,.3);}}
-if(dragonGain){const dp=invitationState.pose??encounterState,where=dp.position??dragonState.position;const d=Math.hypot(pos[0]-where[0],pos[2]-where[2]);const level=soundOn&&!document.hidden&&!window.elyndraVisionOpen?Math.max(0,1-d/22)*dp.settle*(.24+.1*Math.sin(clock*.8)+dp.bow*.2+invitationState.breath*.18):0;dragonGain.gain.setTargetAtTime(level,audioCtx.currentTime,.7);}if(gardenGain)gardenGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?companionState.gardenNear*companionState.bloom:0,audioCtx.currentTime,1.2);updateSoundBed(dt);if(rainGain)rainGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?skyState.rain*.2:0,audioCtx.currentTime,.9);if(dewGain)dewGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?dewState.falls*.4:0,audioCtx.currentTime,1);if(document.hidden||window.elyndraVisionOpen){$('brook-caption').hidden=true;$('finale-caption').hidden=true;return;}clock+=dt;mirrorState=deerMirror.update(dt,pos,started&&!introActive);deerState=deerAnimator.update(dt,clock,pos,reducedMotion,mirrorState.actor);reflectedState=reflectedDeer.update(dt,clock,pos,reducedMotion,mirrorState.reflection);brookStates=brookAnimators.map(a=>a.update(document.hidden?0:dt,clock,pos,reducedMotion));dragonState=dragonPose(clock,reducedMotion);const keeperDistance=Math.hypot(pos[0]-86,pos[2]-36);if(started&&!introActive){if(keeperDistance<24&&!keeperWasNear){keeperGreeting=clock;keeperWasNear=true;}if(keeperDistance>36)keeperWasNear=false;}keeperMotion=keeperPose(clock,keeperGreeting<0?-1:clock-keeperGreeting,pos,gy,reducedMotion);
+if(dragonGain){const dp=dragonGuest.reserved?{position:dragonState.position}:invitationState.pose??encounterState,where=dp.position??dragonState.position;const d=Math.hypot(pos[0]-where[0],pos[2]-where[2]);const level=soundOn&&!document.hidden&&!window.elyndraVisionOpen?Math.max(0,1-d/22)*dp.settle*(.24+.1*Math.sin(clock*.8)+dp.bow*.2+invitationState.breath*.18):0;dragonGain.gain.setTargetAtTime(level,audioCtx.currentTime,.7);}if(gardenGain)gardenGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?companionState.gardenNear*companionState.bloom:0,audioCtx.currentTime,1.2);updateSoundBed(dt);if(rainGain)rainGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?skyState.rain*.2:0,audioCtx.currentTime,.9);if(dewGain)dewGain.gain.setTargetAtTime(soundOn&&!document.hidden&&!window.elyndraVisionOpen?dewState.falls*.4:0,audioCtx.currentTime,1);if(document.hidden||window.elyndraVisionOpen){$('brook-caption').hidden=true;$('finale-caption').hidden=true;return;}clock+=dt;mirrorState=deerMirror.update(dt,pos,started&&!introActive);deerState=deerAnimator.update(dt,clock,pos,reducedMotion,mirrorState.actor);reflectedState=reflectedDeer.update(dt,clock,pos,reducedMotion,mirrorState.reflection);brookStates=brookAnimators.map(a=>a.update(document.hidden?0:dt,clock,pos,reducedMotion));dragonState=dragonPose(clock,reducedMotion);const keeperDistance=Math.hypot(pos[0]-86,pos[2]-36);if(started&&!introActive){if(keeperDistance<24&&!keeperWasNear){keeperGreeting=clock;keeperWasNear=true;}if(keeperDistance>36)keeperWasNear=false;}keeperMotion=keeperPose(clock,keeperGreeting<0?-1:clock-keeperGreeting,pos,gy,reducedMotion);
 skyState=atmosphere.update(dt,true);night=skyState.night;if(skyState.name!==$('time').textContent)syncTimeButton();if(Math.abs(skyState.hour-lastSunHour)>.35){lightMatrix=aimSun(skyState.sun);lastSunHour=skyState.hour;}if(skyState.phase!==weatherPhase){weatherPhase=skyState.phase;if(weatherPhase==='afterglow'&&started)toast('De regen trekt weg. Alles glinstert.');}
 if(storyCinematic()){wakeInterface();velocity=[0,0,0];headBob=0;updateGatheringCamera();}else if(introActive){wakeInterface();velocity=[0,0,0];headBob=0;updateIntro(dt);}else if(started){let mx=move[0]+(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0),mz=move[1]+(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0),l=Math.max(1,Math.hypot(mx,mz)),speed=(flying?16:6.5)*(keys.ShiftLeft?2.2:1);updateCalm(dt,Math.hypot(mx,mz)>.05||vertical!==0||!!keys.Space||!!keys.KeyC);updateSoundSteps(dt,Math.hypot(mx,mz)>.05);mx/=l;mz/=l;{const targetX=(Math.cos(yaw)*mx+Math.sin(yaw)*mz)*speed,targetZ=(Math.sin(yaw)*mx-Math.cos(yaw)*mz)*speed,targetY=flying?(vertical+(keys.Space?1:0)-(keys.KeyC?1:0)+mz*Math.sin(pitch)*.6)*speed:0;velocity=glide(velocity,[targetX,targetY,targetZ],dt,flying);}pos[0]+=velocity[0]*dt;pos[2]+=velocity[2]*dt;headBob=bob.update(Math.hypot(velocity[0],velocity[2])*dt,{grounded:!flying,running:!!keys.ShiftLeft,still:reducedMotion},dt);if(flying){pos[1]+=velocity[1]*dt;pos[1]=Math.max(Math.max(ground(pos[0],pos[2]),water)+2,Math.min(160,pos[1]))}else{let h=Math.max(ground(pos[0],pos[2]),water+.15)+2.4;if(Math.abs(pos[2]-35)<4&&Math.abs(pos[0]-river(35))<23)h=Math.max(h,4.4+Math.sin((pos[0]-river(35)+22)/44*Math.PI)*4);pos[1]+=(h-pos[1])*Math.min(1,dt*4)}for(let trunk of trunkColliders){if(pos[1]>ground(trunk.x,trunk.z)+trunk.h)continue;let dx=pos[0]-trunk.x,dz=pos[2]-trunk.z,dist=Math.hypot(dx,dz),r=trunk.r+.45;if(dist<r){if(dist<.001){pos[0]=trunk.x+r}else{pos[0]=trunk.x+dx/dist*r;pos[2]=trunk.z+dz/dist*r}}}const solidDragon=invitationState.pose??encounterState;
 if(solidDragon.position&&solidDragon.settle>.95&&pos[1]<solidDragon.position[1]+2.5){
@@ -872,7 +835,7 @@ if(solidDragon.position&&solidDragon.settle>.95&&pos[1]<solidDragon.position[1]+
  if(d<1.45){pos[0]=x+(d>.001?dx/d:1)*1.45;pos[2]=z+(d>.001?dz/d:0)*1.45;}
 }
 pos[0]=Math.max(-155,Math.min(155,pos[0]));pos[2]=Math.max(-235,Math.min(180,pos[2]));
-const talkCandidates=started&&!introActive?nearbySpeakers(pos,deerState.position,gy,squirrelState.position,foxInvitation.reserved?foxInvitation.pose(pos,reducedMotion):null).filter(id=>id!=='deer'||mirrorState.fade>.8):[],signature=talkCandidates.join(',');if(signature!==talkSignature){talkSignature=signature;dispatchEvent(new CustomEvent('elyndra-talk-near',{detail:talkCandidates}));}
+const talkCandidates=started&&!introActive?nearbySpeakers(pos,deerState.position,gy,squirrelState.position,foxInvitation.reserved?foxInvitation.pose(pos,reducedMotion):null,dragonGuest.speaker(pos,encounterState)).filter(id=>id!=='deer'||mirrorState.fade>.8):[],signature=talkCandidates.join(',');if(signature!==talkSignature){talkSignature=signature;dispatchEvent(new CustomEvent('elyndra-talk-near',{detail:talkCandidates}));}
 let nearest=locations.findIndex(p=>Math.hypot(pos[0]-p.x,pos[2]-p.z)<p.r+10);if(nearest!==window.elyndraNearest){window.elyndraNearest=nearest;dispatchEvent(new CustomEvent('elyndra-near',{detail:nearest}));}if(nearest>=0&&nearest!==lastPlace){lastPlace=nearest;discovered.add(nearest);let p=locations[nearest];$('chapter').textContent=`ONTDEKT · ${discovered.size} / 5`;$('place').textContent=p.name;$('story').textContent=p.text;$('discovery').hidden=false;discoveryTimer=clock+9;chime();if(discovered.size===5)toast('Alle vijf wonderen gevonden. Het woud blijft van jou om te verkennen.')}if(clock>discoveryTimer)$('discovery').hidden=true;$('act').hidden=Math.hypot(pos[0]-66,pos[2]+110)>30;$('act').textContent=active?'Poort laten rusten':'Activeer de poort';if(active){portalTime+=dt;if(portalTime>2&&Math.hypot(pos[0]-66,pos[2]+110)<6&&pos[1]<py+24){pos=[-96,48,-155];flying=true;$('fly').textContent='Landen';yaw=0;pitch=.1;active=false;toast('Aan de andere kant van het licht… de zwevende tuinen.')}}
 }else{yaw=-.29+(reducedMotion?0:Math.sin(clock*.065)*.035);pitch=.16;pos[1]=ground(-20,30)+3.4+(reducedMotion?0:Math.sin(clock*.2)*.12)}
 wonderState=wonder.update(dt,pos,started&&!introActive);
@@ -895,6 +858,8 @@ const wasFilm=storyCinematic();
 gathering.update(gathering.cinematic?Math.min(frameSeconds,.5):dt,sceneCamera?.pos??pos,gatheringEnabled);
 foxInvitation.update(foxInvitation.cinematic?Math.min(frameSeconds,.5):dt,sceneCamera?.pos??pos,gatheringEnabled);
 if(foxInvitation.reserved)dwellerPoses.fox=foxInvitation.pose(sceneCamera?.pos??pos,reducedMotion);
+dragonGuest.available=foxInvitation.phase==='done'&&gathering.phase==='done'&&window.elyndraGame?.count()===4;
+dragonGuest.update(dragonGuest.cinematic?Math.min(frameSeconds,.5):dt,sceneCamera?.pos??pos,gatheringEnabled);
 if(wasFilm&&!storyCinematic())restoreGatheringCamera();
 if(gathering.justFinished){
  squirrelSecret.position=[...gathering.position];squirrelSecret.heading=gathering.heading;
@@ -911,8 +876,10 @@ else if(!reducedMotion)guideAnimator.heading=Math.atan2(-(gp[0]-oldGuide[0]),-(g
 guideState=guideAnimator.update(dt,clock,pos,reducedMotion);guideShadow=guideState;
 const flight=visitingFlight(wonderState.age,dragonState.position,reducedMotion);
 if(flight&&dragonEncounter.phase==='orbit'&&!invitationState.active){const delta=previousFlight?flight.map((v,k)=>v-previousFlight[k]):[0,0,0];const direction=Math.hypot(delta[0],delta[2])>.0001?Math.atan2(-delta[0],-delta[2]):dragonState.heading;dragonState=dragonPose(clock,reducedMotion,{position:flight,heading:direction});previousFlight=flight;}else previousFlight=null;
-encounterState=dragonEncounter.update(dt,dragonState,pos,companionState,started&&!introActive&&invitation.phase==='idle',reducedMotion);
-invitationState=invitation.update(dt,pos,dragonState,started&&!introActive,reducedMotion);
+// Zolang zijn uitnodiging openstaat komt de draak uit zichzelf rusten, ook zonder de slapende tuin.
+const dragonCalled=dragonGuest.available&&dragonGuest.phase==='idle';
+encounterState=dragonEncounter.update(dt,dragonState,pos,dragonCalled?{...companionState,discovered:true,gardenAge:99}:companionState,started&&!introActive&&invitation.phase==='idle'&&!dragonGuest.reserved,reducedMotion);
+invitationState=invitation.update(dt,pos,dragonState,started&&!introActive&&!dragonGuest.reserved,reducedMotion);
 if(invitationState.released){
  dragonEncounter.phase='orbit';dragonEncounter.position=null;dragonEncounter.calm=0;dragonEncounter.away=0;
  dragonEncounter.settle=0;dragonEncounter.bow=0;dragonEncounter.look=0;
@@ -920,6 +887,8 @@ if(invitationState.released){
 }
 const encounterPose=invitationState.pose??encounterState;
 if(encounterPose.position)dragonState=dragonPose(clock,reducedMotion,{...encounterPose,ground});
+// Als gast volgt de ene bestaande draak zijn eigen route naar de samenkomst.
+if(dragonGuest.reserved)dragonState=dragonPose(clock,reducedMotion,{...dragonGuest.pose(sceneCamera?.pos??pos),ground});
 if((squirrelState.near||companionState.gardenNear>.01||companionState.near>.01||wonderState.near>.01||Math.hypot(pos[0]+96,pos[2]+180)<85||Math.hypot(pos[0]-66,pos[2]+90)<55||keeperDistance<90||Math.hypot(pos[0]-deerState.position[0],pos[2]-deerState.position[2])<65)&&clock-lastKeeperShadow>(mobile?.5:.25)){renderShadows();lastKeeperShadow=clock;}
 noteWonders();
 if(wonderState.phase!==wonderPhase){
@@ -969,7 +938,7 @@ const cathedralSpeaking=cathedralState.near>=.2&&cathedralPhase!=='far'&&cathedr
 const gateSpeaking=gateState.near>=.2&&gatePhase!=='far'&&gatePhase!=='afterglow';
 const dewSpeaking=dewState.near>=.2&&dewPhase!=='far'&&dewPhase!=='afterglow';
 $('brook-caption').hidden=(!started||introActive||(Math.max(wonderState.near,companionState.near,companionState.gardenNear,cathedralState.near,gateState.near,dewState.near)<.2)||(!cathedralSpeaking&&!gateSpeaking&&!dewSpeaking&&clock>Math.max(wonderCaptionUntil,companionCaptionUntil,dragonCaptionUntil,cathedralCaptionUntil,gateCaptionUntil,dewCaptionUntil))||(wonderPhase==='far'&&companionPhase==='resting'&&cathedralPhase==='far'&&gatePhase==='far'&&dewPhase==='far'&&clock>Math.max(companionCaptionUntil,dragonCaptionUntil,cathedralCaptionUntil,gateCaptionUntil,dewCaptionUntil)))&&!(started&&!introActive&&clock<dwellerCaptionUntil);
-const mayInvite=started&&!introActive&&!foxInvitation.active&&!squirrelState.active&&invitation.canInvite(encounterState,pos);
+const mayInvite=started&&!introActive&&!guestBusy()&&!dragonGuest.reserved&&!squirrelState.active&&invitation.canInvite(encounterState,pos);
 const invitationVisible=started&&!introActive&&$('instructions').hidden&&$('travelmenu').hidden;
 inviteButton.hidden=!invitationVisible||!(mayInvite||invitationState.canFinish);
 const inviteLabel=invitationState.canFinish?'Laat het licht rusten'+(mobile?'':' · R'):'Ga je mee?'+(mobile?'':' · R');
@@ -1053,6 +1022,12 @@ if (!$('finale-caption').hidden) {
   $('discovery').hidden = true;
 }
 let heading=((yaw*180/Math.PI)%360+360)%360,dirs=['N','NO','O','ZO','Z','ZW','W','NW'];$('compass').textContent=`· · · ${dirs[Math.round(heading/45)%8]} · ${Math.round(heading)}° · · ·`;let sky=[.37*(1-night)+.025*night,.62*(1-night)+.055*night,.67*(1-night)+.11*night];const eyeHeight=pos[1];pos[1]+=headBob;post.begin();gl.clearColor(...sky,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);drawSky();gl.uniform1f(U.objectFade,1);gl.uniformMatrix4fv(U.vp,false,mul(projection,view()));gl.uniform3fv(U.eye,pos);gl.uniform1f(U.night,night);gl.uniform1f(U.time,clock);gl.uniform3fv(U.sunDir,skyState.sun);gl.uniform1f(U.warmth,skyState.warmth);gl.uniform1f(U.mistAmt,skyState.mist);gl.uniform1f(U.wet,skyState.wet);gl.uniform1f(U.wonder,wonderState.bloom);gl.uniform1f(U.gardenBloom,0);gl.uniform1f(U.cathedralBreath,cathedralState.bloom);gl.uniform1f(U.gateMirror,gateState.bloom);gl.uniform1f(U.lite,tier==='high'?0:1);gl.uniform4fv(U.keeperMotion,keeperMotion);gl.uniform1f(U.keeperBase,gy);gl.uniformMatrix4fv(U['animalBones[0]'],false,deerUniforms());draw(terrain);if(tier==='high'&&Math.hypot(pos[0]+48,pos[2]+65)<55){for(let j=0;j<22;j++){let a=j*2.399,t=reducedMotion?j*.73:clock,r=9+(j%5)*3,x=-48+Math.cos(a)*r+Math.sin(t*.3+j)*1.1,z=-65+Math.sin(a)*r+Math.cos(t*.24+j)*.8,y=ground(x,z)+1+((j*1.73-t*.38)%11+11)%11;draw(driftingLeaf,[x,y,z],a+t*.25);if(j%2===0)draw(mote,[x+1,ground(x,z)+2+Math.sin(t*.5+j)*.6,z+2]);}}for(let i=celebrations.length-1;i>=0;i--){let c=celebrations[i];c.age+=dt;if(c.age>14){celebrations.splice(i,1);continue;}for(let j=0;j<(tier==='high'?24:8);j++){let a=j*TAU/24+c.age*.6,r=3+c.age*.8;draw(mote,[c.x+Math.cos(a)*r,ground(c.x,c.z)+2+c.age*.8+Math.sin(a)*2,c.z+Math.sin(a)*r]);}}draw(riverMesh);const rich=tier==='high';for(let i=0;i<(rich?motes.length:0);i++){let m=motes[i],x=m.x+Math.sin(clock*.3+m.a)*3,z=m.z+Math.cos(clock*.25+m.a)*3;draw(mote,[x,Math.max(ground(x,z),water)+m.y+Math.sin(clock+m.a),z])}for(let i=0;i<(rich?drones.length:0);i++){let d=drones[i],a=clock*.13+d.a;draw(drone,[d.x+Math.cos(a)*12,ground(d.x,d.z)+8+Math.sin(clock+d.a)*1.3,d.z+Math.sin(a)*12],-a)}if(dewState.near>.02)for(let i=0;i<4;i++){const k=seedKeeper(i,dewState,reducedMotion);draw(drone,k.position,k.rotation)}draw(dwellerMeshes.vine);if(dwellerState.springFound&&Math.hypot(pos[0]-FOX.dig[0],pos[2]-FOX.dig[1])<75)draw(dwellerMeshes.spring);for(const id in dwellerPoses){const p=dwellerPoses[id];gl.uniform1f(U.objectFade,p.fade);gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(p.bones));draw(dwellerMeshes[id]);}gl.uniform1f(U.objectFade,1);if(Math.hypot(pos[0]-deerState.position[0],pos[2]-deerState.position[2])<80&&mirrorState.fade>.001){gl.uniform1f(U.objectFade,mirrorState.fade);draw(stagMesh);gl.uniform1f(U.objectFade,1);}if(companionState.near>.01){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(guideState.bones));draw(brookMesh);}for(let state of brookStates){if(Math.hypot(pos[0]-state.position[0],pos[2]-state.position[2])<70){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(state.bones));draw(brookMesh);}}if(Math.hypot(pos[0]-dragonState.position[0],pos[2]-dragonState.position[2])<95){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(dragonState.bones));draw(dragonMesh);}if(active){draw(portal,[66,py+12,-110],0);for(let j=0;j<(rich?24:4);j++){let a=j*TAU/(rich?24:4)+clock*.22,r=8.8-Math.sin(clock*.4+j)*.4;draw(mote,[66+Math.cos(a)*r,py+12+Math.sin(a)*r,-109.5+Math.sin(clock*.3+j)*.4]);}}
+if(dragonGuest.reserved){
+ const lantern=dragonGuest.offeringPosition()??(dragonGuest.carried?heldPosition(pos,yaw,pitch):null),warm=dragonGuest.glow();
+ if(lantern){draw(dragonOffering.shell,lantern);draw(warm>.6?dragonOffering.ember:dragonOffering.cold,lantern);
+  if(dragonGuest.breathing()&&!reducedMotion)for(let k=0;k<5;k++){const t=(clock*.55+k/5)%1,head=dragonGuest.along(3.4,2.2);draw(mote,[head[0]+(lantern[0]-head[0])*t,head[1]+(lantern[1]+.25-head[1])*t+Math.sin(t*Math.PI)*.25,head[2]+(lantern[2]-head[2])*t]);}
+  if(dragonGuest.phase==='ember')draw(mote,[lantern[0],lantern[1]+.85,lantern[2]]);}
+}
 const offering=foxInvitation.offeringPosition();
 if(offering){
  draw(foxOffering.shell,offering);
@@ -1145,7 +1120,7 @@ renderSparks(mul(projection,view()),sparks,canvas.height);
 post.end({sun:sunView.uv,rays:rayStrength({visible:sunView.visible,warmth:skyState.warmth,night,mist:skyState.mist}),tint:moonlit?[.62,.74,1]:[1,.86-.22*skyState.warmth,.62-.3*skyState.warmth],warmth:skyState.warmth,night,rich:tier==='high',time:clock});}
 pos[1]=eyeHeight;
 }requestAnimationFrame(frame);
-window.elyndraLook=()=>({pos:[...pos],flying,hour:skyState.hour,active,finale:{beat:finaleElapsed===null?null:finaleBeat,elapsed:finaleElapsed,leafOpened},cathedral:cathedralState,gate:gateState,dew:dewState,dwellers:dwellerState,dragon:encounterState,invitation:invitationState,squirrel:squirrelState,foxInvitation:foxInvitation.snapshot(),gathering:{phase:gathering.phase,elapsed:gathering.elapsed,nut:[...gathering.nut],meeting:[...gathering.meeting],cinematic:gathering.cinematic},mirror:mirrorState});
+window.elyndraLook=()=>({dragonGuest:dragonGuest.snapshot(),dragonAt:[...dragonState.position],pos:[...pos],flying,hour:skyState.hour,active,finale:{beat:finaleElapsed===null?null:finaleBeat,elapsed:finaleElapsed,leafOpened},cathedral:cathedralState,gate:gateState,dew:dewState,dwellers:dwellerState,dragon:encounterState,invitation:invitationState,squirrel:squirrelState,foxInvitation:foxInvitation.snapshot(),gathering:{phase:gathering.phase,elapsed:gathering.elapsed,nut:[...gathering.nut],meeting:[...gathering.meeting],cinematic:gathering.cinematic},mirror:mirrorState});
 
 window.elyndraCanInteract=canPlayInput;
 addEventListener('elyndra-vision-open',resetInput);
