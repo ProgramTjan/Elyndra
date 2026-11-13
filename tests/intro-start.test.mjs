@@ -453,3 +453,29 @@ assert.equal(window.elyndraLook().foxInvitation.phase,'done','The fox stays a gu
 assert.equal(window.elyndraLook().gathering.phase,'done');assert(window.elyndraLook().squirrel.revealed);
 for(let i=0;i<60;i++)frame(time+=50);assert.equal($('gathering-note').hidden,true,'The chapter closes quietly');
 console.log('Dragon guest: self-arrival, decline, dialogue handoff, fixed camera, pause, skip, reachable lantern, stillness, flight, landing and keeper handoff passed.');
+
+// The land behind the gate: walk through the awake gate, be answered by the tree, walk home through the arch.
+const realm=()=>window.elyndraLook().realm;
+assert.equal(realm().inside,false);
+$('destinations').children[1].onclick();for(let i=0;i<10;i++)frame(time+=50);
+for(let k=0;k<100&&!realm().inside;k++)walkTo(66,-118,4);release('KeyW');for(let i=0;i<5;i++)frame(time+=50);
+assert.equal(realm().inside,true,'Walking through the awake gate leads to the land behind it');
+assert.equal(realm().visited,true);
+assert(window.elyndraLook().pos[2]>1500);
+$('travel').onclick();assert.equal($('realm-view').hidden,false,'Once found, the land is listed for return visits');$('travel').onclick();
+walkTo(6,2008,500);release('KeyW');
+assert(Math.hypot(window.elyndraLook().pos[0],window.elyndraLook().pos[2]-2000)<17,'The stepping stones lead under the crown');
+assert.equal(realm().answered,false);for(let i=0;i<140;i++)frame(time+=50);
+assert.equal(realm().answered,true,'Standing still under the crown is answered');
+assert(realm().lit>=4,'The four heartbeats burn in the tree');
+key('KeyD');for(let i=0;i<4000;i++)frame(time+=50);release('KeyD');
+assert(Math.hypot(window.elyndraLook().pos[0],window.elyndraLook().pos[2]-2000)<=104.5,'The mist keeps the visitor on the island');
+for(let k=0;k<150&&Math.hypot(window.elyndraLook().pos[0]-27,window.elyndraLook().pos[2]-1985)>1.5;k++)walkTo(27,1985,4);release('KeyW');for(let i=0;i<80&&realm().inside;i++)frame(time+=50);
+assert.equal(realm().inside,false,'The light well in the pool lifts the visitor out of the land');
+assert(window.elyndraLook().flying&&window.elyndraLook().pos[1]>30,'It carries you to the floating gardens, as the gate used to');
+$('realm-view').onclick();for(let i=0;i<5;i++)frame(time+=50);
+for(let k=0;k<80&&realm().inside;k++)walkTo(0,2071,4);release('KeyW');
+assert.equal(realm().inside,false,'Walking through the arch returns to the valley');
+assert(window.elyndraLook().pos[2]>-110&&window.elyndraLook().pos[2]<-95,'You step out in front of the gate');
+for(let i=0;i<40;i++)frame(time+=50);assert.equal(realm().inside,false,'Stepping out does not send you back');
+console.log('Realm: gate passage, veil, menu entry, stepping stones, answer under the crown, containment and return through the arch passed.');

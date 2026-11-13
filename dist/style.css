@@ -62,3 +62,6 @@ body.calm #touch{opacity:.28;transition:opacity 1.8s ease}
 
 /* Eén gefluisterde aanwijzing in het reismenu, zolang er nog iets te vinden is. */
 #travelmenu .whisper{font-family:Georgia,serif;font-style:italic;font-size:15px;line-height:1.5;opacity:.92;color:#e3edb1;margin:4px 2px 14px;padding-left:12px;border-left:1px solid #e3edb18a}
+
+/* De sluier bij het doorlopen van de poort. */
+#realm-veil{position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 50%,#dffff7,#57d6c6 55%,#0d4a4c);opacity:0;transition:opacity 1.6s ease;z-index:6}#realm-veil.on{opacity:1;transition:opacity .18s ease}

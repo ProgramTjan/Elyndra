@@ -17,6 +17,9 @@ export const WONDERS=Object.freeze([
   {id:'deer',button:'deer-mirror-view',place:[11,135],found:['invitation','entering','searching','opening','beyond','returning'],
     whisper:'Aan het sterrenmeer drinkt een hert dat het niet altijd eens is met zijn spiegelbeeld. Ga naast hem staan.',
     name:'Het hert aan het sterrenmeer'},
+  {id:'realm',button:'realm-view',place:[66,-110],found:['entered'],
+    whisper:'Een wakkere poort is meer dan een boog van steen. Loop er eens doorheen.',
+    name:'Het land achter de poort'},
 ]);
 
 export function readJournal(storage){
