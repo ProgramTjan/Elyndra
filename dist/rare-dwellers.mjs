@@ -368,32 +368,53 @@ export function leaflingPose(d, route, ground, viewer, clock, lift = 0, reduced 
 
 // ---------- meshes ----------
 
-export function createDwellerMeshes({orb, cone, beam, curveTube, tri, upload, material}, ground) {
+export function createDwellerMeshes({orb, cone, beam, curveTube, tri, ruff = () => {}, upload, material}, ground) {
   const two = (a, b, c, col) => { tri(a, b, c, col); tri(a, c, b, col); };
   const bone = i => material((i + 5) * 10);
 
   // Root fox: russet coat, pale chest and tail tip, dark socks, amber eyes.
   const russet = [.62, .27, .09], cream = [.84, .78, .64], sock = [.13, .07, .04];
-  bone(0); orb(0, 0, 0, .21, .21, .47, russet, 16, 9); orb(0, -.06, -.33, .15, .16, .15, cream, 12, 7); orb(0, .02, .3, .19, .19, .2, russet, 12, 7);
+  const dusk = [.40, .16, .06];
+  bone(0); orb(0, 0, 0, .21, .21, .47, russet, 22, 12); orb(0, -.06, -.33, .15, .16, .15, cream, 14, 8); orb(0, .02, .3, .19, .19, .2, russet, 14, 8);
+  // Witte bef, donkere rugstreep en een ruige vacht op flanken en dijen.
+  ruff(0, -.06, -.33, .15, .16, .15, 70, .09, cream, {arc: [.9, 2.8], turn: [3.4, 6.0], sweep: [0, -.7, .15]});
+  ruff(0, 0, 0, .205, .205, .46, 60, .07, dusk, {arc: [0, .5], sweep: [0, .1, .9], width: .4});
+  ruff(0, 0, 0, .21, .21, .47, 170, .075, russet, {arc: [.55, 2.4], sweep: [0, -.25, .9], width: .4, tip: [.74, .40, .16]});
+  ruff(0, .02, .3, .19, .19, .2, 60, .08, russet, {arc: [.5, 2.5], turn: [-.2, 3.3], sweep: [0, -.3, .7], width: .4});
   bone(1);
-  orb(0, .05, -.06, .16, .14, .16, russet, 14, 8); orb(0, .0, -.25, .075, .065, .15, russet, 12, 7); orb(0, -.035, -.22, .07, .04, .13, cream, 10, 6);
+  orb(0, .05, -.06, .16, .14, .16, russet, 18, 10); orb(0, .0, -.25, .075, .065, .15, russet, 14, 8); orb(0, -.035, -.22, .07, .04, .13, cream, 12, 7);
+  // Wangkragen, een kuif tussen de oren en snorharen.
+  for (const side of [-1, 1]) {
+    ruff(side * .12, -.02, -.07, .07, .08, .06, 34, .10, cream, {arc: [.7, 2.5], turn: side > 0 ? [-1.1, 1.1] : [2.0, 4.2], sweep: [side * .7, -.35, .35]});
+    for (let j = 0; j < 4; j++) beam([side * .045, -.025, -.33], [side * (.20 + j * .012), -.06 + j * .028, -.30 + j * .012], .0035, [.92, .9, .84]);
+    orb(side * .075, .095, -.178, .03, .028, .012, [.05, .03, .02], 8, 5);
+  }
+  ruff(0, .05, -.06, .16, .14, .16, 60, .06, russet, {arc: [0, 1.5], turn: [-.3, 3.4], sweep: [0, .25, .8], width: .4, tip: [.74, .40, .16]});
   orb(0, .01, -.4, .03, .028, .028, sock, 8, 5); orb(-.12, -.02, -.07, .07, .08, .06, cream, 8, 5); orb(.12, -.02, -.07, .07, .08, .06, cream, 8, 5);
   for (const side of [-1, 1]) {
     two([side * .05, .15, -.06], [side * .15, .12, .02], [side * .13, .36, -.02], russet);
     two([side * .075, .16, -.07], [side * .135, .14, -.03], [side * .125, .31, -.05], sock);
+    ruff(side * .105, .2, -.05, .03, .07, .02, 10, .06, cream, {arc: [.3, 2.2], turn: [3.6, 5.8], sweep: [0, .6, -.4], width: .3});
     orb(side * .075, .09, -.19, .024, .022, .015, [1.25, .78, .22], 8, 5);
   }
-  bone(2); curveTube([[0, 0, 0], [0, -.06, .25], [0, -.12, .5]], [.06, .15, .13], russet, 10);
-  bone(3); curveTube([[0, 0, 0], [0, -.02, .18], [0, .02, .32]], [.13, .1, .015], cream, 10);
-  for (let i = 4; i < 8; i++) { bone(i); beam([0, 0, 0], [0, -.36, 0], .045, sock); orb(0, -.38, -.03, .05, .03, .07, sock, 8, 5); }
+  // Een volle pluimstaart met een roomwitte punt.
+  bone(2); curveTube([[0, 0, 0], [0, -.06, .25], [0, -.12, .5]], [.06, .15, .13], russet, 14);
+  for (let j = 0; j < 5; j++) { const t = j / 4; ruff(0, -.02 - t * .1, .08 + t * .4, .07 + t * .09, .07 + t * .09, .09, 46, .15, russet, {sweep: [0, -.05, .7], tip: dusk, width: .38}); }
+  bone(3); curveTube([[0, 0, 0], [0, -.02, .18], [0, .02, .32]], [.13, .1, .015], cream, 14);
+  for (let j = 0; j < 3; j++) { const t = j / 2; ruff(0, -.01, .04 + t * .2, .13 - t * .07, .13 - t * .07, .08, 40, .14, cream, {sweep: [0, 0, .8], width: .38}); }
+  for (let i = 4; i < 8; i++) { bone(i); beam([0, 0, 0], [0, -.36, 0], .045, sock); orb(0, -.38, -.03, .05, .03, .07, sock, 10, 6); ruff(0, -.08, 0, .06, .1, .06, 16, .07, russet, {arc: [.8, 2.3], sweep: [0, -.8, .2], width: .4}); }
   const fox = upload();
 
   // Silver wing: a soft barn-owl body, one feathered wing and one wing the keeper made.
   // The made wing catches moonlight: its plates are faintly luminous, so she reads at night.
   const plume = [.68, .6, .48], face = [.93, .89, .8], silver = [.62, .68, .74], moonplate = [.74, .82, 1.02], filament = [.7, 1.05, 1.2];
-  bone(0); orb(0, 0, 0, .2, .28, .18, plume, 14, 9); orb(0, -.03, -.1, .15, .21, .1, [.88, .83, .72], 12, 7);
+  bone(0); orb(0, 0, 0, .2, .28, .18, plume, 18, 11); orb(0, -.03, -.1, .15, .21, .1, [.88, .83, .72], 14, 8);
+  ruff(0, -.03, -.1, .15, .21, .1, 80, .07, [.9, .86, .76], {arc: [.5, 2.7], turn: [3.5, 5.9], sweep: [0, -.9, .1], width: .7, tip: [.7, .6, .45]});
+  ruff(0, 0, 0, .2, .28, .18, 80, .07, plume, {arc: [.3, 2.6], turn: [-.3, 3.4], sweep: [0, -.9, .2], width: .7, tip: [.5, .42, .3]});
   for (const side of [-1, 1]) orb(side * .07, -.29, -.04, .04, .03, .06, [.3, .25, .18], 8, 5);
-  bone(1); orb(0, .1, 0, .19, .16, .17, plume, 14, 9); orb(0, .1, -.11, .155, .13, .06, face, 14, 8);
+  bone(1); orb(0, .1, 0, .19, .16, .17, plume, 18, 11); orb(0, .1, -.11, .155, .13, .06, face, 16, 9);
+  ruff(0, .1, -.11, .16, .135, .05, 60, .035, [.62, .5, .36], {arc: [1.25, 1.9], turn: [0, 6.283], sweep: [0, 0, -.2], width: .8});
+  ruff(0, .1, 0, .19, .16, .17, 60, .05, plume, {arc: [0, 1.6], turn: [-.3, 3.4], sweep: [0, .1, .8], width: .6, tip: [.5, .42, .3]});
   orb(0, .06, -.175, .022, .04, .03, [.35, .3, .2], 8, 5);
   for (const side of [-1, 1]) {
     orb(side * .065, .12, -.16, .045, .045, .025, [1.4, 1, .38], 10, 6);
