@@ -20,12 +20,13 @@ import {GATE,GateWonder,createGateAtmosphere} from './gate-wonder.mjs?v=breath29
 import {GardenDew,HOVER,ISLANDS,seedKeeper,createDewAtmosphere} from './garden-dew.mjs?v=dew36';
 import {QualityGovernor,tierSettings,readRemembered,saveRemembered} from './quality-governor.mjs?v=guest48';
 import {WORLD_VERTEX,WORLD_FRAGMENT,DEPTH_FRAGMENT,SKY_VERTEX,SKY_FRAGMENT} from './shaders.mjs?v=fur49';
-import {REALM,WELL_SECONDS,inWell,inRealm,realmGround,contain,passage,arrival,homecoming,fruitStates,answer,Listening,readVisited,saveVisited} from './realm.mjs?v=realm50';
-import {createRealm} from './realm-scenery.mjs?v=realm50';
+import {REALM,WELL_SECONDS,inWell,inRealm,realmGround,contain,passage,arrival,homecoming,fruitStates,answer,Listening,readVisited,saveVisited} from './realm.mjs?v=stars51';
+import {Starcoats,createStarcoatMesh} from './starcoat.mjs?v=stars51';
+import {createRealm} from './realm-scenery.mjs?v=stars51';
 import {WONDERS,WonderJournal,readJournal,saveJournal,revealAll} from './wonder-journal.mjs?v=realm50';
-import {glide,HeadBob} from './gait.mjs?v=guest48';
+import {glide,HeadBob} from './gait.mjs?v=stars51';
 import {createPost,sunOnScreen,rayStrength} from './post.mjs?v=realm50';
-import {Footsteps,Stillness,BirdChorus,chorusProfile,surfaceAt,riverPresence,createVoices} from './soundscape.mjs?v=guest48';
+import {RealmChimes,Footsteps,Stillness,BirdChorus,chorusProfile,surfaceAt,riverPresence,createVoices} from './soundscape.mjs?v=stars51';
 import {CalmInterface,readCalmEnabled,saveCalmEnabled,isTap,inReach} from './calm-interface.mjs?v=guest48';
 import {DWELLERS,FOX_WATCH,FOX,RareDwellers,readMet,saveMet,readSpring,saveSpring,createDwellerMeshes,sparkPositions,createSparkRenderer} from './rare-dwellers.mjs?v=fur49';
 const $=id=>document.getElementById(id),canvas=$('world');
@@ -416,7 +417,8 @@ const dragonMesh=upload();material=0;let dragonState=dragonPose(0,true);
 const foxOffering=createFoxOffering({orb,curveTube,beam,upload,material:v=>{material=v;}});
 const dragonOffering=createDragonOffering({orb,curveTube,upload,material:v=>{material=v;}});material=0;
 const squirrelMeshes=createSquirrelSculptures({orb,cone,beam,curveTube,tri,ruff,upload,material:v=>{material=v;}});
-const dwellerMeshes=createDwellerMeshes({orb,cone,beam,curveTube,tri,ruff,upload,material:v=>{material=v;}},ground);material=0;
+const dwellerMeshes=createDwellerMeshes({orb,cone,beam,curveTube,tri,ruff,upload,material:v=>{material=v;}},ground);
+const starcoatMesh=createStarcoatMesh({orb,cone,beam,curveTube,tri,ruff,upload,material:v=>{material=v;}});material=0;material=0;
 for(const [x,z]of STUMPS)trunkColliders.push({x,z,r:.62,h:.85});
 trunkColliders.push({x:MONUMENT.x,z:MONUMENT.z,r:4.4,h:13});
 material=5;curveTube([[0,-.6,0],[.03,-.25,.04],[0,0,0]],[.065,.047,.028],[.14,.29,.17],7);
@@ -563,6 +565,9 @@ function drawRealm(){
  for(const [i,f] of realmStates.entries()){const sway=reducedMotion?0:Math.sin(clock*.7+i*1.9)*.08,y=ground(f.x,f.z)+f.height+sway;
   draw(f.lit?realmMeshes[f.kind]:realmMeshes.bud,[f.x,y,f.z],reducedMotion?0:clock*.15+i);
   if(f.lit&&pulse>0&&!reducedMotion)for(let k=0;k<3;k++){const t=(clock*.35+k/3+i*.17)%1;draw(mote,[f.x+Math.sin(t*6+i)*.5,y+.4+t*5*pulse,f.z+Math.cos(t*5+i)*.5]);}}
+ // De sterrenvachten aan de poel; wie hun vertrouwen heeft, ziet sterren van hun rug opstijgen.
+ for(const [i,p] of starcoats.poses(pos,clock,reducedMotion).entries()){gl.uniformMatrix4fv(U['animalBones[0]'],false,packBones(p.bones));draw(starcoatMesh);
+  if(p.trust>.25&&!reducedMotion)for(let k=0;k<3;k++){const t=(clock*.3+k/3+i*.4)%1;draw(mote,[p.position[0]+Math.sin(t*5+k)*.4,p.position[1]+1.5*p.size+t*2.6*p.trust,p.position[2]+Math.cos(t*4+k)*.4]);}}
  if(!reducedMotion)for(let k=0;k<6;k++){const t=(clock*.22+k/6)%1,a=k*1.9+clock*.4;draw(mote,[REALM.x+REALM.pool[0]+Math.cos(a)*1.1,water+.2+t*7,REALM.z+REALM.pool[1]+Math.sin(a)*1.1]);}
  if(!reducedMotion)for(let k=0;k<(mobile?10:22);k++){const a=k*2.399,r=10+(k%7)*9,t=clock*.07+k;draw(mote,[REALM.x+Math.cos(a+t*.3)*r,ground(REALM.x,REALM.z)+2.5+(k%5)*2.2+Math.sin(t*1.7)*1.2,REALM.z+Math.sin(a+t*.3)*r]);}
 }
@@ -656,12 +661,14 @@ function syncJournal(){for(const w of WONDERS)$(w.button).hidden=!journal.knows(
 function noteWonders(){const fresh=journal.observe({realm:realmVisited?'entered':'far',brook:wonderState.phase,cathedral:cathedralState.phase,gate:gateState.phase,dew:dewState.phase,deer:mirrorState.phase});if(!fresh.length)return;if(journalStorage)saveJournal(journalStorage,journal);syncJournal();toast(fresh[0].name+' staat voortaan bij Ontdek plekken.');}
 // Het land achter de poort: doorgang, herinneringsboom en terugkeer.
 let realmWell=0,realmVisited=journalStorage?readVisited(journalStorage):false,realmPrevious=null,realmStates=fruitStates([],[]),realmVeilTimer;
-const listening=new Listening();
+const listening=new Listening(),starcoats=new Starcoats(ground,journalStorage);
 function realmVeil(){$('realm-veil').classList.add('on');clearTimeout(realmVeilTimer);realmVeilTimer=setTimeout(()=>$('realm-veil').classList.remove('on'),700);}
 function enterRealm(){const a=arrival(ground);pos=a.pos;yaw=a.yaw;pitch=a.pitch;flying=false;velocity=[0,0,0];realmPrevious=null;$('fly').textContent='Vliegen';resetInput();realmVeil();chime();
  if(!realmVisited){realmVisited=true;if(journalStorage)saveVisited(journalStorage);toast('Je staat achter de poort. De boom in het midden heeft op je gewacht.');}else toast('Achter de poort is het altijd schemering.');}
 function leaveRealm(){const a=homecoming(ground);pos=a.pos;yaw=a.yaw;pitch=a.pitch;flying=false;velocity=[0,0,0];realmPrevious=null;$('fly').textContent='Vliegen';resetInput();realmVeil();chime();toast('De vallei, zoals je haar achterliet.');}
 function updateRealm(seconds,moving){
+ const hello=starcoats.update(seconds,pos,{moving,running:moving&&!!keys.ShiftLeft,grounded:!flying});
+ if(hello){toast('De sterrenvachten drinken verder. Eén heft haar kop en kijkt je aan, alsof ze je kent.');if(soundOn&&voices)voices.call({pan:.2});}
  const way=passage(realmPrevious,pos,{awake:active});
  if(way==='enter'){enterRealm();return;}if(way==='leave'){leaveRealm();return;}
  if(inRealm(pos)){const kept=contain(pos,ground);pos[0]=kept[0];pos[1]=kept[1];pos[2]=kept[2];
@@ -696,8 +703,8 @@ let audioCtx,audioGain,cathedralGain,rustleGain,brookGain,brookPan,gardenGain,dr
 // Het geluid van de vallei. De bedding (rivier, krekels, vogels) loopt altijd mee;
 // voetstappen en de stilte volgen de speler.
 let velocity=[0,0,0],headBob=0;const bob=new HeadBob();
-let voices=null,soundLast=null,soundStill=.35;const footsteps=new Footsteps(),stillness=new Stillness(),chorus=new BirdChorus();
-function updateSoundBed(seconds){if(!voices)return;const audible=soundOn&&!document.hidden&&!window.elyndraVisionOpen;if(!audible){voices.setRiver({level:0});voices.setCrickets(0);return;}if(inRealm(pos)){voices.setRiver({level:0});voices.setCrickets(0);return;}const profile=chorusProfile(skyState.hour,{rain:skyState.rain});voices.setRiver(riverPresence({across:river(pos[2])-pos[0],height:Math.max(0,pos[1]-ground(pos[0],pos[2])-2.4),yaw}));voices.setCrickets(profile.crickets);const call=chorus.update(seconds,profile,soundStill);if(call)voices.bird(call.species,call);}
+let voices=null,soundLast=null,soundStill=.35;const footsteps=new Footsteps(),stillness=new Stillness(),chorus=new BirdChorus(),realmChimes=new RealmChimes();
+function updateSoundBed(seconds){if(!voices)return;const audible=soundOn&&!document.hidden&&!window.elyndraVisionOpen;if(!audible){voices.setRiver({level:0});voices.setCrickets(0);voices.setRealm(0);return;}if(inRealm(pos)){voices.setRiver({level:0});voices.setCrickets(0);voices.setRealm(1);const wx=REALM.x+REALM.pool[0]-pos[0],wz=REALM.z+REALM.pool[1]-pos[2],side=Math.max(-1,Math.min(1,(Math.cos(yaw)*wx+Math.sin(yaw)*wz)/14));for(const e of realmChimes.update(seconds,{stillness:soundStill,poolDistance:Math.hypot(wx,wz)})){if(e.type==='bell')voices.bell(e.note,e);else voices.drip({distance:e.distance,pan:side});}return;}voices.setRealm(0);const profile=chorusProfile(skyState.hour,{rain:skyState.rain});voices.setRiver(riverPresence({across:river(pos[2])-pos[0],height:Math.max(0,pos[1]-ground(pos[0],pos[2])-2.4),yaw}));voices.setCrickets(profile.crickets);const call=chorus.update(seconds,profile,soundStill);if(call)voices.bird(call.species,call);}
 function updateSoundSteps(seconds,moving){const moved=soundLast?Math.hypot(pos[0]-soundLast[0],pos[2]-soundLast[1]):0;soundLast=[pos[0],pos[2]];if(moved>3)velocity=[0,0,0];const running=moving&&!!keys.ShiftLeft;soundStill=stillness.update(seconds,{moving,running});const side=footsteps.update(moved,{grounded:!flying,running});if(!side||!voices||!soundOn)return;voices.step(surfaceAt({height:ground(pos[0],pos[2]),water,onBridge:Math.abs(pos[2]-35)<4&&Math.abs(pos[0]-river(35))<23,wet:skyState.wet}),side,running);}
 $('sound').onclick=()=>{if(!audioCtx)initAudio();audioCtx.resume();soundOn=!soundOn;audioGain.gain.setTargetAtTime(soundOn?.65:0,audioCtx.currentTime,.4);$('sound').textContent=soundOn?'Geluid aan':'Geluid uit';$('sound').setAttribute('aria-label',soundOn?'Geluid uitzetten':'Geluid aanzetten')};
 function playChimeTone(frequency, delay=0) {
@@ -1178,7 +1185,7 @@ renderSparks(mul(projection,view()),sparks,canvas.height);
 post.end({sun:sunView.uv,rays:rayStrength({visible:sunView.visible,warmth:skyState.warmth,night,mist:skyState.mist}),tint:moonlit?[.62,.74,1]:[1,.86-.22*skyState.warmth,.62-.3*skyState.warmth],warmth:skyState.warmth,night,rich:tier==='high',time:clock,realm:inRealm(pos)?1:0});}
 pos[1]=eyeHeight;
 }requestAnimationFrame(frame);
-window.elyndraLook=()=>({realm:{inside:inRealm(pos),visited:realmVisited,lit:realmStates.filter(f=>f.lit).length,answered:listening.answered},dragonGuest:dragonGuest.snapshot(),dragonAt:[...dragonState.position],pos:[...pos],flying,hour:skyState.hour,active,finale:{beat:finaleElapsed===null?null:finaleBeat,elapsed:finaleElapsed,leafOpened},cathedral:cathedralState,gate:gateState,dew:dewState,dwellers:dwellerState,dragon:encounterState,invitation:invitationState,squirrel:squirrelState,foxInvitation:foxInvitation.snapshot(),gathering:{phase:gathering.phase,elapsed:gathering.elapsed,nut:[...gathering.nut],meeting:[...gathering.meeting],cinematic:gathering.cinematic},mirror:mirrorState});
+window.elyndraLook=()=>({starcoats:starcoats.snapshot(),realm:{inside:inRealm(pos),visited:realmVisited,lit:realmStates.filter(f=>f.lit).length,answered:listening.answered},dragonGuest:dragonGuest.snapshot(),dragonAt:[...dragonState.position],pos:[...pos],flying,hour:skyState.hour,active,finale:{beat:finaleElapsed===null?null:finaleBeat,elapsed:finaleElapsed,leafOpened},cathedral:cathedralState,gate:gateState,dew:dewState,dwellers:dwellerState,dragon:encounterState,invitation:invitationState,squirrel:squirrelState,foxInvitation:foxInvitation.snapshot(),gathering:{phase:gathering.phase,elapsed:gathering.elapsed,nut:[...gathering.nut],meeting:[...gathering.meeting],cinematic:gathering.cinematic},mirror:mirrorState});
 
 window.elyndraCanInteract=canPlayInput;
 addEventListener('elyndra-vision-open',resetInput);

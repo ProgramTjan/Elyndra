@@ -64,6 +64,21 @@ export class BirdChorus{
   }
 }
 
+// ── Achter de poort ─────────────────────────────────────────────────────────
+// Geen vogels daar: een zacht akkoord, glazen klokjes en druppels bij de poel.
+// Wie stilstaat, hoort meer klokjes, zoals het woud in de vallei meer gaat zingen.
+export const BELL_NOTES=Object.freeze([392,440,523.25,587.33,659.25,783.99,880]);
+export class RealmChimes{
+  constructor(random=Math.random){this.random=random;this.bell=3;this.drip=1.5;}
+  update(seconds,{stillness=.5,poolDistance=99}={}){
+    const dt=Math.max(0,seconds),r=this.random,events=[];
+    this.bell-=dt*(.5+1.3*clamp(stillness));
+    if(this.bell<=0){this.bell=3.5+r()*6;events.push({type:'bell',note:BELL_NOTES[Math.floor(r()*BELL_NOTES.length)],pan:r()*1.6-.8,distance:.2+.8*r()});}
+    if(poolDistance<32){this.drip-=dt;if(this.drip<=0){this.drip=.9+r()*3.2;events.push({type:'drip',distance:clamp(poolDistance/32)});}}
+    return events;
+  }
+}
+
 // ── De rivier ───────────────────────────────────────────────────────────────
 // across: afstand tot de oever, dwars op de stroom; positief = rivier ligt in +x.
 export function riverPresence({across=0,height=0,yaw=0,reach=48}={}){
@@ -164,5 +179,31 @@ export function createVoices(ctx,out){
   }
   function setCrickets(level=0,ease=2){cricketGain.gain.setTargetAtTime(level*.02,now(),ease);}
 
-  return {step,bird,setRiver,setCrickets};
+  // Achter de poort: een zwevend akkoord dat langzaam ademt.
+  const realmGain=gain(0),realmTone=filter('lowpass',1500,.6);chain(realmTone,realmGain,out);if(air){const send=gain(.5);realmGain.connect(send);send.connect(air);}
+  for(const [f,level,rate] of [[196,.5,.07],[293.66,.36,.11],[392,.3,.05],[493.88,.16,.09],[587.33,.12,.13]]){
+    const o=ctx.createOscillator(),v=gain(level*.5),l=ctx.createOscillator(),d=gain(level*.5);o.frequency.value=f*(1+(Math.random()-.5)*.004);l.frequency.value=rate;
+    l.connect(d);d.connect(v.gain);chain(o,v,realmTone);o.start();l.start();}
+  function setRealm(level=0,ease=1.5){realmGain.gain.setTargetAtTime(level*.06,now(),ease);}
+  // Een glazen klokje: grondtoon met een hoge boventoon en een lange uitklank.
+  function bell(note=523.25,{pan=0,distance=.5}={}){
+    const t=now()+.02,far=clamp(distance),bus=gain((1-.6*far)*.09),p=panner();if(p)p.pan.value=clamp(pan,-1,1);chain(bus,p,out);
+    if(air){const send=gain(.5+.5*far);(p??bus).connect(send);send.connect(air);}
+    for(const [ratio,level,decay] of [[1,1,2.6],[2.76,.32,1.1],[5.4,.1,.5]]){const o=ctx.createOscillator(),g=gain(0);o.frequency.value=note*ratio;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(level,t+.006);g.gain.exponentialRampToValueAtTime(.0004,t+decay);chain(o,g,bus);o.start(t);o.stop(t+decay+.05);}
+  }
+  // Een druppel in stil water.
+  function drip({distance=.5,pan=.3}={}){
+    const t=now()+.02,o=ctx.createOscillator(),g=gain(0),p=panner(),f=900+Math.random()*700;if(p)p.pan.value=pan;
+    o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*1.9,t+.07);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.07*(1-.7*clamp(distance)),t+.004);g.gain.exponentialRampToValueAtTime(.0004,t+.16);
+    chain(o,g,p,out);if(air){const send=gain(.6);g.connect(send);send.connect(air);}o.start(t);o.stop(t+.2);
+  }
+  // De zachte roep van een sterrenvacht: twee lage fluittonen.
+  function call({pan=0}={}){
+    const t=now()+.05,bus=gain(.07),tone=filter('lowpass',1400),p=panner();if(p)p.pan.value=clamp(pan,-1,1);chain(bus,tone,p,out);if(air){const send=gain(.8);(p??tone).connect(send);send.connect(air);}
+    for(const [at,from,to,dur] of [[0,330,392,.55],[.7,392,349,.8]]){const o=ctx.createOscillator(),g=gain(0);o.frequency.setValueAtTime(from,t+at);o.frequency.exponentialRampToValueAtTime(to,t+at+dur);
+      g.gain.setValueAtTime(0,t+at);g.gain.linearRampToValueAtTime(1,t+at+.12);g.gain.setValueAtTime(1,t+at+dur-.2);g.gain.linearRampToValueAtTime(0,t+at+dur);chain(o,g,bus);o.start(t+at);o.stop(t+at+dur+.05);}
+  }
+  return {step,bird,setRiver,setCrickets,setRealm,bell,drip,call};
 }

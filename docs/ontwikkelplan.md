@@ -63,7 +63,7 @@ Na de wortelvos: **Ontdek plekken → Draak uitnodigen · bij zijn rustplek**. W
 
 ## Uitbreiding: het land achter de poort
 
-Gebouwd op 13 november 2026 naar de visie van de lichtpoort. De wakkere poort leidt naar een schemerwoud met de Herinneringsboom, die laat zien wat de speler in de vallei heeft gevonden en gewekt. De poort bracht je eerder rechtstreeks naar de zwevende tuinen; die route loopt nu via de lichtbron in de poel. Logica in `dist/realm.mjs`, landschap in `dist/realm-scenery.mjs`. Open voor een volgende ronde: bewoners (de sterrenvachten uit de visie), eigen geluid en de ruïnes op de kliffen.
+Gebouwd op 13 november 2026 naar de visie van de lichtpoort. De wakkere poort leidt naar een schemerwoud met de Herinneringsboom, die laat zien wat de speler in de vallei heeft gevonden en gewekt. De poort bracht je eerder rechtstreeks naar de zwevende tuinen; die route loopt nu via de lichtbron in de poel. Logica in `dist/realm.mjs`, landschap in `dist/realm-scenery.mjs`. Dezelfde dag aangevuld met de sterrenvachten aan de poel (`dist/starcoat.mjs`), een eigen klank en een dichter woud met reuzen aan de rand. Open voor een volgende ronde: de ruïnes op de kliffen uit dezelfde visie, en schaduwen in dit gebied.
 
 ## Techniek: world.js opsplitsen
 
