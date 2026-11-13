@@ -1,6 +1,6 @@
 // Loopgevoel: een korte aanloop en uitloop in plaats van aan/uit bewegen,
 // en een kleine deining van de blik in het ritme van de voetstappen.
-import {STRIDE} from './soundscape.mjs?v=found47';
+import {STRIDE} from './soundscape.mjs?v=guest48';
 
 // Beweeg de snelheid naar het doel toe. Te voet snel en vast, vliegend met meer zweef.
 export function glide(velocity,target,seconds,flying=false){

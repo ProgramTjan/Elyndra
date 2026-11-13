@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';import fs from 'node:fs';
-const uniformNames=new Set([...(fs.readFileSync(new URL('../dist/deer-mirror.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/world.js',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/brook-wonder.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/atmosphere.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/cathedral-wonder.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/gate-wonder.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/post.mjs',import.meta.url),'utf8')).matchAll(/uniform\s+\w+\s+(\w+)/g)].map(m=>m[1]));
+const uniformNames=new Set([...(fs.readFileSync(new URL('../dist/deer-mirror.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/world.js',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/brook-wonder.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/atmosphere.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/cathedral-wonder.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/gate-wonder.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/post.mjs',import.meta.url),'utf8')+fs.readFileSync(new URL('../dist/shaders.mjs',import.meta.url),'utf8')).matchAll(/uniform\s+\w+\s+(\w+)/g)].map(m=>m[1]));
 let raf;const nodes=new Map(),events=new Map();let eye,viewYaw,viewPitch;
 const gl=new Proxy({FRAMEBUFFER_COMPLETE:1,checkFramebufferStatus:()=>1,getShaderParameter:()=>true,getProgramParameter:()=>true,createShader:()=>({}),createProgram:()=>({}),createVertexArray:()=>({}),createBuffer:()=>({}),bufferData:(target,data)=>{assert(data.every(Number.isFinite),'Uploaded geometry must be finite')},createTexture:()=>({}),createFramebuffer:()=>({}),getUniformLocation:(p,n)=>{assert(uniformNames.has(n.split('[')[0]),'Shader uniform exists: '+n);return n},uniform1f:(u,v)=>{if(u==='yaw')viewYaw=v;if(u==='pitch')viewPitch=v},uniformMatrix4fv:(u,t,v)=>{assert(Array.from(v).every(Number.isFinite),'Shader matrices must be finite')},uniform3fv:(u,v)=>{if(u==='eye')eye=[...v]}},{get:(o,k)=>o[k]??(()=>{})});
 function element(){const handlers={};return{style:{},children:[],hidden:false,open:false,classList:{add(){},remove(){}},textContent:'',innerHTML:'',getContext:()=>gl,appendChild(e){this.children.push(e)},addEventListener(k,f){(handlers[k]??=[]).push(f)},emit(k,e){for(const f of handlers[k]??[])f(e)},focus(){},showModal(){this.open=true},close(){this.open=false;for(let f of handlers.close??[])f()},setAttribute(){},setPointerCapture(){}}}
@@ -408,3 +408,48 @@ chooseText('Dan bewaren we het bij elkaar.');frame(time+=50);
 assert.equal(window.elyndraLook().gathering.phase,'done');assert(window.elyndraLook().dwellers.springFound);
 assert(window.elyndraLook().squirrel.revealed,'Fox invitation preserves the old monument');
 console.log('Fox invitation: dialogue, decline, cinematic, fixed camera, skip, reachable fragment, keyboard pickup, mobile washing, pause, arrival and keeper handoff passed.');
+
+// The dragon as third guest: he comes to rest by himself, is invited in dialogue,
+// warms a seed lantern, and lands at the gathering once the visitor brings it.
+const guest=()=>window.elyndraLook().dragonGuest;
+frame(time+=50);assert.equal($('dragon-guest-view').hidden,false,'The third invitation opens after the fox has arrived');
+assert.equal(guest().phase,'idle');
+$('dragon-guest-view').onclick();
+for(let i=0;i<800&&!$('talk-near').textContent.startsWith('Praat met de draak');i++)frame(time+=50);
+assert.match($('talk-near').textContent,/^Praat met de draak/,'The dragon lands by himself and can be spoken to');
+$('talk-near').onclick();chooseText('Kom je ook naar de samenkomst?');chooseText('Straks. Ik kom terug.');frame(time+=50);
+assert.equal(guest().phase,'idle','Declining leaves the dragon as he was');
+const dragonBefore=window.elyndraLook().pos;
+$('talk-near').onclick();chooseText('Kom je ook naar de samenkomst?');chooseText('Ik help je. Laat maar zien.');
+assert.equal(guest().phase,'film');assert(!window.elyndraVisionOpen);assert.equal(window.elyndraCanInteract(),false);frame(time+=50);
+const dragonCamera=[...eye];key('KeyW');for(let i=0;i<20;i++)frame(time+=50);release('KeyW');
+assert.deepEqual(eye,dragonCamera,'Reduced motion keeps one fixed shot of the lantern');
+const dragonFilm=guest().elapsed;document.hidden=true;for(let i=0;i<20;i++)frame(time+=50);document.hidden=false;
+assert.equal(guest().elapsed,dragonFilm,'A hidden tab pauses the film');
+$('gathering-skip').onclick();assert.deepEqual(window.elyndraLook().pos,dragonBefore,'Skipping returns the visitor to where they stood');
+assert.equal(guest().phase,'ember');
+$('dragon-guest-view').onclick();frame(time+=50);
+assert.equal($('gathering-pickup').hidden,false,'The travel button brings the lantern within reach');
+assert.match($('gathering-pickup').textContent,/Neem de gloedlantaarn/);
+key('KeyE');release('KeyE');assert.equal(guest().phase,'kindle');
+key('KeyS');for(let i=0;i<120;i++)frame(time+=50);release('KeyS'); // backing away along the open path
+assert.equal(guest().phase,'kindle','Walking never settles the glow');
+$('help').onclick();const settling=guest().kindle;for(let i=0;i<40;i++)frame(time+=50);
+assert.equal(guest().kindle,settling,'An open panel pauses the settling');
+$('closehelp').onclick();for(let i=0;i<140;i++)frame(time+=50);
+assert.equal(guest().phase,'carry','Standing still lets the glow settle');
+assert.equal($('gathering-note').hidden,false,'The note explains where to carry the lantern');
+assert.match($('dragon-guest-view').textContent,/De gloedlantaarn/);
+$('dragon-guest-view').onclick();for(let i=0;i<220;i++)frame(time+=50);
+assert.equal(guest().phase,'offering','The dragon lands once the lantern reaches the gathering');
+assert(Math.hypot(...window.elyndraLook().dragonAt.map((v,i)=>v-guest().landing[i]))<.6,'The one existing dragon rests at his own place beside the guests');
+walkTo(91,46);frame(time+=50);$('talk-near').onclick();
+if(choices.children.some(b=>b.textContent==='De moswachter'))chooseText('De moswachter');
+chooseText('Ik breng warmte van de draak.');
+assert.match($('conversation-text').textContent,/Water, een teken en warmte/);
+assert.equal(guest().phase,'done');
+chooseText('Daar denken we samen over na.');frame(time+=50);
+assert.equal(window.elyndraLook().foxInvitation.phase,'done','The fox stays a guest');
+assert.equal(window.elyndraLook().gathering.phase,'done');assert(window.elyndraLook().squirrel.revealed);
+for(let i=0;i<60;i++)frame(time+=50);assert.equal($('gathering-note').hidden,true,'The chapter closes quietly');
+console.log('Dragon guest: self-arrival, decline, dialogue handoff, fixed camera, pause, skip, reachable lantern, stillness, flight, landing and keeper handoff passed.');

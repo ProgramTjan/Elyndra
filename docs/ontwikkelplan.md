@@ -29,11 +29,11 @@ Dit is een volgorde van ontwikkelrondes, geen kalenderbelofte. Omvang en tempo w
 Doel: een samenhangende nieuwe reis met nieuwsgierigheid, betekenisvolle handelingen en een afronding.
 
 1. **Gereed · de eerste uitnodiging:** na vier hartslagen vraag je de eekhoorn naar de samenkomst. Een scène van tien seconden laat hem afdalen en noten verzamelen. Eén noot rolt weg. De speler pakt hem op en loopt samen met hem naar de moswachter. Geen tijdslimiet; scène overslaan behoudt de opdracht; minder beweging begint direct bij de voorraad met een vaste detailcamera. Voortgang blijft bewaard en de oude monumentontmoeting blijft bestaan.
-2. **Nu · de wortelvos:** nodig hem na de eekhoorn uit bij zijn bron. Hij graaft een wortelfragment op. De speler spoelt het schoon en brengt het naar de moswachter, die het teken van zijn zaad herkent. De vos komt als tweede gast aan; voortgang en de aanwijzing blijven bewaard.
-3. **Daarna · de draak:** werk zijn uitnodiging uit vanuit zijn eigen activiteit. Een aankomst van de uil kan later het grotere verhaal over het zaad verbinden. Dit zijn vervolgrichtingen, nog geen gebouwde scènes.
-4. **Samenkomst en keuze:** laat de genodigden echt samenkomen. Bespreek waar het zaad mag groeien, bijvoorbeeld bij de bron of in de slapende tuin, en maak het gevolg zichtbaar. Een antwoord vanuit het andere bos kan het volgende hoofdstuk openen. Een nieuw gebied achter de poort blijft een afzonderlijke ontwerpbeslissing.
+2. **Gereed · de wortelvos:** nodig hem na de eekhoorn uit bij zijn bron. Hij graaft een wortelfragment op. De speler spoelt het schoon en brengt het naar de moswachter, die het teken van zijn zaad herkent. De vos komt als tweede gast aan; voortgang en de aanwijzing blijven bewaard.
+3. **Gereed · de draak:** hij brengt warmte. Hij ademt een koude zaadlantaarn aan; de speler laat de gloed stilstaand tot rust komen en draagt haar naar de moswachter, waar de draak als derde gast landt. Zie [de speelroute en controles](stap-6-draak.md). Een aankomst van de uil kan later het grotere verhaal over het zaad verbinden.
+4. **Nu · samenkomst en keuze:** laat de genodigden echt samenkomen. Bespreek waar het zaad mag groeien, bijvoorbeeld bij de bron of in de slapende tuin, en maak het gevolg zichtbaar. Een antwoord vanuit het andere bos kan het volgende hoofdstuk openen. Een nieuw gebied achter de poort blijft een afzonderlijke ontwerpbeslissing.
 
-De eerste ronde bouwde de eekhoornontmoeting; deze ronde voegt uitsluitend de wortelvos toe. Korte filmische momenten tonen activiteiten in dezelfde 3D-wereld en geven daarna de besturing terug; ze vervangen de handelingen van de speler niet.
+De eerste ronde bouwde de eekhoornontmoeting, de tweede de wortelvos, de derde de draak. Korte filmische momenten tonen activiteiten in dezelfde 3D-wereld en geven daarna de besturing terug; ze vervangen de handelingen van de speler niet.
 
 Gereed wanneer een nieuwe speler de verhaallijn zonder externe uitleg kan volgen, de belangrijkste keuze begrijpt en de afloop in de wereld herkent. Vrij verkennen blijft mogelijk.
 
@@ -59,4 +59,17 @@ Gereed wanneer gedrag leesbaar en gevarieerd is, routes niet vastlopen en bewone
 
 ## Eerstvolgende speelronde
 
-Na de eekhoorn: **Ontdek plekken → Wortelvos uitnodigen · bij de bron**. Nodig hem uit, neem het fragment en spoel het schoon. Breng het naar de moswachter en kies in het gesprek **Ik heb een wortelfragment voor je.** Zie [de speelroute en controles](stap-6-wortelvos.md). Hierna volgt de draak als derde gast.
+Na de wortelvos: **Ontdek plekken → Draak uitnodigen · bij zijn rustplek**. Wacht tot hij landt, nodig hem uit, neem de gloedlantaarn en blijf even stilstaan. Draag haar naar de moswachter en kies **Ik breng warmte van de draak.** Zie [de speelroute en controles](stap-6-draak.md). Hierna volgt de samenkomst met de keuze waar het zaad mag groeien.
+
+## Techniek: world.js opsplitsen
+
+`world.js` wordt in stappen kleiner gemaakt zonder gedrag te veranderen. Gedaan: de GLSL-bronnen staan in `shaders.mjs`. Nieuwe onderdelen sinds november 2026 staan elk in een eigen module met tests (`quality-governor`, `calm-interface`, `soundscape`, `post`, `gait`, `wonder-journal`, `dragon-guest`).
+
+Wat overblijft deelt veranderlijke toestand (`pos`, `yaw`, `verts`, `material`, de willekeurige reeks) en kan niet veilig los worden geknipt. De volgorde voor de volgende stappen:
+
+1. **Context:** canvas, `gl`, kwaliteit en `resize` naar één module, zodat andere modules die kunnen importeren.
+2. **Bouwstenen:** `tri`, `orb`, `beam`, `curveTube`, `leaves` en `upload` naar een bouwer met eigen toestand in plaats van losse globale variabelen.
+3. **Landschap:** terrein, bomen en plekken als functies die op die bouwer werken. Controle: de vertexbuffers moeten byte voor byte gelijk blijven.
+4. **Beeld en invoer:** de frame-lus opdelen in bijwerken, tekenen en interface.
+
+Elke stap krijgt een eigen pull request met de bestaande tests en een beeldvergelijking.

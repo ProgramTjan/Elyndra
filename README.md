@@ -156,3 +156,7 @@ Na de vier hartslagen kun je de eekhoorn uitnodigen voor een samenkomst bij de m
 ## De wortelvos komt ook
 
 Na de eerste gast verschijnt **Wortelvos uitnodigen · bij de bron** onder **Ontdek plekken**. Nodig hem uit, bekijk zijn vondst en spoel het wortelfragment schoon in de bron. Breng het naar de moswachter en laat hem in het gesprek het fragment zien. De vos komt als tweede gast; zijn geschenk geeft een aanwijzing over het zaad. Zie [de speelroute en controles](docs/stap-6-wortelvos.md).
+
+## De draak brengt warmte
+
+Na de wortelvos verschijnt **Draak uitnodigen · bij zijn rustplek** onder **Ontdek plekken**. Wacht tot hij landt, spreek hem aan en help hem: hij ademt een koude zaadlantaarn aan. Neem de gloedlantaarn en blijf even stilstaan tot de gloed tot rust komt. Draag haar naar de moswachter; de draak vliegt zijn eigen weg en landt als derde gast. Zie [de speelroute en controles](docs/stap-6-draak.md).
