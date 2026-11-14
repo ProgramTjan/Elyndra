@@ -1,4 +1,4 @@
-import {MONUMENT,STUMPS} from './squirrel-secret.mjs?v=gathering42';
+import {MONUMENT,STUMPS} from './squirrel-secret.mjs?v=story52';
 
 // The same sculpture in warm fur and weathered stone. Seven joints keep the
 // living squirrel's head, curled tail and paws attached during the journey.

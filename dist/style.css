@@ -65,3 +65,5 @@ body.calm #touch{opacity:.28;transition:opacity 1.8s ease}
 
 /* De sluier bij het doorlopen van de poort. */
 #realm-veil{position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 50%,#dffff7,#57d6c6 55%,#0d4a4c);opacity:0;transition:opacity 1.6s ease;z-index:6}#realm-veil.on{opacity:1;transition:opacity .18s ease}
+
+.reset-title{margin:22px 0 4px;font-size:17px;font-weight:600}#reset-status{margin:0 0 8px;opacity:.8;font-size:14px}#reset-choices{display:grid;gap:8px;margin-bottom:16px}.reset-choice{width:100%;text-align:left;white-space:pre-line;border-radius:14px;font-size:14px;line-height:1.35}

@@ -1,4 +1,4 @@
-import {REALM,FRUITS,realmGround} from './realm.mjs?v=stars51';
+import {REALM,FRUITS,realmGround} from './realm.mjs?v=story52';
 
 // Het landschap achter de poort. Eigen toevalsreeks: de vallei verschuift er niet door.
 export function createRealm({orb,cone,beam,curveTube,tri,upload,material},{mobile=false,water=-2.3}={}){

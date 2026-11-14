@@ -65,6 +65,12 @@ Na de wortelvos: **Ontdek plekken → Draak uitnodigen · bij zijn rustplek**. W
 
 Gebouwd op 13 november 2026 naar de visie van de lichtpoort. De wakkere poort leidt naar een schemerwoud met de Herinneringsboom, die laat zien wat de speler in de vallei heeft gevonden en gewekt. De poort bracht je eerder rechtstreeks naar de zwevende tuinen; die route loopt nu via de lichtbron in de poel. Logica in `dist/realm.mjs`, landschap in `dist/realm-scenery.mjs`. Dezelfde dag aangevuld met de sterrenvachten aan de poel (`dist/starcoat.mjs`), een eigen klank en een dichter woud met reuzen aan de rand. Open voor een volgende ronde: de ruïnes op de kliffen uit dezelfde visie, en schaduwen in dit gebied.
 
+## Verhaal: de stilte van Elyndra
+
+Gebouwd: de vier 2D-puzzels zijn vervangen door vier spellen in de wereld (`minigame-*.mjs`), de vallei volgt de herstelde ritmes (`valley-life.mjs`: rivierstand, kleur, zang), het einde is een keuze voor het zaad (`seed-choice.mjs`) en de speler kan terug naar eerdere situaties (`reset.mjs`). Opzet in `docs/verhaal.md`, afspraken tussen modules in `docs/minigames-contract.md`.
+
+Nog open: geurspoor van de vos, notenvoorraad van de eekhoorn, en een oordeel op een echt toestel over de draairichting van de schuif in de waterloop en de doffe kleuren aan het begin.
+
 ## Techniek: world.js opsplitsen
 
 `world.js` wordt in stappen kleiner gemaakt zonder gedrag te veranderen. Gedaan: de GLSL-bronnen staan in `shaders.mjs`. Nieuwe onderdelen sinds november 2026 staan elk in een eigen module met tests (`quality-governor`, `calm-interface`, `soundscape`, `post`, `gait`, `wonder-journal`, `dragon-guest`).

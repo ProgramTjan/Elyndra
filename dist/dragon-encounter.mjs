@@ -1,4 +1,4 @@
-import {ease} from './brook-wonder.mjs?v=dragon22';
+import {ease} from './brook-wonder.mjs?v=story52';
 
 export const DRAGON_REST=Object.freeze({x:-14,z:-40,heading:-1.862});
 const lerp=(a,b,t)=>a+(b-a)*t;

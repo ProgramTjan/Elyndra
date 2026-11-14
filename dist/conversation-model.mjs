@@ -14,12 +14,12 @@ export function conversationNode(who,node,context={}){
   invitation:{text:'“De eekhoorn brengt eten? Dan breng ik een herinnering.” Hij legt zijn oor tegen de aarde. “Hier ligt iets ouds. Wil je helpen?”',choices:[['Ik help je. Wat heb je gevonden?','foxStart'],['Straks. Ik kom terug.','end']]}
  },
  keeper:{
- start:{text:monument?'Zijn bescheidenheid is indrukwekkend, hè? Sinds jij zijn beeld hebt gezien, noemt hij mijn hand zijn ontvangstzaal. Ik heb besloten daar niet op in te gaan.':solved?(all?'Hoor je het? Vier hartslagen. Voor het eerst in lange tijd klinkt het woud weer als één geheel. Mijn boompje heeft vannacht een nieuw blad gemaakt.':'Daar ben je weer. Sinds jij het ritme herstelde, herken ik iets in het ruisen van de bladeren. Het klinkt… als een groet.'):(roots||gate||gardens)?'Er klinkt iets in de verte. Nog niet mijn ritme, maar het woud probeert al een zin te vormen.':met?'Je bent terug. Dat vind ik prettig. Het boompje ook, denk ik. Het heeft niets gezegd, maar kijk hoe recht het staat.':'Dag, reiziger. Voorzichtig met die kleine varen bij je voet. Hij heeft de hele ochtend aan dat nieuwe blad gewerkt.',choices:[['Wat bescherm je daar?','tree'],[solved?'Wat herinner je je nu?':'Wie heeft je gebouwd?','memory'],['Mag ik even bij je blijven?','sit']]},
+ start:{text:monument?'Zijn bescheidenheid is indrukwekkend, hè? Sinds jij zijn beeld hebt gezien, noemt hij mijn hand zijn ontvangstzaal. Ik heb besloten daar niet op in te gaan.':solved?(all?'Hoor je het? Vier ritmes. Water, licht, adem en stem. Voor het eerst in lange tijd klinkt de vallei weer als één geheel. Mijn boompje heeft vannacht een nieuw blad gemaakt.':'Daar ben je weer. Sinds jij het ritme herstelde, herken ik iets in het ruisen van de bladeren. Het klinkt… als een groet.'):(roots||gate||gardens)?'Er klinkt iets in de verte. Nog niet mijn ritme, maar de vallei wordt al een beetje wakker.':met?'Je bent terug. Dat vind ik prettig. Het boompje ook, denk ik. Het heeft niets gezegd, maar kijk hoe recht het staat.':'Dag, reiziger. Voorzichtig met die kleine varen bij je voet. Hij heeft de hele ochtend aan dat nieuwe blad gewerkt.',choices:[['Wat bescherm je daar?','tree'],[solved?'Wat herinner je je nu?':'Wie heeft je gebouwd?','memory'],['Mag ik even bij je blijven?','sit']]},
  tree:{text:'Een boom. Nog een heel kleine. Mijn handen zijn gemaakt om zware dingen vast te houden. Het duurde lang voordat ik begreep dat ik ze ook voorzichtig kon gebruiken.',choices:[['Waarom is juist dit boompje zo belangrijk?','promise'],['Hij lijkt zich hier thuis te voelen.','home']]},
  promise:{text:'Iemand legde ooit een zaadje in mijn hand en zei: “Bewaar iets dat nog kan groeien.” De stem ben ik kwijt. De belofte niet.',choices:[['Misschien komt die herinnering terug.','memory'],['Dan houden we samen een oogje op hem.','together']]},
  home:{text:'Ja. Hij heeft licht, water en een eekhoorn die ongevraagd tuinadvies geeft. Wat heeft een boom nog meer nodig?',choices:[['Ik blijf nog even.','sit'],['Tot later, moswachter.','end']]},
- memory:{text:solved?'Een hand, veel kleiner dan de mijne. Een lach. En andere stemmen, ver weg tussen de bomen. Ik denk dat de vier hartslagen ons ooit hielpen elkaar te verstaan — één zin, vier letters.':'Mijn eerste herinnering is lawaai. Daarna een lange stilte. Vier hartslagen vormden vroeger één taal. Het ritme in mijn borst is er één letter van, maar ik ben de zin kwijt.',choices:solved?[['Misschien vinden we de andere stemmen terug.','together'],['Vertel nog eens over het zaadje.','promise']]:[['Zal ik helpen het ritme terug te vinden?','help'],['Je hoeft het niet allemaal nu te weten.','sit']]},
- help:{text:'Graag. Mijn lichten kennen nog een stukje van de zin. Kijk rustig, luister met je ogen en geef het terug. Daarna kunnen we samen horen wat er veranderd is.',choices:[['Ik probeer je lichtritme te herstellen.','puzzle'],['Straks. Eerst even samen zitten.','sit']]},
+ memory:{text:solved?'Een hand, veel kleiner dan de mijne. Een lach. En andere stemmen, ver weg tussen de bomen. Ik denk dat de vier ritmes ons ooit hielpen elkaar te verstaan. Het water, het licht, de adem en de stem.':'Mijn eerste herinnering is lawaai. Daarna een lange stilte. De vallei leefde vroeger op vier ritmes. Ze zijn stilgevallen, en het zaad in mijn hand wil niet ontwaken. Mijn eigen ritme is de stem. Die ben ik kwijt.',choices:solved?[['Misschien vinden we de andere stemmen terug.','together'],['Vertel nog eens over het zaadje.','promise']]:[['Zal ik helpen het ritme terug te vinden?','help'],['Je hoeft het niet allemaal nu te weten.','sit']]},
+ help:{text:'Graag. Ik neurie nog in mijn klokjes, maar niemand antwoordt. Luister rustig en antwoord me over de klinkende stenen. Daarna horen we samen wat er veranderd is.',choices:[['Ik wil je antwoorden.','puzzle'],['Straks. Eerst even samen zitten.','sit']]},
  sit:{text:'Natuurlijk. We hoeven niets op te lossen terwijl we hier zijn. Soms is blijven al een heel vriendelijke daad.\n\nDe moswachter wacht. Hoog boven je ritselt één jong blad.',choices:[['Dit is een fijne plek.','peace'],['Ik ga weer een stukje dwalen.','end']]},
  peace:{text:'Dan bewaren we dit ogenblik. Niet in een machine. Gewoon… hier.',choices:[['Tot de volgende keer.','end']]},
  together:{text:'Samen. Ja, dat woord herken ik nog. Ga maar op ontdekking. Ik zorg dat er hier iets groens op je wacht.',choices:[['Tot snel.','end']]}
@@ -37,7 +37,7 @@ export function conversationNode(who,node,context={}){
  home:{text:'Zon op mijn oren, een boom naast mijn bed en een huisbaas die nooit haast heeft. Alleen de lift is nogal langzaam.',choices:[['Jullie passen goed bij elkaar.','keeper'],['En die noot van je?','nut']]},
  nut:{text:'Ik zoek een noot die ik heel slim verstopt heb. Zo slim dat ik mezelf heb verrast. Als ik hem niet vind, wordt het misschien een boom. Ook goed.',choices:[['Dat klinkt als tuinieren met een omweg.','garden'],['Ik duim voor je.','happy']]},
  garden:{text:'Precies! Eindelijk iemand die mijn werkwijze begrijpt. Ik noem het: eerst een tussendoortje, later een bos.',choices:[['Ga vooral zo door.','end'],['Wat vindt de moswachter ervan?','keeper']]},
- keeper:{text:solved?'Hij bromt weer een deuntje sinds jij hem geholpen hebt. Niet helemaal zuiver. Wel heel gezellig.':gate?'Hij kijkt soms naar het zuiden. Alsof de poort een woord vasthoudt dat hij niet kan zeggen.':'Hij vraagt iedere ochtend of ik goed geslapen heb. Ik zeg altijd ja. Zelfs als ik de halve nacht over hazelnoten heb nagedacht.',choices:[['Doe hem de groeten van mij.','end'],['Nog iets vrolijks?','happy']]},
+ keeper:{text:solved?'Hij bromt weer een deuntje sinds jij hem geholpen hebt. Niet helemaal zuiver. Wel heel gezellig.':gate?'Hij kijkt soms naar het zuiden. Alsof de poort iets vasthoudt dat hij zich bijna herinnert.':'Hij vraagt iedere ochtend of ik goed geslapen heb. Ik zeg altijd ja. Zelfs als ik de halve nacht over hazelnoten heb nagedacht.',choices:[['Doe hem de groeten van mij.','end'],['Nog iets vrolijks?','happy']]},
  happy:{text:'Er zit een nieuw blad aan het boompje. Niemand heeft eraan getrokken. Het is helemaal zelf gekomen! Ik vind dat knap.\n\nDe eekhoorn knikt tevreden.',choices:[['Ik ook. Tot snel!','end']]}
  }
  };
@@ -83,10 +83,32 @@ export function conversationNode(who,node,context={}){
   trees.keeper.start.choices[1]=['Ik breng warmte van de draak.','dragonWarmth'];
   trees.keeper.dragonWarmth={text:'De moswachter neemt de lantaarn in zijn hand, zoals hij vroeger een kleine draak vasthield. Het licht kruipt tussen zijn vingers door.\n\n“Hij weet het nog.” Zijn stem kraakt. “Het zaad heeft de hele winter in mijn hand gelegen, en mijn handen zijn van steen. Het had het koud.”\n\nAchter hem laat de draak zijn kop zakken. De vos kijkt naar de bron, de eekhoorn naar de hapjes.\n\n“Water, een teken en warmte. Nu hoeven we alleen nog te bedenken waar het mag groeien.”',choices:[['Daar denken we samen over na.','end']]};
  }
- if(guest==='done'){
+ const seedPhase=context.seedPhase??'closed',seedMoving=['carrying','planting','growing','grown'].includes(seedPhase);
+ if(guest==='done'&&!seedMoving){
   trees.keeper.start.text+=' “Drie gasten. Water, een teken en warmte. Het zaad wacht alleen nog op een plek.”';
- }else if(context.foxPhase==='done'){
+ }else if(context.foxPhase==='done'&&!seedMoving){
   trees.keeper.start.text+=' “Twee gasten en een herinnering. Het zaad kende de bron al.”'+(guest==='idle'?' Hij kijkt naar de lucht. “Mijn oude vriend rust vaak niet ver van de wortelkathedraal. Hij komt niet voor hapjes. Vraag hem toch maar.”':'');
+ }
+ // Het einde: het zaad kiest geen plek, de bezoeker wel. Geen keuze is fout.
+ if(who==='keeper'){
+  const keeper=trees.keeper,PLACE={spring:'de bron onder de wortelkathedraal',gardens:'de zwevende tuinen',realm:'het land achter de poort'};
+  const bless=(said,blessing,go)=>({text:`${said} “${blessing}”\n\n“${go}”`,choices:[['Ik breng het erheen.','end']]});
+  keeper.seedChoice={text:'De moswachter opent zijn hand. Het zaad ligt erin, warm, en het beweegt.\n\n“Achter de poort staat de Herinneringsboom. Dat is geen ander land. Het is wat dit zaad kan worden, als we het een plek geven.”\n\nHij kijkt naar de vos, de eekhoorn en de draak, en dan naar jou. “Waar mag het groeien? Geen plek is fout. Elke plek verandert de vallei op haar eigen manier.”',choices:[['Bij de bron.','seedSpring'],['In de zwevende tuinen.','seedGardens'],['Achter de poort.','seedRealm'],['Ik denk er nog over na.','end']]};
+  keeper.seedSpring=bless('“Bij de bron.” Hij knikt langzaam.','Wat bij de bron groeit, is van iedereen die drinkt.','Breng het naar de bron onder de wortelkathedraal en blijf er een tijdje stil naast staan.');
+  keeper.seedGardens=bless('“In de zwevende tuinen.” Hij kijkt omhoog.','Wat in de lucht groeit, reist verder dan wij.','Breng het naar de zwevende tuinen en blijf er een tijdje stil naast staan.');
+  keeper.seedRealm=bless('“Achter de poort.” Hij kijkt naar het zuiden.','Wat achter de poort groeit, wacht op wie nog komt.','Breng het door de lichtpoort naar de Herinneringsboom en blijf er een tijdje stil naast staan.');
+  if(seedPhase==='offered'){
+   keeper.start.text+=' Het zaad in zijn hand beweegt. “Het is wakker. Het vraagt waar het mag groeien.”';
+   keeper.start.choices.unshift(['Waar mag het zaad groeien?','seedChoice']);
+  }else if(seedPhase==='carrying'){
+   keeper.start.text+=` “Je draagt het zaad naar ${PLACE[context.seedPlace]??'zijn plek'}. Neem de tijd. Als je er bent, blijf er dan even stil naast staan.”`;
+   keeper.start.choices.unshift(['Ik kies toch een andere plek.','seedChoice']);
+  }else if(seedPhase==='planting'||seedPhase==='growing'){
+   keeper.start.text+=' “Het zaad is in de grond. Het heeft geen haast. Wij ook niet.”';
+  }else if(seedPhase==='grown'){
+   const after={spring:'De rivier is breder geworden, en helderder. Wie nu drinkt, drinkt een beetje van de jonge boom.',gardens:'Soms dwarrelen er lichtzaden over de vallei. Ik weet niet waar ze landen. Dat hoeft ook niet.',realm:'De poort slaapt niet meer. Aan de Herinneringsboom hangt een tiende vrucht.'}[context.seedPlace];
+   keeper.start.text+=` “${after?after+' ':''}Je kwam als bezoeker. Het woud kent je nu bij naam, ook al heb je die nooit gezegd.”`;
+  }
  }
  return trees[who]?.[node];
 }

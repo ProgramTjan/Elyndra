@@ -48,8 +48,8 @@ export function inWell(p){if(!inRealm(p))return false;const [lx,lz]=local(p);ret
 export function arrival(groundAt=realmGround){const x=REALM.x+REALM.arrive[0],z=REALM.z+REALM.arrive[1];return {pos:[x,groundAt(x,z)+2.4,z],yaw:0,pitch:.12};}
 export function homecoming(groundAt){const [x,z]=VALLEY_GATE.back;return {pos:[x,groundAt(x,z)+2.4,z],yaw:Math.PI,pitch:.04};}
 
-// Negen vruchten in een kring onder de kroon: vijf wonderen en vier hartslagen.
-const KINDS=[['brook','wonder','de adem aan de beek'],['heart0','heart','de eerste hartslag'],['cathedral','wonder','de adem van de kathedraal'],['heart1','heart','de tweede hartslag'],['gate','wonder','de spiegel van de poort'],['heart2','heart','de derde hartslag'],['dew','wonder','de dauw van de tuinen'],['heart3','heart','de vierde hartslag'],['deer','wonder','het hert en zijn spiegelbeeld']];
+// Negen vruchten in een kring onder de kroon: vijf wonderen en vier ritmes.
+const KINDS=[['brook','wonder','de adem aan de beek'],['heart0','heart','het ritme van het water'],['cathedral','wonder','de adem van de kathedraal'],['heart1','heart','het ritme van het licht'],['gate','wonder','de spiegel van de poort'],['heart2','heart','het ritme van de adem'],['dew','wonder','de dauw van de tuinen'],['heart3','heart','het ritme van de stem'],['deer','wonder','het hert en zijn spiegelbeeld']];
 export const FRUITS=Object.freeze(KINDS.map(([id,kind,name],i)=>{
   const angle=i*Math.PI*2/KINDS.length+.35,r=9.5+(i%3)*1.7;
   return Object.freeze({id,kind,name,x:REALM.x+Math.cos(angle)*r,z:REALM.z+Math.sin(angle)*r,height:3.3+(i%4)*.55});

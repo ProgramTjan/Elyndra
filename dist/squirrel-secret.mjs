@@ -1,5 +1,5 @@
-import {IDENTITY} from './deer-motion.mjs?v=dragon22';
-import {joint} from './wildlife-motion.mjs?v=dragon22';
+import {IDENTITY} from './deer-motion.mjs?v=story52';
+import {joint} from './wildlife-motion.mjs?v=story52';
 
 export const MONUMENT=Object.freeze({x:130,z:148,scale:4.2,base:1.6,crown:12.15});
 export const SECRET_KEY='elyndra-squirrel-monument-v1';
