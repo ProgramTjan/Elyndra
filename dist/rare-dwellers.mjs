@@ -1,5 +1,5 @@
-import {IDENTITY,multiply} from './deer-motion.mjs?v=dragon22';
-import {joint} from './wildlife-motion.mjs?v=dragon22';
+import {IDENTITY,multiply} from './deer-motion.mjs?v=story52';
+import {joint} from './wildlife-motion.mjs?v=story52';
 
 // Three inhabitants of the visions who sometimes step into the valley itself:
 // the root fox at dawn, the silver wing at night by the waking gate, and the

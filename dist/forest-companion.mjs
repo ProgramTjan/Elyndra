@@ -1,4 +1,4 @@
-import {BROOK,ease,guidePosition} from './brook-wonder.mjs?v=dragon22';
+import {BROOK,ease,guidePosition} from './brook-wonder.mjs?v=story52';
 
 export const GARDEN=Object.freeze({x:-9,z:-46});
 const distance=(a,b)=>Math.hypot(a[0]-b[0],a[2]-b[2]);

@@ -1,4 +1,4 @@
-import {DRAGON_REST} from './dragon-encounter.mjs?v=dragon22';
+import {DRAGON_REST} from './dragon-encounter.mjs?v=story52';
 
 // De draak als derde gast. Hij brengt geen eten en geen herinnering, maar warmte:
 // hij ademt een oude zaadlantaarn aan, de speler laat de gloed tot rust komen en

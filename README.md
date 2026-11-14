@@ -1,6 +1,6 @@
 # Elyndra · Het levende woud
 
-Een vrij te verkennen 3D-fantasiewereld waarin natuur en robotica samenleven, met gesprekken, vier puzzels, visioenen en een filmische introductie.
+Een vrij te verkennen 3D-fantasiewereld waarin natuur en robotica samenleven, met gesprekken, vier spellen in de wereld zelf, visioenen en een filmische introductie.
 
 [Speel Elyndra](https://programtjan.github.io/Elyndra/)
 
@@ -27,7 +27,7 @@ node --test tests/*.test.mjs
 ## Bestanden
 
 - `dist/`: website, wereld, interacties en beelden.
-- `tests/`: controles voor gesprekken, puzzels, introductie en bewegingen.
+- `tests/`: controles voor gesprekken, de vier ritmes, het zaad, herstellen, introductie en bewegingen.
 - `docs/art-direction.md`: visuele ontwerpkeuzes.
 - `.openai/hosting.json`: configuratie van een eerdere ChatGPT Site.
 
@@ -39,7 +39,7 @@ De afgesproken volgorde en het vergezicht staan in [het ontwikkelplan](docs/ontw
 
 In de visie van de lichtpoort zie je door de boog een turkoois woud. Dat land bestaat nu. Wek de poort en **loop erdoorheen**: je komt uit in een woud waar het altijd schemert.
 
-- In het midden staat de **Herinneringsboom**. Hij draagt negen vruchten: één voor elk van de vijf wonderen en één voor elke hartslag. Wat je in de vallei hebt gevonden of gewekt, brandt; de rest is nog een dichte knop.
+- In het midden staat de **Herinneringsboom**. Hij draagt negen vruchten: één voor elk van de vijf wonderen en één voor elk van de vier ritmes. Wat je in de vallei hebt gevonden of gewekt, brandt; de rest is nog een dichte knop.
 - Blijf ongeveer vijf seconden **stil onder de kroon** staan. De boom antwoordt: hoeveel vruchten branden en waar een knop nog op wacht.
 - Midden in de **poel** ligt een lichtbron. Blijf erin staan en ze tilt je naar de zwevende tuinen, zoals de poort dat vroeger zelf deed.
 - De **boog** aan de zuidkant brengt je terug naar de vallei, vlak voor de poort.
@@ -127,11 +127,28 @@ Na het graven blijft er water tussen de stenen staan. **Ontdek plekken → De br
 
 Schrikt hij voordat hij klaar is? Ga via zijn visioen opnieuw bij dageraad kijken. De zilvervleugel en het bladortje blijven hun bestaande natuurlijke ontmoetingen houden.
 
-## Vier hartslagen samen
+## Het verhaal: de vallei valt stil
 
-Na het herstellen van de vierde letter kies je op het beloningsscherm **Beluister de vier hartslagen bij de moswachter**. Je kunt ook eerst je visioen bekijken en later via **Avontuur** gaan. Dat werkt eveneens als je de vier letters tijdens een eerder bezoek hebt hersteld.
+Elyndra is stilgevallen. De rivier is bijna droog, de kleuren zijn dof en er zingen weinig vogels. De moswachter bewaart het laatste zaad. Vier ritmes zijn weg; je brengt ze terug op de plek zelf, zonder tijdsdruk en zonder dat je kunt verliezen. De volledige opzet staat in `docs/verhaal.md`.
 
-Bij de moswachter komen vier kleuren bij elkaar. Een zaaddrone daalt uit de tuinen. Bij de vierde hartslag buigt de moswachter zich naar zijn boompje. Er opent een nieuw blad dat je bij een volgend bezoek kunt terugvinden. Ook bij de wortels, poort en tuinen blijft een lichtje branden.
+| Ritme | Plek | Spel | Wat terugkomt |
+| --- | --- | --- | --- |
+| Het water | wortelkathedraal | **De waterloop**: draai zes sluisjes (E of de knop) tot alle drie de kommen vollopen | de rivier stijgt |
+| Het licht | lichtpoort | **Het lichtspoor**: draai drie spiegelstenen tot de straal de ring raakt | de poort ontwaakt, kleuren worden dieper |
+| De adem | zwevende tuinen | **De vlucht**: vang vliegend negen dauwdruppels en hang stil bij het hart | de vogels zingen weer |
+| De stem | moswachter | **Het luisterspel**: luister op de luistersteen en loop zijn melodie na over de klinkstenen | de wachter verstaat de vallei |
+
+De **Kroniek** (knop rechtsboven) vertelt wat er stil is en brengt je met **Breng me erheen** naar een spel. Na de samenkomst met eekhoorn, vos en draak biedt de moswachter het zaad aan. Jij kiest waar het groeit: bij de bron (bredere rivier), in de zwevende tuinen (lichtzaden over de vallei) of achter de poort (een tiende vrucht aan de Herinneringsboom).
+
+### Terug naar een eerdere situatie
+
+Onder **?** staat **Terug naar een eerdere situatie**: terug naar het begin, naar de gewekte vallei of naar de complete samenkomst (vóór de keuze van het zaad), en los daarvan gevonden wonderen of ontmoetingen vergeten. Elke keuze vraagt een tweede tik ter bevestiging. Instellingen blijven bewaard.
+
+## Vier ritmes samen
+
+Na het vierde ritme kies je in de Kroniek om de vier ritmes bij de moswachter te beluisteren. Je kunt ook eerst je visioen bekijken en later via **Kroniek** gaan. Dat werkt eveneens als je de vier letters tijdens een eerder bezoek hebt hersteld.
+
+Bij de moswachter komen vier kleuren bij elkaar. Een zaaddrone daalt uit de tuinen. Bij het vierde ritme buigt de moswachter zich naar zijn boompje. Er opent een nieuw blad dat je bij een volgend bezoek kunt terugvinden. Ook bij de wortels, poort en tuinen blijft een lichtje branden.
 
 De scène duurt ongeveer achttien seconden in speeltijd. Je kunt om je heen kijken, wegwandelen en opnieuw luisteren via **Avontuur**. Geluid volgt de geluidsknop. Met minder beweging verschijnen de vier lichten op vaste plekken. Als opslaan op het apparaat lukt, blijft het nieuwe blad ook na herladen zichtbaar.
 
@@ -165,7 +182,7 @@ Overgenomen uit Elyndra versie 19, broncommit `6a03ab841a28cb15f2716f9b0befafde8
 
 ## De eerste uitnodiging
 
-Na de vier hartslagen kun je de eekhoorn uitnodigen voor een samenkomst bij de moswachter. Spreek hem te voet aan en kies **Ik help je. Laat maar zien!** Je ziet hem zijn noten verzamelen; daarna pak je de weggerolde noot op met **E** of de knop en loop je samen terug. De scène is over te slaan en ondersteunt minder beweging. Via **Ontdek plekken → De samenkomst** hervat je de opdracht. Zie [de controle van deze eerste ontmoeting](docs/stap-6-eerste-uitnodiging.md).
+Na de vier ritmes kun je de eekhoorn uitnodigen voor een samenkomst bij de moswachter. Spreek hem te voet aan en kies **Ik help je. Laat maar zien!** Je ziet hem zijn noten verzamelen; daarna pak je de weggerolde noot op met **E** of de knop en loop je samen terug. De scène is over te slaan en ondersteunt minder beweging. Via **Ontdek plekken → De samenkomst** hervat je de opdracht. Zie [de controle van deze eerste ontmoeting](docs/stap-6-eerste-uitnodiging.md).
 
 ## De wortelvos komt ook
 

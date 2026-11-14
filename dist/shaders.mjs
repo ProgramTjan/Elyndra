@@ -5,7 +5,7 @@
 export const WORLD_VERTEX=`#version 300 es
 precision highp float;
 layout(location=0) in vec3 a;layout(location=1) in vec3 n;layout(location=2) in vec3 c;layout(location=3) in float material;
-uniform mat4 vp;uniform vec3 offset;uniform float rot;uniform float time;uniform float lite;uniform vec4 keeperMotion;uniform float keeperBase;uniform mat4 animalBones[18];uniform float gardenBloom;
+uniform mat4 vp;uniform vec3 offset;uniform float rot;uniform float time;uniform float lite;uniform vec4 keeperMotion;uniform float keeperBase;uniform mat4 animalBones[18];uniform float gardenBloom;uniform float riverDrop;
 out vec3 P;out vec3 N;out vec3 C;out float M;out float F;out vec3 L;
 void main(){mat3 r=mat3(cos(rot),0.,-sin(rot),0.,1.,0.,sin(rot),0.,cos(rot));float bone=floor(material/10.)-5.;vec3 local=a,localNormal=n;if(bone>=0.){int index=int(clamp(bone,0.,17.));local=(animalBones[index]*vec4(a,1.)).xyz;localNormal=mat3(animalBones[index])*n;}if(mod(material,10.)>5.5&&mod(material,10.)<6.5){float spread=mix(.20,1.,gardenBloom);local.xz*=spread;local.y+=(1.-gardenBloom)*length(a.xz)*1.15;localNormal=normalize(vec3(localNormal.x/spread,localNormal.y,localNormal.z/spread));}P=r*local+offset;N=r*localNormal;C=c;M=mod(material,10.);F=bone>=0.?1.:0.;L=a;
 float part=floor(material/10.);if(part>.5&&part<4.5){P.y+=keeperMotion.x*smoothstep(keeperBase+8.,keeperBase+12.,P.y);
@@ -13,6 +13,8 @@ if(part>1.5&&part<2.5){vec3 pivot=vec3(86.,keeperBase+19.+keeperMotion.x,36.);fl
 if(part>3.5){float b=keeperMotion.w;vec3 pivot=vec3(P.x,keeperBase+15.+keeperMotion.x,43.7);mat3 rx=mat3(1.,0.,0.,0.,cos(b),sin(b),0.,-sin(b),cos(b));P=pivot+rx*(P-pivot);N=rx*N;}}
 
 if(lite<.5&&M>1.5&&M<2.5){P.x+=sin(time*.85+P.x*.38+P.z*.2)*.065;P.z+=cos(time*.6+P.z*.4)*.035;}
+// Zolang het water niet terug is, staat de rivier laag. Het sterrenmeer (zuidelijk) blijft vol.
+if(M>3.5&&M<4.5)P.y-=riverDrop*(1.-smoothstep(80.,110.,P.z));
 gl_Position=vp*vec4(P,1.);}`;
 export const WORLD_FRAGMENT=`#version 300 es
 precision highp float;

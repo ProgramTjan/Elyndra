@@ -1,6 +1,6 @@
-import {IDENTITY,multiply} from './deer-motion.mjs?v=dragon22';
-import {joint} from './wildlife-motion.mjs?v=dragon22';
-import {REALM,inRealm,realmGround} from './realm.mjs?v=stars51';
+import {IDENTITY,multiply} from './deer-motion.mjs?v=story52';
+import {joint} from './wildlife-motion.mjs?v=story52';
+import {REALM,inRealm,realmGround} from './realm.mjs?v=story52';
 
 // De sterrenvachten: de donkere, met sterren bespikkelde dieren die in de poortvisie
 // aan het water drinken. Ze leven alleen achter de poort, aan de poel.

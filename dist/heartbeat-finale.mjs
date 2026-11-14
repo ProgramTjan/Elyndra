@@ -1,10 +1,10 @@
-// The four colours and tones follow the letters in the adventure overview,
-// regardless of which puzzle the visitor happened to finish last.
+// The four colours and tones follow the rhythms in the chronicle (water, light,
+// breath, voice), regardless of which one the visitor happened to restore last.
 export const HEARTBEATS = [
-  {name:'Het geheugen', words:'Een draad van honingkleurig licht klimt uit de wortels naar zijn hand.', colour:[1,.66,.22], note:261.63, from:[-13,-15,3]},
-  {name:'De drempel', words:'De lichtpoort antwoordt. Een blauwe gloed strijkt langs de bast.', colour:[.2,.9,1], note:329.63, from:[-15,1,-5]},
-  {name:'Het evenwicht', words:'Een zaaddrone daalt uit de tuinen en wacht boven het jonge hout.', colour:[.57,1,.42], note:392, from:[-9,10,-1]},
-  {name:'De stem', words:'De moswachter buigt zijn hoofd. “Bewaar iets dat nog kan groeien.” Een blad vouwt open.', colour:[1,.8,.47], note:523.25, from:[-10,-5,-6]}
+  {name:'Het water', words:'Uit de wortels klimt een draad van warm licht. Daaronder loopt het water weer.', colour:[1,.66,.22], note:261.63, from:[-13,-15,3]},
+  {name:'Het licht', words:'De lichtpoort antwoordt. Een blauwe gloed strijkt langs de bast, en de kleuren worden dieper.', colour:[.2,.9,1], note:329.63, from:[-15,1,-5]},
+  {name:'De adem', words:'Uit de tuinen daalt een groene adem. Eerst zingt één vogel, dan zingen ze allemaal.', colour:[.57,1,.42], note:392, from:[-9,10,-1]},
+  {name:'De stem', words:'De moswachter buigt zijn hoofd. “Bewaar iets dat nog kan groeien.” In zijn hand beweegt het zaad.', colour:[1,.8,.47], note:523.25, from:[-10,-5,-6]}
 ];
 export const BEAT_SECONDS = 4;
 export const FINALE_SECONDS = 18;

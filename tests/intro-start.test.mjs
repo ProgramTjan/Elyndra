@@ -78,7 +78,7 @@ walkTo(-8.25,-38.3);for(let i=0;i<220;i++)frame(time+=50);
 assert.equal($('dragon-invite').hidden,false,'A trusted greeting reveals the invitation');
 // Isolate the shared encounter boundary: an active squirrel journey must suppress
 // an otherwise valid dragon invitation, and releasing it restores the prompt.
-const {SquirrelSecret}=await import('../dist/squirrel-secret.mjs?v=gathering42');
+const {SquirrelSecret}=await import('../dist/squirrel-secret.mjs?v=story52');
 const originalSquirrelUpdate=SquirrelSecret.prototype.update;
 try{
  SquirrelSecret.prototype.update=function(...args){return {...originalSquirrelUpdate.apply(this,args),active:true};};
@@ -271,12 +271,13 @@ globalThis.localStorage = {
   setItem:(key,value) => finaleStore.set(key,value)
 };
 $('quest-body').querySelectorAll = () => [];
-for (const id of ['balance-check','quest-reward','quest-replay']) nodes.set(id,element());
+for (const id of ['quest-guide','quest-reward','quest-replay']) nodes.set(id,element());
 await import('../dist/quests.js');
 window.elyndraStartPuzzle(-1);
 assert($('quest-finale').hidden,'Three letters cannot open the finale');
 window.elyndraStartPuzzle(2);
-$('balance-check').onclick();
+assert.equal(typeof $('quest-guide').onclick,'function','An unrestored rhythm offers the way there instead of a puzzle');
+window.elyndraGame.solve(2);
 assert.equal($('quest-finale').hidden,false,'The fourth victory offers the finale with the vision reward');
 assert.equal(window.elyndraLook().finale.elapsed,null,'Victory leaves the player free to choose');
 $('quest-finale').onclick();
@@ -294,7 +295,7 @@ for(let i=0;i<370;i++){
   frame(time+=50);
   if(!$('finale-caption').hidden)witnessed.add($('finale-name').textContent);
 }
-assert.deepEqual([...witnessed],['Het geheugen','De drempel','Het evenwicht','De stem']);
+assert.deepEqual([...witnessed],['Het water','Het licht','De adem','De stem']);
 assert.equal(window.elyndraLook().finale.elapsed,null,'The scene returns to exploration');
 assert(horizontalDistance(eye,finalePosition)<.1,'The ceremony does not move the camera after arrival');
 assert.equal(finaleStore.get(bloomSave),'bloom');
